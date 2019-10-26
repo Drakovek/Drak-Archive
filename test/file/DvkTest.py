@@ -50,6 +50,7 @@ class DvkTest(unittest.TestCase):
         assert len(loaded_dvk.get_title()) == 0
         assert len(loaded_dvk.get_artists()) == 0
         assert loaded_dvk.get_time() == "0000/00/00|00:00"
+        assert len(loaded_dvk.get_web_tags()) == 0
         
     def test_read_write_dvk(self):
         """
@@ -68,6 +69,7 @@ class DvkTest(unittest.TestCase):
         self.dvk.set_title("WriteTestTitle")
         self.dvk.set_artists(["artist", "other artist"])
         self.dvk.set_int_time(1864, 10, 31, 7, 2)
+        self.dvk.set_web_tags(["test", "Tags"])
         
         #WRITE THEN READ
         self.dvk.set_file(file_path)
@@ -81,6 +83,8 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_artists()[0] == "artist"
         assert self.dvk.get_artists()[1] == "other artist"
         assert self.dvk.get_time() == "1864/10/31|07:02"
+        assert self.dvk.get_web_tags()[0] == "test"
+        assert self.dvk.get_web_tags()[1] == "Tags"
         
         #CHECK READING NON-EXISTANT FILE
         self.dvk.set_file(None)
@@ -149,7 +153,7 @@ class DvkTest(unittest.TestCase):
         assert len(self.dvk.get_artists()) == 0
         self.dvk.set_artists(None)
         assert len(self.dvk.get_artists()) == 0
-        self.dvk.set_artists(["artist10", "artist10", None, "artist1", "test10.0.0-stuff", "test10.0.20-stuff"])
+        self.dvk.set_artists(["artist10", "artist10", "", None, "artist1", "test10.0.20-stuff", "test10.0.0-stuff"])
         assert len(self.dvk.get_artists()) == 4
         assert self.dvk.get_artists()[0] == "artist1"
         assert self.dvk.get_artists()[1] == "artist10"
@@ -211,4 +215,19 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_time() == "0000/00/00|00:00"
         self.dvk.set_time("2017!10!06!05!00")
         assert self.dvk.get_time() == "2017/10/06|05:00"
+        
+    def test_get_set_web_tags(self):
+        """
+        Tests the get_web_tags and set_web_tags functions of the Dvk class.
+        """
+        self.dvk.set_web_tags()
+        assert len(self.dvk.get_web_tags()) == 0
+        self.dvk.set_web_tags(None)
+        assert len(self.dvk.get_web_tags()) == 0
+        self.dvk.set_web_tags(["tag1", "Tag2", "other tag", "tag1", None, ""])
+        assert len(self.dvk.get_web_tags()) == 3
+        assert self.dvk.get_web_tags()[0] == "tag1"
+        assert self.dvk.get_web_tags()[1] == "Tag2"
+        assert self.dvk.get_web_tags()[2] == "other tag"
+        
     

@@ -1,5 +1,6 @@
 import json
 from processing.StringProcessing import extend_int
+from processing.ListProcessing import clean_list
 class Dvk:
     """
     Class for handling DVK files.
@@ -29,6 +30,7 @@ class Dvk:
         self.set_title()
         self.set_artist()
         self.set_time()
+        self.set_web_tags()
         
     def write_dvk(self):
         """
@@ -43,6 +45,7 @@ class Dvk:
             dvk_info["title"] = self.get_title()
             dvk_info["artists"] = self.get_artists()
             dvk_info["time"] = self.get_time()
+            dvk_info["web_tags"] = self.get_web_tags()
             data["info"] = dvk_info
              
             #WRITE
@@ -67,6 +70,7 @@ class Dvk:
                         self.set_title(data["info"]["title"])
                         self.set_artists(data["info"]["artists"])
                         self.set_time(data["info"]["time"])
+                        self.set_web_tags(data["info"]["web_tags"])
             except:
                 print("Error reading DVK")
                 self.clear_dvk()
@@ -155,16 +159,7 @@ class Dvk:
         if artist_list == None:
             self.artists = []
         else:
-            artist_set = set(artist_list)
-            self.artists = list(artist_set)
-            count = 0
-            while count < len(self.artists):
-                if self.artists[count] == None or self.artists[count] == 0:
-                    del self.artists[count]
-                else:
-                    count = count + 1
-                    
-            self.artists = sorted(self.artists)
+            self.artists = sorted(clean_list(artist_list))
             
     def get_artists(self) -> list:
         """
@@ -215,8 +210,30 @@ class Dvk:
         """
         Returns the time published for the current DVK file.
         
-        Reuturns:
+        Returns:
             str: Time string of the time published for the DVK file
         """
         return self.time
+    
+    def set_web_tags(self, web_tag_list:list=None):
+        """
+        Sets the web tags for the current DVK file.
+        
+        Parameters:
+            web_tag_list (list): DVK web tags
+        """
+        if web_tag_list == None:
+            self.web_tags = []
+        else:
+            self.web_tags = clean_list(web_tag_list)
+            
+        
+    def get_web_tags(self) -> list:
+        """
+        Returns the web tags for the current DVK file.
+        
+        Returns:
+            list: DVK web tags
+        """
+        return self.web_tags
     
