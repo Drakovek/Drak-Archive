@@ -1,4 +1,5 @@
 import json
+from processing.StringProcessing import extend_int
 class Dvk:
     """
     Class for handling DVK files.
@@ -26,6 +27,7 @@ class Dvk:
         """
         self.set_id()
         self.set_title()
+        self.set_artist()
         
     def write_dvk(self):
         """
@@ -38,6 +40,7 @@ class Dvk:
             
             dvk_info = dict()
             dvk_info["title"] = self.get_title()
+            dvk_info["artists"] = self.get_artists()
             data["info"] = dvk_info
              
             #WRITE
@@ -60,6 +63,7 @@ class Dvk:
                     if data["file_type"] == "dvk":
                         self.set_id(data["id"])
                         self.set_title(data["info"]["title"])
+                        self.set_artists(data["info"]["artists"])
             except:
                 print("Error reading DVK")
                 self.clear_dvk()
@@ -119,7 +123,7 @@ class Dvk:
         else:
             self.title = title_str
             
-    def get_title(self):
+    def get_title(self) -> str:
         """
         Returns the title for the current DVK file.
         
@@ -127,4 +131,48 @@ class Dvk:
             str: DVK title
         """
         return self.title
+    
+    def set_artist(self, artist_str:str=None):
+        a_list = [artist_str]
+        self.set_artists(a_list)
+    
+    def set_artists(self, artist_list:list=None):
+        if artist_list == None:
+            self.artists = []
+        else:
+            artist_set = set(artist_list)
+            self.artists = list(artist_set)
+            count = 0
+            while count < len(self.artists):
+                if self.artists[count] == None or self.artists[count] == 0:
+                    del self.artists[count]
+                else:
+                    count = count + 1
+                    
+            self.artists = sorted(self.artists)
+            
+    def get_artists(self) -> list:
+        return self.artists
+    
+    def set_int_time(self, year_int:int=0, month_int:int=0, day_int:int=0, hour_int:int=0, minute_int:int=0):
+        if (year_int == None or year_int < 1 or
+            month_int == None or month_int < 1 or month_int > 12 or
+            day_int == None or day_int < 1 or day_int > 31 or
+            hour_int == None or hour_int < 0 or hour_int > 23 or
+            minute_int == None or minute_int < 0 or minute_int > 59):
+            self.time = "0000/00/00|00:00"
+        else:
+            self.time = extend_int(year_int, 4) + "/" + extend_int(month_int, 2) + "/" + extend_int(day_int, 2) + "|" + extend_int(hour_int, 2) + ":" + extend_int(minute_int, 2)
+
+    def set_time(self, time_str:str=None):
+        if time_str == None or not len(time_str) == 16:
+            self.time = "0000/00/00|00:00"
+        else:
+            try:
+                self.set_int_time(int(time_str[0:4]), int(time_str[5:7]), int(time_str[8:10]), int(time_str[11:13]), int(time_str[14:16]))
+            except ValueError:
+                self.time = "0000/00/00|00:00"
+ 
+    def get_time(self) -> str:
+        return self.time
     
