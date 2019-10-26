@@ -49,6 +49,7 @@ class DvkTest(unittest.TestCase):
         assert len(loaded_dvk.get_id()) == 0
         assert len(loaded_dvk.get_title()) == 0
         assert len(loaded_dvk.get_artists()) == 0
+        assert loaded_dvk.get_time() == "0000/00/00|00:00"
         
     def test_read_write_dvk(self):
         """
@@ -66,6 +67,7 @@ class DvkTest(unittest.TestCase):
         self.dvk.set_id("id1234")
         self.dvk.set_title("WriteTestTitle")
         self.dvk.set_artists(["artist", "other artist"])
+        self.dvk.set_int_time(1864, 10, 31, 7, 2)
         
         #WRITE THEN READ
         self.dvk.set_file(file_path)
@@ -78,6 +80,7 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_title() == "WriteTestTitle"
         assert self.dvk.get_artists()[0] == "artist"
         assert self.dvk.get_artists()[1] == "other artist"
+        assert self.dvk.get_time() == "1864/10/31|07:02"
         
         #CHECK READING NON-EXISTANT FILE
         self.dvk.set_file(None)
@@ -153,7 +156,10 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_artists()[2] == "test10.0.0-stuff"
         assert self.dvk.get_artists()[3] == "test10.0.20-stuff"
     
-    def test_get_set_int_time(self):
+    def test_set_int_time(self):
+        """
+        Tests the set_int_time function of the Dvk class.
+        """
         self.dvk.set_int_time()
         assert self.dvk.get_time() == "0000/00/00|00:00"
         self.dvk.set_int_time(None, None, None, None, None)
@@ -192,6 +198,9 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_time() == "2017/10/10|07:00"
         
     def test_get_set_time(self):
+        """
+        Tests the get_time and set_time functions of the Dvk class.
+        """
         self.dvk.set_time()
         assert self.dvk.get_time() == "0000/00/00|00:00"
         self.dvk.set_time(None)
