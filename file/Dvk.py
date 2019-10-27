@@ -1,14 +1,20 @@
 import json
 from processing.StringProcessing import extend_int
 from processing.ListProcessing import clean_list
+from processing.HtmlProcessing import add_escapes_to_html
+
 class Dvk:
     """
     Class for handling DVK files.
     
     Attributes:
-        dvk_file (str): 
-        id (str):
-        title (str):
+        dvk_file (str): File path of the current DVK file
+        id (str): ID of the current DVK file
+        title (str): Title of the current DVK file
+        artists (list): List of artists for the current DVK file
+        time (str): Time of publication for the current DVK file (YYYY/MM/DD|hh:mm)
+        web_tags (list): List of web tags for the current DVK file
+        description (str): Description of the current DVK file
     """
     def __init__(self, file_path:str=""):
         """
@@ -31,6 +37,7 @@ class Dvk:
         self.set_artist()
         self.set_time()
         self.set_web_tags()
+        self.set_description()
         
     def write_dvk(self):
         """
@@ -46,6 +53,7 @@ class Dvk:
             dvk_info["artists"] = self.get_artists()
             dvk_info["time"] = self.get_time()
             dvk_info["web_tags"] = self.get_web_tags()
+            dvk_info["description"] = self.get_description()
             data["info"] = dvk_info
              
             #WRITE
@@ -71,6 +79,7 @@ class Dvk:
                         self.set_artists(data["info"]["artists"])
                         self.set_time(data["info"]["time"])
                         self.set_web_tags(data["info"]["web_tags"])
+                        self.set_description(data["info"]["description"])
             except:
                 print("Error reading DVK")
                 self.clear_dvk()
@@ -236,4 +245,22 @@ class Dvk:
             list: DVK web tags
         """
         return self.web_tags
+    
+    def set_description(self, description_str:str=None):
+        """
+        Sets the description for the current DVK file.
+        
+        Parameters:
+            description_str (str): DVK description
+        """
+        self.description = add_escapes_to_html(description_str)
+        
+    def get_description(self) -> str:
+        """
+        Returns the description for the current DVK file.
+        
+        Returns:
+            str: DVK description
+        """
+        return self.description
     
