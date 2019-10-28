@@ -23,7 +23,19 @@ class DvkTest(unittest.TestCase):
         """
         Tests the Dvk class constructor.
         """
+        #CHECK EMPTY
         assert self.dvk.get_title() == ""
+        assert self.dvk.get_id() == ""
+        assert self.dvk.get_title() == ""
+        assert self.dvk.get_artists() == []
+        assert self.dvk.get_time() == "0000/00/00|00:00"
+        assert self.dvk.get_web_tags() == []
+        assert self.dvk.get_description() == ""
+        assert self.dvk.get_page_url() == ""
+        assert self.dvk.get_direct_url() == ""
+        assert self.dvk.get_secondary_url() == ""
+        assert self.dvk.get_media_file() == None
+        assert self.dvk.get_secondary_file() == None
         
         #GET FILENAME
         file_path = Path("writeTest.dvk").absolute()
@@ -31,26 +43,20 @@ class DvkTest(unittest.TestCase):
         #SET DVK DATA
         self.dvk.set_id("id702")
         self.dvk.set_title("ConstructorTestTitle")
+        self.dvk.set_artist("artistName")
+        self.dvk.set_page_url("/url/")
         self.dvk.set_file(file_path)
+        self.dvk.set_media_file("media.jpg")
         self.dvk.write_dvk()
         
         #CHECK VALUES
         loaded_dvk = Dvk(file_path)
         assert loaded_dvk.get_id() == "ID702"
         assert loaded_dvk.get_title() == "ConstructorTestTitle"
+        assert loaded_dvk.get_artists()[0] == "artistName"
+        assert loaded_dvk.get_page_url() == "/url/"
+        assert loaded_dvk.get_media_file().name == "media.jpg"
         os.remove(file_path)
-        
-        #CHECK EMPTY
-        loaded_dvk = Dvk(None)
-        assert loaded_dvk.get_id() == ""
-        assert loaded_dvk.get_title() == ""
-        assert loaded_dvk.get_artists() == []
-        assert loaded_dvk.get_time() == "0000/00/00|00:00"
-        assert loaded_dvk.get_web_tags() == []
-        assert loaded_dvk.get_description() == ""
-        assert loaded_dvk.get_page_url() == ""
-        assert loaded_dvk.get_direct_url() == ""
-        assert loaded_dvk.get_secondary_url() == ""
         
     def test_read_write_dvk(self):
         """
@@ -60,6 +66,7 @@ class DvkTest(unittest.TestCase):
         file_path = Path("writeTest.dvk").absolute()
         
         #SET DVK DATA
+        self.dvk.set_file(file_path)
         self.dvk.set_id("id1234")
         self.dvk.set_title("WriteTestTitle")
         self.dvk.set_artists(["artist", "other artist"])
@@ -69,9 +76,10 @@ class DvkTest(unittest.TestCase):
         self.dvk.set_page_url("http://somepage.com")
         self.dvk.set_direct_url("http://image.png")
         self.dvk.set_secondary_url("https://other.png")
+        self.dvk.set_media_file("media.png")
+        self.dvk.set_secondary_file("2nd.jpeg")
         
         #WRITE THEN READ
-        self.dvk.set_file(file_path)
         self.dvk.write_dvk()
         self.dvk.read_dvk()
         os.remove(file_path)
@@ -88,6 +96,8 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_page_url() == "http://somepage.com"
         assert self.dvk.get_direct_url() == "http://image.png"
         assert self.dvk.get_secondary_url() == "https://other.png"
+        assert self.dvk.get_media_file().name == "media.png"
+        assert self.dvk.get_secondary_file().name == "2nd.jpeg"
         
         #CHECK READING NON-EXISTANT FILE
         self.dvk.set_file(None)
@@ -106,7 +116,42 @@ class DvkTest(unittest.TestCase):
         self.dvk.read_dvk()
         os.remove(file_path)
         assert self.dvk.get_title() == ""
+        
+        #CHECK WRITING INVALID FILE
+        invalid_dvk = Dvk()
+        invalid_path = Path("nonExistant.dvk")
+        invalid_dvk.set_file(invalid_path.absolute())
+        assert not invalid_path.exists()
     
+    def test_can_write(self):
+        """
+        Tests the can_write function of the Dvk class.
+        """
+        self.dvk.set_file("not_real.dvk")
+        self.dvk.set_id("id")
+        self.dvk.set_title("title")
+        self.dvk.set_artist("artist")
+        self.dvk.set_page_url("page_url")
+        self.dvk.set_media_file("media.png")
+        assert self.dvk.can_write()
+        self.dvk.set_file()
+        assert not self.dvk.can_write()
+        self.dvk.set_file("file.dvk")
+        self.dvk.set_id()
+        assert not self.dvk.can_write()
+        self.dvk.set_id("id")
+        self.dvk.set_title()
+        assert not self.dvk.can_write()
+        self.dvk.set_title("title")
+        self.dvk.set_artist()
+        assert not self.dvk.can_write()
+        self.dvk.set_artist("artist")
+        self.dvk.set_page_url()
+        assert not self.dvk.can_write()
+        self.dvk.set_page_url("page_url")
+        self.dvk.set_media_file()
+        assert not self.dvk.can_write()
+        
     def test_get_set_file(self):
         """
         Tests the get_file and set_file functions of the Dvk class.
@@ -114,6 +159,8 @@ class DvkTest(unittest.TestCase):
         self.dvk.set_file()
         assert self.dvk.get_file() == None
         self.dvk.set_file(None)
+        assert self.dvk.get_file() == None
+        self.dvk.set_file("")
         assert self.dvk.get_file() == None
         self.dvk.set_file("test_path.dvk")
         assert self.dvk.get_file().name == "test_path.dvk"
@@ -276,5 +323,40 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_secondary_url() == ""
         self.dvk.set_secondary_url("/Secondary/Url")
         assert self.dvk.get_secondary_url() == "/Secondary/Url"
+        
+    def test_get_set_media_file(self):
+        """
+        Tests the get_media_file and set_media_file functions of the Dvk class.
+        """
+        self.dvk.set_media_file("bleh.png")
+        assert self.dvk.get_media_file() == None
+        self.dvk.set_file(Path("media.dvk").absolute())
+        self.dvk.set_media_file("media.png")
+        assert self.dvk.get_media_file().name == "media.png"
+        assert self.dvk.get_file().parent == self.dvk.get_media_file().parent
+        self.dvk.set_media_file()
+        assert self.dvk.get_media_file() == None
+        self.dvk.set_media_file(None)
+        assert self.dvk.get_media_file() == None
+        self.dvk.set_media_file("")
+        assert self.dvk.get_media_file() == None
+        
+    def test_get_set_secondary_file(self):
+        """
+        Tests the get_secondary_file and set_secondary_file functions of the Dvk class.
+        """
+        self.dvk.set_secondary_file("other.png")
+        assert self.dvk.get_media_file() == None
+        self.dvk.set_file(Path("mine.dvk").absolute())
+        self.dvk.set_secondary_file("second.png")
+        assert self.dvk.get_secondary_file().name == "second.png"
+        assert self.dvk.get_file().parent == self.dvk.get_secondary_file().parent
+        self.dvk.set_secondary_file()
+        assert self.dvk.get_secondary_file() == None
+        self.dvk.set_secondary_file("")
+        assert self.dvk.get_secondary_file() == None
+        self.dvk.set_secondary_file(None)
+        assert self.dvk.get_secondary_file() == None
+
   
     

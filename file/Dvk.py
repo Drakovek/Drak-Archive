@@ -20,7 +20,7 @@ class Dvk:
         direct_url (str): Direct URL of the current DVK file
         secondary_url (str): Secondary URL of the current DVK file
     """
-    def __init__(self, file_path:str=""):
+    def __init__(self, file_path:str=None):
         """
         Initializes all DVK values, reading from a DVK file, if given.
         """
@@ -46,12 +46,15 @@ class Dvk:
         self.set_page_url()
         self.set_direct_url()
         self.set_secondary_url()
+        #FILE
+        self.set_media_file()
+        self.set_secondary_file()
         
     def write_dvk(self):
         """
         Writes DVK data to the currently set DVK file.
         """
-        if not self.get_file() == None:
+        if self.can_write():
             data = dict()
             data["file_type"] = "dvk"
             data["id"] = self.get_id()
@@ -74,6 +77,12 @@ class Dvk:
             if len(self.get_secondary_url()) > 0:
                 dvk_web["secondary_url"] = self.get_secondary_url()
             data["web"] = dvk_web
+            
+            dvk_file_dict = dict()
+            dvk_file_dict["media_file"] = self.get_media_file().name
+            if not self.get_secondary_file() == None:
+                dvk_file_dict["secondary_file"] = self.get_secondary_file().name
+            data["file"] = dvk_file_dict
              
             #WRITE
             try:
@@ -118,10 +127,33 @@ class Dvk:
                             self.set_secondary_url(data["web"]["secondary_url"])
                         except:
                             self.set_secondary_url()
+                            
+                        self.set_media_file(data["file"]["media_file"])
+                        try:
+                            self.set_secondary_file(data["file"]["secondary_file"])
+                        except:
+                            self.set_secondary_file(None)
             except:
                 print("Error reading DVK")
                 self.clear_dvk()
-                
+    
+    def can_write(self) -> bool:
+        """
+        Returns whether the current DVK file is valid for writing.
+        Returns false if DVK does not have enough information (No title, artists, etc.)
+        
+        Returns:
+            bool: Whether the current DVK can be written to disk
+        """
+        if (self.get_file() == None or
+            self.get_id() == "" or
+            self.get_title() == "" or
+            self.get_artists() == [] or
+            self.get_page_url() == "" or
+            self.get_media_file() == None):
+            return False
+        return True
+    
     def set_file(self, file_path:str=None):
         """
         Sets the current path for the DVK file.
@@ -129,7 +161,7 @@ class Dvk:
         Parameters:
             file_path (str): Path for the DVK file
         """
-        if file_path == None:
+        if file_path == None or file_path == "":
             self.dvk_file = None
         else:
             self.dvk_file = Path(file_path)
@@ -139,7 +171,7 @@ class Dvk:
         Returns the current path of the DVK file.
         
         Returns:
-            str: DVK file path
+            path: DVK file path
         """
         return self.dvk_file
         
@@ -237,14 +269,14 @@ class Dvk:
         else:
             self.time = extend_int(year_int, 4) + "/" + extend_int(month_int, 2) + "/" + extend_int(day_int, 2) + "|" + extend_int(hour_int, 2) + ":" + extend_int(minute_int, 2)
 
-    """
-    Sets the time published for the current DVK file using a formatted time string.
-    If time string is invalid, sets the date to 0000/00/00|00:00
-    
-    Parameters:
-        time_str (str): String representation of time published. Should be formatted: YYYY/MM/DD/hh/mm
-    """
     def set_time(self, time_str:str=None):
+        """
+        Sets the time published for the current DVK file using a formatted time string.
+        If time string is invalid, sets the date to 0000/00/00|00:00
+        
+        Parameters:
+            time_str (str): String representation of time published. Should be formatted: YYYY/MM/DD/hh/mm
+        """
         if time_str == None or not len(time_str) == 16:
             self.time = "0000/00/00|00:00"
         else:
@@ -364,4 +396,49 @@ class Dvk:
             str: Secondary media URL
         """
         return self.secondary_url
+    
+    def set_media_file(self, file_name:str=None):
+        """
+        Sets the media file for the current DVK file based on a given filename.
+        Sets file in the same directory as the DVK file.
+        
+        Parameters:
+            file_name (str): Media filename for the current DVK file
+        """
+        if file_name == None or file_name == "" or self.get_file() == None:
+            self.media_file = None
+        else:
+            self.media_file = Path(self.get_file().parent).joinpath(file_name).absolute()
+    
+    def get_media_file(self) -> Path:
+        """
+        Returns the media file for the current DVK file.
+        
+        Returns:
+            path: DVK media file
+        """
+        return self.media_file
+    
+    def set_secondary_file(self, file_name:str=None):
+        """
+        Sets the secondary media file for the current DVK file based on a given filename.
+        Sets file in the same directory as the DVK file.
+        
+        Parameters:
+            file_name (str): Secondary media filename for the current DVK file
+        """
+        if file_name == None or file_name == "" or self.get_file() == None:
+            self.secondary_file = None
+        else:
+            self.secondary_file = Path(self.get_file().parent).joinpath(file_name).absolute()
+    
+    def get_secondary_file(self) -> Path:
+        """
+        Returns the secondary media file for the current DVK file.
+        
+        Returns:
+            path: DVK secondary media file
+        """
+        return self.secondary_file
+    
     

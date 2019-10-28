@@ -17,4 +17,6 @@ dvk.set_description("This is a description! :)")
 dvk.set_page_url("Https://pageurl.com")
 dvk.set_direct_url("http://DirectUrl.com")
 dvk.set_secondary_url("http://Secondaryurl.COM")
+
+dvk.set_media_file("image.png")
 dvk.write_dvk()
