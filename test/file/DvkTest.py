@@ -52,6 +52,9 @@ class DvkTest(unittest.TestCase):
         assert loaded_dvk.get_time() == "0000/00/00|00:00"
         assert loaded_dvk.get_web_tags() == []
         assert loaded_dvk.get_description() == ""
+        assert loaded_dvk.get_page_url() == ""
+        assert loaded_dvk.get_direct_url() == ""
+        assert loaded_dvk.get_secondary_url() == ""
         
     def test_read_write_dvk(self):
         """
@@ -72,6 +75,9 @@ class DvkTest(unittest.TestCase):
         self.dvk.set_int_time(1864, 10, 31, 7, 2)
         self.dvk.set_web_tags(["test", "Tags"])
         self.dvk.set_description("<b>desc</b>")
+        self.dvk.set_page_url("http://somepage.com")
+        self.dvk.set_direct_url("http://image.png")
+        self.dvk.set_secondary_url("https://other.png")
         
         #WRITE THEN READ
         self.dvk.set_file(file_path)
@@ -88,6 +94,9 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_web_tags()[0] == "test"
         assert self.dvk.get_web_tags()[1] == "Tags"
         assert self.dvk.get_description() == "<b>desc</b>"
+        assert self.dvk.get_page_url() == "http://somepage.com"
+        assert self.dvk.get_direct_url() == "http://image.png"
+        assert self.dvk.get_secondary_url() == "https://other.png"
         
         #CHECK READING NON-EXISTANT FILE
         self.dvk.set_file(None)
@@ -241,7 +250,40 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_description() == ""
         self.dvk.set_description(None)
         assert self.dvk.get_description() == ""
-        self.dvk.set_description("<i>baño</i>")
-        assert self.dvk.get_description() == "<i>ba&#241;o</i>"
+        self.dvk.set_description("<i>Baño</i>")
+        assert self.dvk.get_description() == "<i>Ba&#241;o</i>"
         
+    def test_get_set_page_url(self):
+        """
+        Tests the get_page_url and set_page_url functions of the Dvk class.
+        """
+        self.dvk.set_page_url()
+        assert self.dvk.get_page_url() == ""
+        self.dvk.set_page_url(None)
+        assert self.dvk.get_page_url() == ""
+        self.dvk.set_page_url("/Page/url")
+        assert self.dvk.get_page_url() == "/Page/url"
+    
+    def test_get_set_direct_url(self):
+        """
+        Tests the get_direct_url and set_direct_url functions of the Dvk class.
+        """
+        self.dvk.set_direct_url()
+        assert self.dvk.get_direct_url() == ""
+        self.dvk.set_direct_url(None)
+        assert self.dvk.get_direct_url() == ""
+        self.dvk.set_direct_url("/direct/URL")
+        assert self.dvk.get_direct_url() == "/direct/URL"
+        
+    def test_get_set_secondary_url(self):
+        """
+        Tests the get_secondary_url and set_secondary_url functions of the Dvk class.
+        """
+        self.dvk.set_secondary_url()
+        assert self.dvk.get_secondary_url() == ""
+        self.dvk.set_secondary_url(None)
+        assert self.dvk.get_secondary_url() == ""
+        self.dvk.set_secondary_url("/Secondary/Url")
+        assert self.dvk.get_secondary_url() == "/Secondary/Url"
+  
     

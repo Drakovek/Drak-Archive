@@ -15,6 +15,9 @@ class Dvk:
         time (str): Time of publication for the current DVK file (YYYY/MM/DD|hh:mm)
         web_tags (list): List of web tags for the current DVK file
         description (str): Description of the current DVK file
+        page_url (str): Page URL of the current DVK file
+        direct_url (str): Direct URL of the current DVK file
+        secondary_url (str): Secondary URL of the current DVK file
     """
     def __init__(self, file_path:str=""):
         """
@@ -38,6 +41,10 @@ class Dvk:
         self.set_time()
         self.set_web_tags()
         self.set_description()
+        #WEB
+        self.set_page_url()
+        self.set_direct_url()
+        self.set_secondary_url()
         
     def write_dvk(self):
         """
@@ -51,10 +58,21 @@ class Dvk:
             dvk_info = dict()
             dvk_info["title"] = self.get_title()
             dvk_info["artists"] = self.get_artists()
-            dvk_info["time"] = self.get_time()
-            dvk_info["web_tags"] = self.get_web_tags()
-            dvk_info["description"] = self.get_description()
+            if not self.get_time() == "0000/00/00|00:00":
+                dvk_info["time"] = self.get_time()
+            if len(self.get_web_tags()) > 0:
+                dvk_info["web_tags"] = self.get_web_tags()
+            if len(self.get_description()) > 0:
+                dvk_info["description"] = self.get_description()
             data["info"] = dvk_info
+            
+            dvk_web = dict()
+            dvk_web["page_url"] = self.get_page_url()
+            if len(self.get_direct_url()) > 0:
+                dvk_web["direct_url"] = self.get_direct_url()
+            if len(self.get_secondary_url()) > 0:
+                dvk_web["secondary_url"] = self.get_secondary_url()
+            data["web"] = dvk_web
              
             #WRITE
             try:
@@ -77,9 +95,28 @@ class Dvk:
                         self.set_id(data["id"])
                         self.set_title(data["info"]["title"])
                         self.set_artists(data["info"]["artists"])
-                        self.set_time(data["info"]["time"])
-                        self.set_web_tags(data["info"]["web_tags"])
-                        self.set_description(data["info"]["description"])
+                        try:
+                            self.set_time(data["info"]["time"])
+                        except:
+                            self.set_time()
+                        try:
+                            self.set_web_tags(data["info"]["web_tags"])
+                        except:
+                            self.set_web_tags()
+                        try:
+                            self.set_description(data["info"]["description"])
+                        except:
+                            self.set_description()
+                            
+                        self.set_page_url(data["web"]["page_url"])
+                        try:
+                            self.set_direct_url(data["web"]["direct_url"])
+                        except:
+                            self.set_direct_url()
+                        try:
+                            self.set_secondary_url(data["web"]["secondary_url"])
+                        except:
+                            self.set_secondary_url()
             except:
                 print("Error reading DVK")
                 self.clear_dvk()
@@ -263,4 +300,67 @@ class Dvk:
             str: DVK description
         """
         return self.description
+    
+    def set_page_url(self, page_url_str:str=None):
+        """
+        Sets the page URL for the current DVK file.
+        
+        Parameters:
+            page_url_str (str): Page URL
+        """
+        if page_url_str == None:
+            self.page_url = ""
+        else:
+            self.page_url = page_url_str
+        
+    def get_page_url(self) -> str:
+        """
+        Returns the page URL for the current DVK file.
+        
+        Returns:
+            str: Page URL
+        """
+        return self.page_url
+    
+    def set_direct_url(self, direct_url_str:str=None):
+        """
+        Sets the direct media URL for the current DVK file.
+        
+        Parameters:
+            direct_url_str (str): Direct media URL
+        """
+        if direct_url_str == None:
+            self.direct_url = ""
+        else:
+            self.direct_url = direct_url_str
+        
+    def get_direct_url(self) -> str:
+        """
+        Returns the direct media URL for the current DVK file.
+        
+        Returns:
+            str: Direct media URL
+        """
+        return self.direct_url
+    
+    def set_secondary_url(self, secondary_url_str:str=None):
+        """
+        Sets the secondary media URL for the current DVK file.
+        
+        Parameters:
+            secondary_url_str (str): Secondary media URL
+        """
+        if secondary_url_str == None:
+            self.secondary_url = ""
+        else:
+            self.secondary_url = secondary_url_str
+        
+    def get_secondary_url(self) -> str:
+        """
+        Returns the secondary media URL for the current DVK file.
+        
+        Returns:
+            str: Secondary media URL
+        """
+        return self.secondary_url
     
