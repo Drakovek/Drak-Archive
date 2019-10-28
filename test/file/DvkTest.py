@@ -2,6 +2,7 @@ import os
 import json
 import unittest
 from file.Dvk import Dvk
+from pathlib import Path
 
 class DvkTest(unittest.TestCase):
     """
@@ -25,12 +26,7 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_title() == ""
         
         #GET FILENAME
-        file_path = os.getcwd()
-        if "\\" in file_path and not file_path.endswith("\\"):
-            file_path = file_path + "\\"
-        elif "/" in file_path and not file_path.endswith("/"):
-            file_path = file_path + "/"
-        file_path = file_path + "writeTest.dvk"
+        file_path = Path("writeTest.dvk").absolute()
         
         #SET DVK DATA
         self.dvk.set_id("id702")
@@ -61,12 +57,7 @@ class DvkTest(unittest.TestCase):
         Tests the read_dvk and write_dvk methods of the Dvk class.
         """
         #GET FILENAME
-        file_path = os.getcwd()
-        if "\\" in file_path and not file_path.endswith("\\"):
-            file_path = file_path + "\\"
-        elif "/" in file_path and not file_path.endswith("/"):
-            file_path = file_path + "/"
-        file_path = file_path + "writeTest.dvk"
+        file_path = Path("writeTest.dvk").absolute()
         
         #SET DVK DATA
         self.dvk.set_id("id1234")
@@ -121,11 +112,11 @@ class DvkTest(unittest.TestCase):
         Tests the get_file and set_file functions of the Dvk class.
         """
         self.dvk.set_file()
-        assert self.dvk.get_file() == ""
+        assert self.dvk.get_file() == None
         self.dvk.set_file(None)
-        assert self.dvk.get_file() == ""
+        assert self.dvk.get_file() == None
         self.dvk.set_file("test_path.dvk")
-        assert self.dvk.get_file() == "test_path.dvk"
+        assert self.dvk.get_file().name == "test_path.dvk"
         
     def test_get_set_id(self):
         """

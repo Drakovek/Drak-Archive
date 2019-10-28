@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 from processing.StringProcessing import extend_int
 from processing.ListProcessing import clean_list
 from processing.HtmlProcessing import add_escapes_to_html
@@ -28,7 +29,7 @@ class Dvk:
         self.set_file(file_path)
         self.clear_dvk()
         
-        if not self.get_file() == "":
+        if not self.get_file() == None:
             self.read_dvk()
     
     def clear_dvk(self):
@@ -50,7 +51,7 @@ class Dvk:
         """
         Writes DVK data to the currently set DVK file.
         """
-        if not self.get_file() == "":
+        if not self.get_file() == None:
             data = dict()
             data["file_type"] = "dvk"
             data["id"] = self.get_id()
@@ -76,7 +77,7 @@ class Dvk:
              
             #WRITE
             try:
-                with open(self.get_file(), "w") as out_file:
+                with open(self.get_file().absolute(), "w") as out_file:
                     json.dump(data, out_file)
                 
             except IOError as e:
@@ -87,9 +88,9 @@ class Dvk:
         Reads DVK data from the currently set DVK file.
         """
         self.clear_dvk()
-        if not self.get_file() == "":
+        if not self.get_file() == None and self.get_file().is_file():
             try:
-                with open(self.get_file()) as in_file:
+                with open(self.get_file().absolute()) as in_file:
                     data = json.load(in_file)
                     if data["file_type"] == "dvk":
                         self.set_id(data["id"])
@@ -129,11 +130,11 @@ class Dvk:
             file_path (str): Path for the DVK file
         """
         if file_path == None:
-            self.dvk_file = ""
+            self.dvk_file = None
         else:
-            self.dvk_file = file_path
+            self.dvk_file = Path(file_path)
     
-    def get_file(self) -> str:
+    def get_file(self) -> Path:
         """
         Returns the current path of the DVK file.
         

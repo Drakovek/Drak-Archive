@@ -1,13 +1,9 @@
-import os
+from pathlib import Path
 from file.Dvk import Dvk
 
 dvk = Dvk()
-file_path = os.getcwd()
-if "\\" in file_path and not file_path.endswith("\\"):
-    file_path = file_path + "\\"
-elif "/" in file_path and not file_path.endswith("/"):
-    file_path = file_path + "/"
-file_path = file_path + "test.dvk"
+
+file_path = Path("test.dvk").absolute()
 print(file_path)
 dvk.set_file(file_path)
 
