@@ -40,6 +40,8 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_next_ids() == []
         assert self.dvk.get_section_first() == False
         assert self.dvk.get_section_last() == False
+        assert self.dvk.get_sequence_title() == ""
+        assert self.dvk.get_section_title() == ""
         
         #GET FILENAME
         file_path = Path("writeTest.dvk").absolute()
@@ -86,6 +88,8 @@ class DvkTest(unittest.TestCase):
         self.dvk.set_next_ids(["next1", "Next2"])
         self.dvk.set_section_first(True)
         self.dvk.set_section_last(True)
+        self.dvk.set_sequence_title("Seq Title")
+        self.dvk.set_section_title("Section")
         
         #WRITE THEN READ
         self.dvk.write_dvk()
@@ -112,6 +116,8 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_next_ids()[1] == "NEXT2"
         assert self.dvk.get_section_first() == True
         assert self.dvk.get_section_last() == True
+        assert self.dvk.get_sequence_title() == "Seq Title"
+        assert self.dvk.get_section_title() == "Section"
         
         #CHECK READING NON-EXISTANT FILE
         self.dvk.set_file(None)
@@ -455,4 +461,51 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_section_last() == True
         self.dvk.set_previous_ids()
         assert self.dvk.get_section_last() == False
+        
+    def test_get_set_sequence_title(self):
+        """
+        Tests the get_sequence_title and set_sequence_title functions of the Dvk class.
+        """
+        self.dvk.set_sequence_title("No sequence")
+        assert self.dvk.get_sequence_title() == ""
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_sequence_title("invalid")
+        assert self.dvk.get_sequence_title() == ""
+        self.dvk.set_previous_ids()
+        self.dvk.set_next_ids(["ID2"])
+        self.dvk.set_sequence_title("invalid")
+        assert self.dvk.get_sequence_title() == ""
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_sequence_title()
+        assert self.dvk.get_sequence_title() == ""
+        self.dvk.set_sequence_title(None)
+        assert self.dvk.get_sequence_title() == ""
+        self.dvk.set_sequence_title("Title thing")
+        assert self.dvk.get_sequence_title() == "Title thing"
+        self.dvk.set_next_ids()
+        assert self.dvk.get_sequence_title() == ""
+    
+    def test_get_set_section_title(self):
+        """
+        Tests the get_section_title and set_section_title functions of the Dvk class.
+        """
+        self.dvk.set_section_title("No sequence")
+        assert self.dvk.get_section_title() == ""
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_section_title("invalid")
+        assert self.dvk.get_section_title() == ""
+        self.dvk.set_previous_ids()
+        self.dvk.set_next_ids(["ID2"])
+        self.dvk.set_section_title("invalid")
+        assert self.dvk.get_section_title() == ""
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_section_title()
+        assert self.dvk.get_section_title() == ""
+        self.dvk.set_section_title(None)
+        assert self.dvk.get_section_title() == ""
+        self.dvk.set_section_title("Title thing")
+        assert self.dvk.get_section_title() == "Title thing"
+        self.dvk.set_next_ids()
+        assert self.dvk.get_section_title() == ""
+        
     

@@ -25,6 +25,8 @@ class Dvk:
         next_ids (list): Next IDs in a DVK sequence
         section_first (bool): Whether current DVK is first in a sequence section
         section_last (bool): Whether current DVK is last in a sequence section
+        sequence_title (str): Sequence title for the current DVK file
+        section_title (str): Sequence section title for the current DVK file
     """
     def __init__(self, file_path:str=None):
         """
@@ -59,6 +61,9 @@ class Dvk:
         self.set_next_ids()
         self.set_section_first()
         self.set_section_last()
+        #USER
+        self.set_sequence_title()
+        self.set_section_title()
         
     def write_dvk(self):
         """
@@ -101,7 +106,15 @@ class Dvk:
             if self.get_section_last():
                 dvk_file_dict["section_last"] = self.get_section_last()
             data["file"] = dvk_file_dict
-             
+            
+            dvk_user = dict()
+            if len(self.get_sequence_title()) > 0:
+                dvk_user["sequence_title"] = self.get_sequence_title()
+            if len(self.get_section_title()) > 0:
+                dvk_user["section_title"] = self.get_section_title()
+            if len(dvk_user) > 0:
+                data["user"] = dvk_user
+            
             #WRITE
             try:
                 with open(self.get_file().absolute(), "w") as out_file:
@@ -167,6 +180,15 @@ class Dvk:
                             self.set_section_last(data["file"]["section_last"])
                         except:
                             self.set_section_last()
+                        
+                        try:
+                            self.set_sequence_title(data["user"]["sequence_title"])
+                        except:
+                            self.set_sequence_title()
+                        try:
+                            self.set_section_title(data["user"]["section_title"])
+                        except:
+                            self.set_section_title()
             except:
                 print("Error reading DVK")
                 self.clear_dvk()
@@ -574,5 +596,39 @@ class Dvk:
             len(self.get_next_ids()) > 0):
             return True
         return False
+    
+    def set_sequence_title(self, sequence_title_str:str=None):
+        """
+        Sets the sequence title for the current DVK file.
+        """
+        self.sequence_title = sequence_title_str
+        self.sequence_title = self.get_sequence_title()
         
+    def get_sequence_title(self) -> str:
+        """
+        Returns the sequence title for the current DVK file.
+        """
+        if (not self.sequence_title == None and
+            len(self.get_previous_ids()) > 0 and
+            len(self.get_next_ids()) > 0):
+            return self.sequence_title
+        return ""
+    
+    def set_section_title(self, section_title_str:str=None):
+        """
+        Sets the sequence section title for the current DVK file.
+        """
+        self.section_title = section_title_str
+        self.section_title = self.get_section_title()
+    
+    def get_section_title(self):
+        """
+        Return the sequence section title for the current DVK file.
+        """
+        if (not self.section_title == None and
+            len(self.get_previous_ids()) > 0 and
+            len(self.get_next_ids()) > 0
+            ):
+            return self.section_title
+        return "" 
         
