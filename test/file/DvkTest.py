@@ -38,6 +38,8 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_secondary_file() == None
         assert self.dvk.get_previous_ids() == []
         assert self.dvk.get_next_ids() == []
+        assert self.dvk.get_section_first() == False
+        assert self.dvk.get_section_last() == False
         
         #GET FILENAME
         file_path = Path("writeTest.dvk").absolute()
@@ -82,6 +84,8 @@ class DvkTest(unittest.TestCase):
         self.dvk.set_secondary_file("2nd.jpeg")
         self.dvk.set_previous_ids(["Last1", "last2"])
         self.dvk.set_next_ids(["next1", "Next2"])
+        self.dvk.set_section_first(True)
+        self.dvk.set_section_last(True)
         
         #WRITE THEN READ
         self.dvk.write_dvk()
@@ -106,6 +110,8 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_previous_ids()[1] == "LAST2"
         assert self.dvk.get_next_ids()[0] == "NEXT1"
         assert self.dvk.get_next_ids()[1] == "NEXT2"
+        assert self.dvk.get_section_first() == True
+        assert self.dvk.get_section_last() == True
         
         #CHECK READING NON-EXISTANT FILE
         self.dvk.set_file(None)
@@ -400,4 +406,53 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_next_ids()[0] == "ONE"
         assert self.dvk.get_next_ids()[1] == "TWO"
         
+    def test_get_set_section_first(self):
+        """
+        Tests the get_section_first and set_section_first functions of the Dvk class.
+        """
+        self.dvk.set_section_first(True)
+        assert self.dvk.get_section_first() == False
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_section_first(True)
+        assert self.dvk.get_section_first() == False
+        self.dvk.set_previous_ids()
+        self.dvk.set_next_ids(["ID3"])
+        self.dvk.set_section_first(True)
+        assert self.dvk.get_section_first() == False
+        self.dvk.set_previous_ids("OtherID")
+        self.dvk.set_section_first()
+        assert self.dvk.get_section_first() == False
+        self.dvk.set_section_first(None)
+        assert self.dvk.get_section_first() == False
+        self.dvk.set_section_first("not a bool")
+        assert self.dvk.get_section_first() == False
+        self.dvk.set_section_first(True)
+        assert self.dvk.get_section_first() == True
+        self.dvk.set_next_ids()
+        assert self.dvk.get_section_first() == False
+           
+    def test_get_set_section_last(self):
+        """
+        Tests the get_section_last and set_section_last functions of the Dvk class.
+        """
+        self.dvk.set_section_last(True)
+        assert self.dvk.get_section_last() == False
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_section_last(True)
+        assert self.dvk.get_section_last() == False
+        self.dvk.set_previous_ids()
+        self.dvk.set_next_ids(["ID3"])
+        self.dvk.set_section_last(True)
+        assert self.dvk.get_section_last() == False
+        self.dvk.set_previous_ids("OtherID")
+        self.dvk.set_section_last()
+        assert self.dvk.get_section_last() == False
+        self.dvk.set_section_last(None)
+        assert self.dvk.get_section_last() == False
+        self.dvk.set_section_last("not a bool")
+        assert self.dvk.get_section_last() == False
+        self.dvk.set_section_last(True)
+        assert self.dvk.get_section_last() == True
+        self.dvk.set_previous_ids()
+        assert self.dvk.get_section_last() == False
     

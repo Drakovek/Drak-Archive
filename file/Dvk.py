@@ -23,6 +23,8 @@ class Dvk:
         secondary_file (Path): Path for the secondary media file of the current DVK file
         previous_ids (list): Previous IDs in a DVK sequence
         next_ids (list): Next IDs in a DVK sequence
+        section_first (bool): Whether current DVK is first in a sequence section
+        section_last (bool): Whether current DVK is last in a sequence section
     """
     def __init__(self, file_path:str=None):
         """
@@ -55,6 +57,8 @@ class Dvk:
         self.set_secondary_file()
         self.set_previous_ids()
         self.set_next_ids()
+        self.set_section_first()
+        self.set_section_last()
         
     def write_dvk(self):
         """
@@ -92,6 +96,10 @@ class Dvk:
                 dvk_file_dict["previous_ids"] = self.get_previous_ids()
             if not self.get_next_ids() == []:
                 dvk_file_dict["next_ids"] = self.get_next_ids()
+            if self.get_section_first():
+                dvk_file_dict["section_first"] = self.get_section_first()
+            if self.get_section_last():
+                dvk_file_dict["section_last"] = self.get_section_last()
             data["file"] = dvk_file_dict
              
             #WRITE
@@ -151,6 +159,14 @@ class Dvk:
                             self.set_next_ids(data["file"]["next_ids"])
                         except:
                             self.set_next_ids()
+                        try:
+                            self.set_section_first(data["file"]["section_first"])
+                        except:
+                            self.set_section_first()
+                        try:
+                            self.set_section_last(data["file"]["section_last"])
+                        except:
+                            self.set_section_last()
             except:
                 print("Error reading DVK")
                 self.clear_dvk()
@@ -513,3 +529,50 @@ class Dvk:
         """
         return self.next_ids
     
+    def set_section_first(self, first_bool:bool=False):
+        """
+        Sets whether current DVK is the first in a sequence section.
+        
+        Parameters:
+            first_bool (bool): Whether DVK is first in a section
+        """
+        self.section_first = first_bool
+        self.section_first = self.get_section_first()
+    
+    def get_section_first(self) -> bool:
+        """
+        Returns whether current DVK is the first in a sequence section.
+        
+        Returns:
+            bool: Whether DVK is first in a section
+        """
+        if (self.section_first == True and 
+            len(self.get_previous_ids()) > 0 and
+            len(self.get_next_ids()) > 0):
+            return True
+        return False
+        
+    def set_section_last(self, last_bool:bool=False):
+        """
+        Sets whether current DVK is the last in a sequence section.
+        
+        Parameters:
+            first_bool (bool): Whether DVK is last in a section
+        """
+        self.section_last = last_bool
+        self.section_last = self.get_section_last()
+    
+    def get_section_last(self) -> bool:
+        """
+        Returns whether current DVK is the last in a sequence section.
+        
+        Returns:
+            bool: Whether DVK is last in a section
+        """
+        if (self.section_last == True and
+            len(self.get_previous_ids()) > 0 and
+            len(self.get_next_ids()) > 0):
+            return True
+        return False
+        
+        
