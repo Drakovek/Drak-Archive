@@ -9,7 +9,7 @@ class Dvk:
     Class for handling DVK files.
     
     Attributes:
-        dvk_file (str): File path of the current DVK file
+        dvk_file (Path): File path of the current DVK file
         id (str): ID of the current DVK file
         title (str): Title of the current DVK file
         artists (list): List of artists for the current DVK file
@@ -19,6 +19,10 @@ class Dvk:
         page_url (str): Page URL of the current DVK file
         direct_url (str): Direct URL of the current DVK file
         secondary_url (str): Secondary URL of the current DVK file
+        media_file (Path): Path for the media file of the current DVK file
+        secondary_file (Path): Path for the secondary media file of the current DVK file
+        previous_ids (list): Previous IDs in a DVK sequence
+        next_ids (list): Next IDs in a DVK sequence
     """
     def __init__(self, file_path:str=None):
         """
@@ -49,6 +53,8 @@ class Dvk:
         #FILE
         self.set_media_file()
         self.set_secondary_file()
+        self.set_previous_ids()
+        self.set_next_ids()
         
     def write_dvk(self):
         """
@@ -82,6 +88,10 @@ class Dvk:
             dvk_file_dict["media_file"] = self.get_media_file().name
             if not self.get_secondary_file() == None:
                 dvk_file_dict["secondary_file"] = self.get_secondary_file().name
+            if not self.get_previous_ids() == []:
+                dvk_file_dict["previous_ids"] = self.get_previous_ids()
+            if not self.get_next_ids() == []:
+                dvk_file_dict["next_ids"] = self.get_next_ids()
             data["file"] = dvk_file_dict
              
             #WRITE
@@ -133,6 +143,14 @@ class Dvk:
                             self.set_secondary_file(data["file"]["secondary_file"])
                         except:
                             self.set_secondary_file(None)
+                        try:
+                            self.set_previous_ids(data["file"]["previous_ids"])
+                        except:
+                            self.set_previous_ids()
+                        try:
+                            self.set_next_ids(data["file"]["next_ids"])
+                        except:
+                            self.set_next_ids()
             except:
                 print("Error reading DVK")
                 self.clear_dvk()
@@ -441,4 +459,57 @@ class Dvk:
         """
         return self.secondary_file
     
+    def set_previous_ids(self, id_list:list=None):
+        """
+        Sets the IDs of the previous DVK files in a DVK sequence.
+        
+        Parameters:
+            id_list (list): List of IDs for previous DVK files
+        """
+        self.previous_ids = []
+        if not id_list == None:
+            count = 0
+            while count < len(id_list):
+                if id_list[count] == None or id_list[count] == "":
+                    self.previous_ids = []
+                    break
+                else:
+                    self.previous_ids.append(id_list[count].upper())
+                count = count + 1
+    
+    def get_previous_ids(self) -> list:
+        """
+        Returns a list of IDs for the previous DVK files in a DVK sequence.
+        
+        Returns:
+            list: IDs of previous DVK files
+        """
+        return self.previous_ids
+    
+    def set_next_ids(self, id_list:list=None):
+        """
+        Sets the IDs of the next DVK files in a DVK sequence.
+        
+        Parameters:
+            id_list (list): List of IDs for next DVK files
+        """
+        self.next_ids = []
+        if not id_list == None:
+            count = 0
+            while count < len(id_list):
+                if id_list[count] == None or id_list[count] == "":
+                    self.next_ids = []
+                    break
+                else:
+                    self.next_ids.append(id_list[count].upper())
+                count = count + 1   
+        
+    def get_next_ids(self) -> list:
+        """
+        Returns a list of IDs for the next DVK files in a DVK sequence.
+        
+        Returns:
+            list: IDs of next DVK files
+        """
+        return self.next_ids
     

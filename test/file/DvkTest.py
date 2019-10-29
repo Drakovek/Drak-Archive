@@ -36,6 +36,8 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_secondary_url() == ""
         assert self.dvk.get_media_file() == None
         assert self.dvk.get_secondary_file() == None
+        assert self.dvk.get_previous_ids() == []
+        assert self.dvk.get_next_ids() == []
         
         #GET FILENAME
         file_path = Path("writeTest.dvk").absolute()
@@ -78,6 +80,8 @@ class DvkTest(unittest.TestCase):
         self.dvk.set_secondary_url("https://other.png")
         self.dvk.set_media_file("media.png")
         self.dvk.set_secondary_file("2nd.jpeg")
+        self.dvk.set_previous_ids(["Last1", "last2"])
+        self.dvk.set_next_ids(["next1", "Next2"])
         
         #WRITE THEN READ
         self.dvk.write_dvk()
@@ -98,6 +102,10 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_secondary_url() == "https://other.png"
         assert self.dvk.get_media_file().name == "media.png"
         assert self.dvk.get_secondary_file().name == "2nd.jpeg"
+        assert self.dvk.get_previous_ids()[0] == "LAST1"
+        assert self.dvk.get_previous_ids()[1] == "LAST2"
+        assert self.dvk.get_next_ids()[0] == "NEXT1"
+        assert self.dvk.get_next_ids()[1] == "NEXT2"
         
         #CHECK READING NON-EXISTANT FILE
         self.dvk.set_file(None)
@@ -358,5 +366,38 @@ class DvkTest(unittest.TestCase):
         self.dvk.set_secondary_file(None)
         assert self.dvk.get_secondary_file() == None
 
-  
+    def test_get_set_previous_ids(self):
+        """
+        Tests the get_previous_ids and set_previous_ids functions of the Dvk class.
+        """
+        self.dvk.set_previous_ids()
+        assert self.dvk.get_previous_ids() == []
+        self.dvk.set_previous_ids(None)
+        assert self.dvk.get_previous_ids() == []
+        self.dvk.set_previous_ids(["id1", "", "id2"])
+        assert self.dvk.get_previous_ids() == []
+        self.dvk.set_previous_ids(["id1", "id2", None])
+        assert self.dvk.get_previous_ids() == []
+        self.dvk.set_previous_ids(["id1", "Id2"])
+        assert len(self.dvk.get_previous_ids()) == 2
+        assert self.dvk.get_previous_ids()[0] == "ID1"
+        assert self.dvk.get_previous_ids()[1] == "ID2"
+    
+    def test_get_set_next_ids(self):
+        """
+        Tests the get_next_ids and set_next_ids functions of the Dvk class.
+        """
+        self.dvk.set_next_ids()
+        assert self.dvk.get_next_ids() == []
+        self.dvk.set_next_ids(None)
+        assert self.dvk.get_next_ids() == []
+        self.dvk.set_next_ids(["", "one", "two"])
+        assert self.dvk.get_next_ids() == []
+        self.dvk.set_next_ids(["one", "two", None])
+        assert self.dvk.get_next_ids() == []
+        self.dvk.set_next_ids(["One", "two"])
+        assert len(self.dvk.get_next_ids()) == 2
+        assert self.dvk.get_next_ids()[0] == "ONE"
+        assert self.dvk.get_next_ids()[1] == "TWO"
+        
     
