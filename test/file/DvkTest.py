@@ -42,6 +42,10 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_section_last() == False
         assert self.dvk.get_sequence_title() == ""
         assert self.dvk.get_section_title() == ""
+        assert self.dvk.get_branch_titles() == []
+        assert self.dvk.rating == 0
+        assert self.dvk.views == 0
+        assert self.dvk.user_tags == []
         
         #GET FILENAME
         file_path = Path("writeTest.dvk").absolute()
@@ -90,6 +94,10 @@ class DvkTest(unittest.TestCase):
         self.dvk.set_section_last(True)
         self.dvk.set_sequence_title("Seq Title")
         self.dvk.set_section_title("Section")
+        self.dvk.set_branch_titles(["branch 1", "Branch 2"])
+        self.dvk.set_rating(4)
+        self.dvk.set_views(15)
+        self.dvk.set_user_tags(["some", "Tags"])
         
         #WRITE THEN READ
         self.dvk.write_dvk()
@@ -118,6 +126,12 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_section_last() == True
         assert self.dvk.get_sequence_title() == "Seq Title"
         assert self.dvk.get_section_title() == "Section"
+        assert self.dvk.get_branch_titles()[0] == "branch 1"
+        assert self.dvk.get_branch_titles()[1] == "Branch 2"
+        assert self.dvk.get_rating() == 4
+        assert self.dvk.get_views() == 15
+        assert self.dvk.get_user_tags()[0] == "some"
+        assert self.dvk.get_user_tags()[1] == "Tags"
         
         #CHECK SEQUENCE WRITING
         self.dvk.set_previous_ids(None)
@@ -603,4 +617,69 @@ class DvkTest(unittest.TestCase):
         self.dvk.set_previous_ids()
         assert self.dvk.get_section_title() == ""
         
+    def test_get_set_branch_titles(self):
+        """
+        Tests the get_branch_titles and set_branch_titles functions of the Dvk class.
+        """
+        self.dvk.set_branch_titles(["invalid1", "invalid2"])
+        assert self.dvk.get_branch_titles() == []
+        self.dvk.set_next_ids(["ID1"])
+        self.dvk.set_branch_titles(["not enough"])
+        assert self.dvk.get_branch_titles() == []
+        self.dvk.set_next_ids(["ID1", "ID2", "ID3"])
+        self.dvk.set_branch_titles(["still", "not enough"])
+        assert self.dvk.get_branch_titles() == []
+        self.dvk.set_branch_titles(["This", "should", "work"])
+        assert len(self.dvk.get_branch_titles()) == 3
+        assert self.dvk.get_branch_titles()[0] == "This"
+        assert self.dvk.get_branch_titles()[1] == "should"
+        assert self.dvk.get_branch_titles()[2] == "work"
     
+    def test_get_set_rating(self):
+        """
+        Tests the get_rating and set_rating the Dvk class.
+        """
+        self.dvk.set_rating()
+        assert self.dvk.get_rating() == 0
+        self.dvk.set_rating(None)
+        assert self.dvk.get_rating() == 0
+        self.dvk.set_rating(-1)
+        assert self.dvk.get_rating() == 0
+        self.dvk.set_rating(6)
+        assert self.dvk.get_rating() == 0
+        self.dvk.set_rating(1)
+        assert self.dvk.get_rating() == 1
+        self.dvk.set_rating(5)
+        assert self.dvk.get_rating() == 5
+        self.dvk.set_rating(3)
+        assert self.dvk.get_rating() == 3
+        
+    def test_get_set_views(self):
+        """
+        Tests the get_views and set_views functions of the Dvk class.
+        """
+        self.dvk.set_views()
+        assert self.dvk.get_views() == 0
+        self.dvk.set_views(None)
+        assert self.dvk.get_views() == 0
+        self.dvk.set_views(-1)
+        assert self.dvk.get_views() == 0
+        self.dvk.set_views(128)
+        assert self.dvk.get_views() == 128
+        self.dvk.set_views(1)
+        assert self.dvk.get_views() == 1
+    
+    def test_get_set_user_tags(self):
+        """
+        Tests the get_user_tags and set_user_tags functions of the Dvk class.
+        """
+        self.dvk.set_user_tags()
+        assert self.dvk.get_user_tags() == []
+        self.dvk.set_user_tags(None)
+        assert self.dvk.get_user_tags() == []
+        self.dvk.set_user_tags(["tag1", "Tag2", "other tag", "tag1", None, ""])
+        assert len(self.dvk.get_user_tags()) == 3
+        assert self.dvk.get_user_tags()[0] == "tag1"
+        assert self.dvk.get_user_tags()[1] == "Tag2"
+        assert self.dvk.get_user_tags()[2] == "other tag"    
+        
