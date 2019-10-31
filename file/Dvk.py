@@ -97,9 +97,9 @@ class Dvk:
             dvk_file_dict["media_file"] = self.get_media_file().name
             if not self.get_secondary_file() == None:
                 dvk_file_dict["secondary_file"] = self.get_secondary_file().name
-            if not self.get_previous_ids() == []:
+            if not self.get_previous_ids() == None:
                 dvk_file_dict["previous_ids"] = self.get_previous_ids()
-            if not self.get_next_ids() == []:
+            if not self.get_next_ids() == None:
                 dvk_file_dict["next_ids"] = self.get_next_ids()
             if self.get_section_first():
                 dvk_file_dict["section_first"] = self.get_section_first()
@@ -504,9 +504,11 @@ class Dvk:
         Parameters:
             id_list (list): List of IDs for previous DVK files
         """
-        self.previous_ids = []
-        if not id_list == None:
+        if id_list == None:
+            self.previous_ids = None
+        else:
             count = 0
+            self.previous_ids = []
             while count < len(id_list):
                 if id_list[count] == None or id_list[count] == "":
                     self.previous_ids = []
@@ -514,7 +516,7 @@ class Dvk:
                 else:
                     self.previous_ids.append(id_list[count].upper())
                 count = count + 1
-    
+            
     def get_previous_ids(self) -> list:
         """
         Returns a list of IDs for the previous DVK files in a DVK sequence.
@@ -531,17 +533,19 @@ class Dvk:
         Parameters:
             id_list (list): List of IDs for next DVK files
         """
-        self.next_ids = []
-        if not id_list == None:
+        if id_list == None:
+            self.next_ids = None
+        else:
             count = 0
+            self.next_ids = []
             while count < len(id_list):
                 if id_list[count] == None or id_list[count] == "":
                     self.next_ids = []
                     break
                 else:
                     self.next_ids.append(id_list[count].upper())
-                count = count + 1   
-        
+                count = count + 1
+            
     def get_next_ids(self) -> list:
         """
         Returns a list of IDs for the next DVK files in a DVK sequence.
@@ -568,9 +572,11 @@ class Dvk:
         Returns:
             bool: Whether DVK is first in a section
         """
-        if (self.section_first == True and 
-            len(self.get_previous_ids()) > 0 and
-            len(self.get_next_ids()) > 0):
+        if (self.section_first == True and
+            not self.get_previous_ids() == None and
+            not self.get_next_ids() == None and
+            (not self.get_previous_ids() == [] or
+            not self.get_next_ids() == [])):
             return True
         return False
         
@@ -592,8 +598,10 @@ class Dvk:
             bool: Whether DVK is last in a section
         """
         if (self.section_last == True and
-            len(self.get_previous_ids()) > 0 and
-            len(self.get_next_ids()) > 0):
+            not self.get_previous_ids() == None and
+            not self.get_next_ids() == None and
+            (not self.get_previous_ids() == [] or
+            not self.get_next_ids() == [])):
             return True
         return False
     
@@ -609,8 +617,10 @@ class Dvk:
         Returns the sequence title for the current DVK file.
         """
         if (not self.sequence_title == None and
-            len(self.get_previous_ids()) > 0 and
-            len(self.get_next_ids()) > 0):
+            not self.get_previous_ids() == None and
+            not self.get_next_ids() == None and
+            (not self.get_previous_ids() == [] or
+            not self.get_next_ids() == [])):
             return self.sequence_title
         return ""
     
@@ -626,9 +636,10 @@ class Dvk:
         Return the sequence section title for the current DVK file.
         """
         if (not self.section_title == None and
-            len(self.get_previous_ids()) > 0 and
-            len(self.get_next_ids()) > 0
-            ):
+            not self.get_previous_ids() == None and
+            not self.get_next_ids() == None and
+            (not self.get_previous_ids() == [] or
+            not self.get_next_ids() == [])):
             return self.section_title
         return "" 
         

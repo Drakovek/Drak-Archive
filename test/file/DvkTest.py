@@ -36,8 +36,8 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_secondary_url() == ""
         assert self.dvk.get_media_file() == None
         assert self.dvk.get_secondary_file() == None
-        assert self.dvk.get_previous_ids() == []
-        assert self.dvk.get_next_ids() == []
+        assert self.dvk.get_previous_ids() == None
+        assert self.dvk.get_next_ids() == None
         assert self.dvk.get_section_first() == False
         assert self.dvk.get_section_last() == False
         assert self.dvk.get_sequence_title() == ""
@@ -118,6 +118,20 @@ class DvkTest(unittest.TestCase):
         assert self.dvk.get_section_last() == True
         assert self.dvk.get_sequence_title() == "Seq Title"
         assert self.dvk.get_section_title() == "Section"
+        
+        #CHECK SEQUENCE WRITING
+        self.dvk.set_previous_ids(None)
+        self.dvk.set_next_ids(None)
+        self.dvk.write_dvk()
+        self.dvk.read_dvk()
+        assert self.dvk.get_previous_ids() == None
+        assert self.dvk.get_next_ids() == None
+        self.dvk.set_previous_ids([])
+        self.dvk.set_next_ids([])
+        self.dvk.write_dvk()
+        self.dvk.read_dvk()
+        assert self.dvk.get_previous_ids() == []
+        assert self.dvk.get_next_ids() == []
         
         #CHECK READING NON-EXISTANT FILE
         self.dvk.set_file(None)
@@ -383,8 +397,10 @@ class DvkTest(unittest.TestCase):
         Tests the get_previous_ids and set_previous_ids functions of the Dvk class.
         """
         self.dvk.set_previous_ids()
-        assert self.dvk.get_previous_ids() == []
+        assert self.dvk.get_previous_ids() == None
         self.dvk.set_previous_ids(None)
+        assert self.dvk.get_previous_ids() == None
+        self.dvk.set_previous_ids([])
         assert self.dvk.get_previous_ids() == []
         self.dvk.set_previous_ids(["id1", "", "id2"])
         assert self.dvk.get_previous_ids() == []
@@ -400,8 +416,10 @@ class DvkTest(unittest.TestCase):
         Tests the get_next_ids and set_next_ids functions of the Dvk class.
         """
         self.dvk.set_next_ids()
-        assert self.dvk.get_next_ids() == []
+        assert self.dvk.get_next_ids() == None
         self.dvk.set_next_ids(None)
+        assert self.dvk.get_next_ids() == None
+        self.dvk.set_next_ids([])
         assert self.dvk.get_next_ids() == []
         self.dvk.set_next_ids(["", "one", "two"])
         assert self.dvk.get_next_ids() == []
@@ -418,23 +436,41 @@ class DvkTest(unittest.TestCase):
         """
         self.dvk.set_section_first(True)
         assert self.dvk.get_section_first() == False
+        #MISSING SEQUENCE DATA
         self.dvk.set_previous_ids(["ID1"])
         self.dvk.set_section_first(True)
         assert self.dvk.get_section_first() == False
         self.dvk.set_previous_ids()
-        self.dvk.set_next_ids(["ID3"])
+        self.dvk.set_next_ids(["ID2"])
         self.dvk.set_section_first(True)
         assert self.dvk.get_section_first() == False
-        self.dvk.set_previous_ids("OtherID")
-        self.dvk.set_section_first()
-        assert self.dvk.get_section_first() == False
-        self.dvk.set_section_first(None)
-        assert self.dvk.get_section_first() == False
-        self.dvk.set_section_first("not a bool")
-        assert self.dvk.get_section_first() == False
+        #FULL SEQUENCE DATA
+        self.dvk.set_previous_ids(["ID1"])
         self.dvk.set_section_first(True)
         assert self.dvk.get_section_first() == True
-        self.dvk.set_next_ids()
+        #LAST/FIRST IN SEQUENCE
+        self.dvk.set_previous_ids([])
+        self.dvk.set_section_first(True)
+        assert self.dvk.get_section_first() == True
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_next_ids([])
+        self.dvk.set_section_first(True)
+        assert self.dvk.get_section_first() == True
+        #SINGLE
+        self.dvk.set_previous_ids([])
+        self.dvk.set_section_first(True)
+        assert self.dvk.get_section_first() == False
+        #INVALID AFTER SETTING
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_section_first(True)
+        assert self.dvk.get_section_first() == True
+        self.dvk.set_previous_ids([])
+        assert self.dvk.get_section_first() == False
+        self.dvk.set_previous_ids("ID1")
+        self.dvk.set_next_ids("ID2")
+        self.dvk.set_section_first(True)
+        assert self.dvk.get_section_first() == True
+        self.dvk.set_previous_ids()
         assert self.dvk.get_section_first() == False
            
     def test_get_set_section_last(self):
@@ -443,20 +479,38 @@ class DvkTest(unittest.TestCase):
         """
         self.dvk.set_section_last(True)
         assert self.dvk.get_section_last() == False
+        #MISSING SEQUENCE DATA
         self.dvk.set_previous_ids(["ID1"])
         self.dvk.set_section_last(True)
         assert self.dvk.get_section_last() == False
         self.dvk.set_previous_ids()
-        self.dvk.set_next_ids(["ID3"])
+        self.dvk.set_next_ids(["ID2"])
         self.dvk.set_section_last(True)
         assert self.dvk.get_section_last() == False
-        self.dvk.set_previous_ids("OtherID")
-        self.dvk.set_section_last()
+        #FULL SEQUENCE DATA
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_section_last(True)
+        assert self.dvk.get_section_last() == True
+        #LAST/FIRST IN SEQUENCE
+        self.dvk.set_previous_ids([])
+        self.dvk.set_section_last(True)
+        assert self.dvk.get_section_last() == True
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_next_ids([])
+        self.dvk.set_section_last(True)
+        assert self.dvk.get_section_last() == True
+        #SINGLE
+        self.dvk.set_previous_ids([])
+        self.dvk.set_section_last(True)
         assert self.dvk.get_section_last() == False
-        self.dvk.set_section_last(None)
+        #INVALID AFTER SETTING
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_section_last(True)
+        assert self.dvk.get_section_last() == True
+        self.dvk.set_previous_ids([])
         assert self.dvk.get_section_last() == False
-        self.dvk.set_section_last("not a bool")
-        assert self.dvk.get_section_last() == False
+        self.dvk.set_previous_ids("ID1")
+        self.dvk.set_next_ids("ID2")
         self.dvk.set_section_last(True)
         assert self.dvk.get_section_last() == True
         self.dvk.set_previous_ids()
@@ -466,46 +520,87 @@ class DvkTest(unittest.TestCase):
         """
         Tests the get_sequence_title and set_sequence_title functions of the Dvk class.
         """
-        self.dvk.set_sequence_title("No sequence")
-        assert self.dvk.get_sequence_title() == ""
-        self.dvk.set_previous_ids(["ID1"])
+        #NO SEQUENCE DATA
         self.dvk.set_sequence_title("invalid")
+        assert self.dvk.get_sequence_title() == ""
+        #MISSING SEQUENCE DATA
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_sequence_title("still invalid")
         assert self.dvk.get_sequence_title() == ""
         self.dvk.set_previous_ids()
         self.dvk.set_next_ids(["ID2"])
-        self.dvk.set_sequence_title("invalid")
+        self.dvk.set_sequence_title("nope")
         assert self.dvk.get_sequence_title() == ""
+        #FULL SEQUENCE DATA
         self.dvk.set_previous_ids(["ID1"])
-        self.dvk.set_sequence_title()
+        self.dvk.set_sequence_title("finally")
+        assert self.dvk.get_sequence_title() == "finally"
+        #LAST/FIRST IN SEQUENCE
+        self.dvk.set_previous_ids([])
+        self.dvk.set_sequence_title("different")
+        assert self.dvk.get_sequence_title() == "different"
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_next_ids([])
+        self.dvk.set_sequence_title("other")
+        assert self.dvk.get_sequence_title() == "other"
+        #SINGLE
+        self.dvk.set_previous_ids([])
+        self.dvk.set_sequence_title("invalid again")
         assert self.dvk.get_sequence_title() == ""
-        self.dvk.set_sequence_title(None)
+        #INVALID AFTER SETTING
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_sequence_title("yep")
+        assert self.dvk.get_sequence_title() == "yep"
+        self.dvk.set_previous_ids([])
         assert self.dvk.get_sequence_title() == ""
-        self.dvk.set_sequence_title("Title thing")
-        assert self.dvk.get_sequence_title() == "Title thing"
-        self.dvk.set_next_ids()
+        self.dvk.set_previous_ids("ID1")
+        self.dvk.set_next_ids("ID2")
+        self.dvk.set_sequence_title("yes")
+        assert self.dvk.get_sequence_title() == "yes"
+        self.dvk.set_previous_ids()
         assert self.dvk.get_sequence_title() == ""
     
     def test_get_set_section_title(self):
         """
         Tests the get_section_title and set_section_title functions of the Dvk class.
         """
-        self.dvk.set_section_title("No sequence")
-        assert self.dvk.get_section_title() == ""
-        self.dvk.set_previous_ids(["ID1"])
         self.dvk.set_section_title("invalid")
+        assert self.dvk.get_section_title() == ""
+        #MISSING SEQUENCE DATA
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_section_title("still invalid")
         assert self.dvk.get_section_title() == ""
         self.dvk.set_previous_ids()
         self.dvk.set_next_ids(["ID2"])
-        self.dvk.set_section_title("invalid")
+        self.dvk.set_section_title("nope")
         assert self.dvk.get_section_title() == ""
+        #FULL SEQUENCE DATA
         self.dvk.set_previous_ids(["ID1"])
-        self.dvk.set_section_title()
+        self.dvk.set_section_title("finally")
+        assert self.dvk.get_section_title() == "finally"
+        #LAST/FIRST IN SEQUENCE
+        self.dvk.set_previous_ids([])
+        self.dvk.set_section_title("different")
+        assert self.dvk.get_section_title() == "different"
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_next_ids([])
+        self.dvk.set_section_title("other")
+        assert self.dvk.get_section_title() == "other"
+        #SINGLE
+        self.dvk.set_previous_ids([])
+        self.dvk.set_section_title("invalid again")
         assert self.dvk.get_section_title() == ""
-        self.dvk.set_section_title(None)
+        #INVALID AFTER SETTING
+        self.dvk.set_previous_ids(["ID1"])
+        self.dvk.set_section_title("yep")
+        assert self.dvk.get_section_title() == "yep"
+        self.dvk.set_previous_ids([])
         assert self.dvk.get_section_title() == ""
-        self.dvk.set_section_title("Title thing")
-        assert self.dvk.get_section_title() == "Title thing"
-        self.dvk.set_next_ids()
+        self.dvk.set_previous_ids("ID1")
+        self.dvk.set_next_ids("ID2")
+        self.dvk.set_section_title("yes")
+        assert self.dvk.get_section_title() == "yes"
+        self.dvk.set_previous_ids()
         assert self.dvk.get_section_title() == ""
         
     
