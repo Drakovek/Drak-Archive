@@ -1,5 +1,7 @@
 from pathlib import Path
+from _functools import cmp_to_key
 from file.Dvk import Dvk
+from processing.StringCompare import compare_alphanum
 
 class DvkDirectory:
     """
@@ -58,4 +60,27 @@ class DvkDirectory:
             return Dvk()
         else:
             return self.dvks[index_int]
-            
+    
+    def sort_dvks(self):
+        """
+        Sorts all currently loaded DVK objects in dvks list.
+        """
+        if self.get_size() > 0:
+            self.dvks = sorted(self.dvks, key=cmp_to_key(self.compare_dvks_alpha))
+
+    def compare_dvks_alpha(self, x:Dvk=None, y:Dvk=None) -> str:
+        """
+        Compares two DVK objects alpha-numerically by their titles.
+        
+        Parameters:
+            x (Dvk): 1st Dvk object to compare
+            y (Dvk): 2nd Dvk object to compare
+        
+        Returns:
+            int: Which Dvk should come first. -1 for x, 1 for y, 0 for indeterminate
+        """
+        if x == None or y == None:
+            return 0
+        return compare_alphanum(x.get_title(), y.get_title())
+        
+        
