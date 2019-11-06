@@ -29,6 +29,9 @@ class DvkDirectoryTest(unittest.TestCase):
         dvk.set_page_url("/unimportant")
         dvk.set_media_file("unimportant")
         dvk.write_dvk()
+        dvk.set_int_time(2018,11,2,11,15)
+        dvk.set_file(self.test_dir.joinpath("dvk10-2.dvk").absolute())
+        dvk.write_dvk()
         dvk.set_title("DVK 10")
         dvk.set_int_time(2019,11,2,11,15)
         dvk.set_file(self.test_dir.joinpath("dvk10.dvk").absolute())
@@ -55,18 +58,35 @@ class DvkDirectoryTest(unittest.TestCase):
         """
         Tests the get_size function of the DvkDirectory class.
         """
-        assert self.dvk_directory.get_size() == 4
+        assert self.dvk_directory.get_size() == 5
         self.dvk_directory.read_dvks()
         assert self.dvk_directory.get_size() == 0
         
-    def test_sort_dvks(self):
+    def test_sort_dvks_alpha(self):
         """
-        Tests the sort_dvks function of the DvkDirectory class.
+        Tests alpha-numeric sorting with the sort_dvks function of the DvkDirectory class.
         """
-        self.dvk_directory.sort_dvks()
-        assert self.dvk_directory.get_size() == 4
+        self.dvk_directory.sort_dvks("A")
+        assert self.dvk_directory.get_size() == 5
         assert self.dvk_directory.get_dvk(0).get_title() == "DVK 2"
+        assert self.dvk_directory.get_dvk(0).get_time() == "2018/11/02|11:15"
+        assert self.dvk_directory.get_dvk(1).get_title() == "DVK 2"
+        assert self.dvk_directory.get_dvk(1).get_time() == "2019/11/02|12:00"
+        assert self.dvk_directory.get_dvk(2).get_title() == "DVK 5 - Fun!"
+        assert self.dvk_directory.get_dvk(3).get_title() == "DVK 5.25 - Fun!"
+        assert self.dvk_directory.get_dvk(4).get_title() == "DVK 10"
+        
+    def test_sort_dvks_time(self):
+        """
+        Tests time sorting with the sort_dvks function of the DvkDirectory class.
+        """
+        self.dvk_directory.sort_dvks("T")
+        assert self.dvk_directory.get_size() == 5
+        assert self.dvk_directory.get_dvk(0).get_time() == "2018/11/02|11:15"
+        assert self.dvk_directory.get_dvk(1).get_time() == "2019/05/02|05:25"
         assert self.dvk_directory.get_dvk(1).get_title() == "DVK 5 - Fun!"
+        assert self.dvk_directory.get_dvk(2).get_time() == "2019/05/02|05:25"
         assert self.dvk_directory.get_dvk(2).get_title() == "DVK 5.25 - Fun!"
-        assert self.dvk_directory.get_dvk(3).get_title() == "DVK 10"
+        assert self.dvk_directory.get_dvk(3).get_time() == "2019/11/02|11:15"
+        assert self.dvk_directory.get_dvk(4).get_time() == "2019/11/02|12:00"
         

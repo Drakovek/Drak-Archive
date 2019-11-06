@@ -1,7 +1,7 @@
 from pathlib import Path
 from _functools import cmp_to_key
 from file.Dvk import Dvk
-from processing.StringCompare import compare_alphanum
+from processing.StringCompare import compare_alphanum, compare_strings
 
 class DvkDirectory:
     """
@@ -61,14 +61,20 @@ class DvkDirectory:
         else:
             return self.dvks[index_int]
     
-    def sort_dvks(self):
+    def sort_dvks(self, sort_type:str=None):
         """
         Sorts all currently loaded DVK objects in dvks list.
+        
+        Parameters:
+            sort_type (str): Sort type ("T": Time, "A": Alpha-numeric)
         """
-        if self.get_size() > 0:
-            self.dvks = sorted(self.dvks, key=cmp_to_key(self.compare_dvks_alpha))
+        if not sort_type == None and self.get_size() > 0:
+            if sort_type.upper() == "T":
+                self.dvks = sorted(self.dvks, key=cmp_to_key(self.compare_dvks_time))
+            else:    
+                self.dvks = sorted(self.dvks, key=cmp_to_key(self.compare_dvks_alpha))
 
-    def compare_dvks_alpha(self, x:Dvk=None, y:Dvk=None) -> str:
+    def compare_dvks_alpha(self, x:Dvk=None, y:Dvk=None) -> int:
         """
         Compares two DVK objects alpha-numerically by their titles.
         
@@ -81,6 +87,26 @@ class DvkDirectory:
         """
         if x == None or y == None:
             return 0
-        return compare_alphanum(x.get_title(), y.get_title())
+        result = compare_alphanum(x.get_title(), y.get_title())
+        if result == 0:
+            return compare_strings(x.get_time(), y.get_time())
+        return result
+    
+    def compare_dvks_time(self, x:Dvk=None, y:Dvk=None) -> int:
+        """
+        Compares two DVK objects by their publication time.
         
+        Parameters:
+            x (Dvk): 1st Dvk object to compare
+            y (Dvk): 2nd Dvk object to compare
         
+        Returns:
+            int: Which Dvk should come first. -1 for x, 1 for y, 0 for indeterminate
+        """
+        if x == None or y == None:
+            return 0
+        result = compare_strings(x.get_time(), y.get_time())
+        if result == 0:
+            return compare_alphanum(x.get_title(), y.get_title())
+        return result
+    
