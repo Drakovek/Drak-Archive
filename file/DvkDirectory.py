@@ -66,11 +66,15 @@ class DvkDirectory:
         Sorts all currently loaded DVK objects in dvks list.
         
         Parameters:
-            sort_type (str): Sort type ("T": Time, "A": Alpha-numeric)
+            sort_type (str): Sort type ("t": Time, "r": Ratings, "v": Views, "a": Alpha-numeric)
         """
         if not sort_type == None and self.get_size() > 0:
-            if sort_type.upper() == "T":
+            if sort_type == "t":
                 self.dvks = sorted(self.dvks, key=cmp_to_key(self.compare_dvks_time))
+            elif sort_type == "r":
+                self.dvks = sorted(self.dvks, key=cmp_to_key(self.compare_dvks_ratings))
+            elif sort_type == "v":
+                self.dvks = sorted(self.dvks, key=cmp_to_key(self.compare_dvks_views))
             else:    
                 self.dvks = sorted(self.dvks, key=cmp_to_key(self.compare_dvks_alpha))
 
@@ -109,4 +113,42 @@ class DvkDirectory:
         if result == 0:
             return compare_alphanum(x.get_title(), y.get_title())
         return result
+    
+    def compare_dvks_ratings(self, x:Dvk=None, y:Dvk=None) -> int:
+        """
+        Compares two DVK objects by their ratings.
+        
+        Parameters:
+            x (Dvk): 1st Dvk object to compare
+            y (Dvk): 2nd Dvk object to compare
+        
+        Returns:
+            int: Which Dvk should come first. -1 for x, 1 for y, 0 for indeterminate
+        """
+        if x == None or y == None:
+            return 0
+        if x.get_rating() < y.get_rating():
+            return -1
+        elif x.get_rating() > y.get_rating():
+            return 1
+        return self.compare_dvks_alpha(x, y)
+    
+    def compare_dvks_views(self, x:Dvk=None, y:Dvk=None) -> int:
+        """
+        Compares two DVK objects by their view counts.
+        
+        Parameters:
+            x (Dvk): 1st Dvk object to compare
+            y (Dvk): 2nd Dvk object to compare
+        
+        Returns:
+            int: Which Dvk should come first. -1 for x, 1 for y, 0 for indeterminate
+        """
+        if x == None or y == None:
+            return 0
+        if x.get_views() < y.get_views():
+            return -1
+        if x.get_views() > y.get_views():
+            return 1
+        return self.compare_dvks_alpha(x, y)
     
