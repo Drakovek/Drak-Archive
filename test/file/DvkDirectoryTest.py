@@ -40,6 +40,7 @@ class DvkDirectoryTest(unittest.TestCase):
         dvk.write_dvk()
         #DVK 3
         dvk.set_title("DVK 10")
+        dvk.set_artist("Guy")
         dvk.set_int_time(2019,11,2,11,15)
         dvk.set_file(self.test_dir.joinpath("dvk10.dvk").absolute())
         dvk.set_rating(4)
@@ -88,6 +89,19 @@ class DvkDirectoryTest(unittest.TestCase):
         assert self.dvk_directory.get_dvk(2).get_title() == "DVK 5 - Fun!"
         assert self.dvk_directory.get_dvk(3).get_title() == "DVK 5.25 - Fun!"
         assert self.dvk_directory.get_dvk(4).get_title() == "DVK 10"
+        #GROUPING ARTISTS
+        self.dvk_directory.sort_dvks("a", True)
+        assert self.dvk_directory.get_size() == 5
+        assert self.dvk_directory.get_dvk(0).get_artists() == ["Artist"]
+        assert self.dvk_directory.get_dvk(0).get_title() == "DVK 5 - Fun!"
+        assert self.dvk_directory.get_dvk(1).get_artists() == ["Artist"]
+        assert self.dvk_directory.get_dvk(1).get_title() == "DVK 5.25 - Fun!"
+        assert self.dvk_directory.get_dvk(2).get_artists() == ["Guy"]
+        assert self.dvk_directory.get_dvk(2).get_title() == "DVK 10"
+        assert self.dvk_directory.get_dvk(3).get_artists() == ["Guy", "Other Guy"]
+        assert self.dvk_directory.get_dvk(3).get_title() == "DVK 2"
+        assert self.dvk_directory.get_dvk(4).get_artists() == ["Guy", "Other Guy"]
+        assert self.dvk_directory.get_dvk(4).get_title() == "DVK 2"
         
     def test_sort_dvks_time(self):
         """
@@ -101,6 +115,19 @@ class DvkDirectoryTest(unittest.TestCase):
         assert self.dvk_directory.get_dvk(2).get_time() == "2019/05/02|05:25"
         assert self.dvk_directory.get_dvk(2).get_title() == "DVK 5.25 - Fun!"
         assert self.dvk_directory.get_dvk(3).get_time() == "2019/11/02|11:15"
+        assert self.dvk_directory.get_dvk(4).get_time() == "2019/11/02|12:00"
+        #GROUPING ARTISTS
+        self.dvk_directory.sort_dvks("t", True)
+        assert self.dvk_directory.get_size() == 5
+        assert self.dvk_directory.get_dvk(0).get_artists() == ["Artist"]
+        assert self.dvk_directory.get_dvk(0).get_time() == "2019/05/02|05:25"
+        assert self.dvk_directory.get_dvk(1).get_artists() == ["Artist"]
+        assert self.dvk_directory.get_dvk(1).get_time() == "2019/05/02|05:25"
+        assert self.dvk_directory.get_dvk(2).get_artists() == ["Guy"]
+        assert self.dvk_directory.get_dvk(2).get_time() == "2019/11/02|11:15"
+        assert self.dvk_directory.get_dvk(3).get_artists() == ["Guy", "Other Guy"]
+        assert self.dvk_directory.get_dvk(3).get_time() == "2018/11/02|11:15"
+        assert self.dvk_directory.get_dvk(4).get_artists() == ["Guy", "Other Guy"]
         assert self.dvk_directory.get_dvk(4).get_time() == "2019/11/02|12:00"
         
     def test_sort_dvks_ratings(self):
@@ -116,6 +143,19 @@ class DvkDirectoryTest(unittest.TestCase):
         assert self.dvk_directory.get_dvk(3).get_rating() == 4
         assert self.dvk_directory.get_dvk(3).get_title() == "DVK 10"
         assert self.dvk_directory.get_dvk(4).get_rating() == 5
+        #GROUPING ARTISTS
+        self.dvk_directory.sort_dvks("r", True)
+        assert self.dvk_directory.get_size() == 5
+        assert self.dvk_directory.get_dvk(0).get_artists() == ["Artist"]
+        assert self.dvk_directory.get_dvk(0).get_rating() == 1
+        assert self.dvk_directory.get_dvk(1).get_artists() == ["Artist"]
+        assert self.dvk_directory.get_dvk(1).get_rating() == 4
+        assert self.dvk_directory.get_dvk(2).get_artists() == ["Guy"]
+        assert self.dvk_directory.get_dvk(2).get_rating() == 4
+        assert self.dvk_directory.get_dvk(3).get_artists() == ["Guy", "Other Guy"]
+        assert self.dvk_directory.get_dvk(3).get_rating() == 0
+        assert self.dvk_directory.get_dvk(4).get_artists() == ["Guy", "Other Guy"]
+        assert self.dvk_directory.get_dvk(4).get_rating() == 5
         
     def test_sort_dvks_views(self):
         """
@@ -129,5 +169,18 @@ class DvkDirectoryTest(unittest.TestCase):
         assert self.dvk_directory.get_dvk(2).get_views() == 7
         assert self.dvk_directory.get_dvk(2).get_title() == "DVK 10"
         assert self.dvk_directory.get_dvk(3).get_views() == 67
+        assert self.dvk_directory.get_dvk(4).get_views() == 128
+        #GROUPING ARTISTS
+        self.dvk_directory.sort_dvks("v", True)
+        assert self.dvk_directory.get_size() == 5
+        assert self.dvk_directory.get_dvk(0).get_artists() == ["Artist"]
+        assert self.dvk_directory.get_dvk(0).get_views() == 7
+        assert self.dvk_directory.get_dvk(1).get_artists() == ["Artist"]
+        assert self.dvk_directory.get_dvk(1).get_views() == 67
+        assert self.dvk_directory.get_dvk(2).get_artists() == ["Guy"]
+        assert self.dvk_directory.get_dvk(2).get_views() == 7
+        assert self.dvk_directory.get_dvk(3).get_artists() == ["Guy", "Other Guy"]
+        assert self.dvk_directory.get_dvk(3).get_views() == 0
+        assert self.dvk_directory.get_dvk(4).get_artists() == ["Guy", "Other Guy"]
         assert self.dvk_directory.get_dvk(4).get_views() == 128
         

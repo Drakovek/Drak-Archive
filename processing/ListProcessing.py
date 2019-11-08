@@ -30,3 +30,26 @@ def clean_list(input_list:list=None) -> list:
                 comp = comp + 1
         count = count + 1
     return output_list
+
+def list_to_string(input_list:list=None) -> str:
+    """
+    Converts a list to a string with entries separated by commas.
+    
+    Parameters:
+        input_list (list): List to convert to string
+    
+    Returns:
+        str: Converted string
+    """
+    if input_list == None:
+        return ""
+    result = ""
+    for next_string in input_list:
+        if not next_string == None and not next_string == "":
+            if result == "":
+                result = next_string
+            else:
+                result = result + "," + next_string
+    return result
+    
+    

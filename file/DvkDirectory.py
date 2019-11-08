@@ -2,6 +2,7 @@ from pathlib import Path
 from _functools import cmp_to_key
 from file.Dvk import Dvk
 from processing.StringCompare import compare_alphanum, compare_strings
+from processing.ListProcessing import list_to_string
 
 class DvkDirectory:
     """
@@ -9,6 +10,7 @@ class DvkDirectory:
     
     Parameters:
         directory_path (Path): Path of the directory from which to read DVK files
+        group_artists (bool): Whether to group DVKs of the same artist together
         dvks (list): List of Dvk objects read from directory_path
     """
     
@@ -17,6 +19,7 @@ class DvkDirectory:
         Initializes the DvkDirectory class.
         """
         self.directory_path = Path()
+        self.group_artists = False
         self.dvks = []
         
     def read_dvks(self, directory_str:str=None):
@@ -61,13 +64,15 @@ class DvkDirectory:
         else:
             return self.dvks[index_int]
     
-    def sort_dvks(self, sort_type:str=None):
+    def sort_dvks(self, sort_type:str=None, group_artists_bool:bool=False):
         """
         Sorts all currently loaded DVK objects in dvks list.
         
         Parameters:
             sort_type (str): Sort type ("t": Time, "r": Ratings, "v": Views, "a": Alpha-numeric)
+            group_artists_bool (bool): Whether to group DVKs of the same artist together
         """
+        self.group_artists = group_artists_bool
         if not sort_type == None and self.get_size() > 0:
             if sort_type == "t":
                 self.dvks = sorted(self.dvks, key=cmp_to_key(self.compare_dvks_time))
@@ -91,7 +96,11 @@ class DvkDirectory:
         """
         if x == None or y == None:
             return 0
-        result = compare_alphanum(x.get_title(), y.get_title())
+        result = 0
+        if self.group_artists:
+            result = compare_alphanum(list_to_string(x.get_artists()), list_to_string(y.get_artists()))
+        if result == 0:
+            result = compare_alphanum(x.get_title(), y.get_title())
         if result == 0:
             return compare_strings(x.get_time(), y.get_time())
         return result
@@ -109,7 +118,11 @@ class DvkDirectory:
         """
         if x == None or y == None:
             return 0
-        result = compare_strings(x.get_time(), y.get_time())
+        result = 0
+        if self.group_artists:
+            result = compare_alphanum(list_to_string(x.get_artists()), list_to_string(y.get_artists()))
+        if result == 0:
+            result = compare_strings(x.get_time(), y.get_time())
         if result == 0:
             return compare_alphanum(x.get_title(), y.get_title())
         return result
@@ -127,11 +140,16 @@ class DvkDirectory:
         """
         if x == None or y == None:
             return 0
-        if x.get_rating() < y.get_rating():
-            return -1
-        elif x.get_rating() > y.get_rating():
-            return 1
-        return self.compare_dvks_alpha(x, y)
+        result = 0
+        if self.group_artists:
+            result = compare_alphanum(list_to_string(x.get_artists()), list_to_string(y.get_artists()))
+        if result == 0:
+            if x.get_rating() < y.get_rating():
+                return -1
+            elif x.get_rating() > y.get_rating():
+                return 1
+            return self.compare_dvks_alpha(x, y)
+        return result
     
     def compare_dvks_views(self, x:Dvk=None, y:Dvk=None) -> int:
         """
@@ -146,9 +164,13 @@ class DvkDirectory:
         """
         if x == None or y == None:
             return 0
-        if x.get_views() < y.get_views():
-            return -1
-        if x.get_views() > y.get_views():
-            return 1
-        return self.compare_dvks_alpha(x, y)
-    
+        result = 0
+        if self.group_artists:
+            result = compare_alphanum(list_to_string(x.get_artists()), list_to_string(y.get_artists()))
+        if result == 0:
+            if x.get_views() < y.get_views():
+                return -1
+            if x.get_views() > y.get_views():
+                return 1
+            return self.compare_dvks_alpha(x, y)
+        return result
