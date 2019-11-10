@@ -14,7 +14,7 @@ def clean_list(input_list:list=None) -> list:
     #REMOVE EMPTY ENTRIES
     count = 0
     while count < len(output_list):
-        if output_list[count] == None or len(output_list[count]) == 0:
+        if output_list[count] == None or output_list[count] == "":
             del output_list[count]
         else:
             count = count + 1
