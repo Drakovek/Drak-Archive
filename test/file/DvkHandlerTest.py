@@ -13,6 +13,9 @@ class DvkHandlerTest(unittest.TestCase):
     """
     
     def setUp(self):
+        """
+        Sets up test files before running tests.
+        """
         unittest.TestCase.setUp(self)
         self.test_dir = Path("handlerTest")
         self.test_dir.mkdir(exist_ok=True)
@@ -24,51 +27,54 @@ class DvkHandlerTest(unittest.TestCase):
         count = 0
         while count < 2:
             dvk.set_file(self.test_dir.joinpath("dvk" + str(count) + ".dvk").absolute())
-            dvk.set_title("DVK " + str(count))
+            dvk.set_title("DVK " + str(10 - count))
             dvk.set_artist("Thing")
-            dvk.set_int_time(2019,11,8,12,count)
-            dvk.set_rating(count)
-            dvk.set_views(count)
+            dvk.set_int_time(2019,11,8,12,20 - count)
+            dvk.set_rating(5 - count)
+            dvk.set_views(10 - count)
             dvk.write_dvk()
             count = count + 1
         #SUB-DIRECTORY 1
         sub1 = Path(self.test_dir.joinpath("sub1").absolute())
         sub1.mkdir(exist_ok=True)
         while count < 4:
-            dvk.set_file(sub1.joinpath("dvk" + str(count) + ".dvk").absolute())
-            dvk.set_title("DVK " + str(count))
-            dvk.set_artist("Artist" + str(count))
-            dvk.set_int_time(2019,11,8,12,count)
-            dvk.set_rating(count)
-            dvk.set_views(count)
+            dvk.set_file(sub1.joinpath("dvk" + str(10 - count) + ".dvk").absolute())
+            dvk.set_title("DVK " + str(10 - count))
+            dvk.set_artist("Artist" + str(10 - count))
+            dvk.set_int_time(2019,11,8,12, 10 - count)
+            dvk.set_rating(5 - count)
+            dvk.set_views(80 - count)
             dvk.write_dvk()
             count = count + 1
         #SUB-DIRECTORY 2
         sub2 = Path(self.test_dir.joinpath("sub2").absolute())
         sub2.mkdir(exist_ok=True)
         while count < 6:
-            dvk.set_file(sub2.joinpath("dvk" + str(count) + ".dvk").absolute())
-            dvk.set_title("DVK " + str(count))
+            dvk.set_file(sub2.joinpath("dvk" + str(10 - count) + ".dvk").absolute())
+            dvk.set_title("DVK " + str(10 -count))
             dvk.set_artist("Thing")
-            dvk.set_int_time(2019,11,8,12,count)
-            dvk.set_rating(count)
-            dvk.set_views(count)
+            dvk.set_int_time(2019,11,8,12, 30 - count)
+            dvk.set_rating(7 - count)
+            dvk.set_views(60 - count)
             dvk.write_dvk()
             count = count + 1
         #INTERNAL SUB-DIRECTORY
         int_sub = Path(sub2.joinpath("intSub").absolute())
         int_sub.mkdir(exist_ok=True)
         while count < 8:
-            dvk.set_file(int_sub.joinpath("dvk" + str(count) + ".dvk").absolute())
-            dvk.set_title("DVK " + str(count))
+            dvk.set_file(int_sub.joinpath("dvk" + str(10 - count) + ".dvk").absolute())
+            dvk.set_title("DVK " + str(10 - count))
             dvk.set_artist("Thing")
-            dvk.set_int_time(2019,11,8,12,count)
-            dvk.set_rating(count)
-            dvk.set_views(count)
+            dvk.set_int_time(2019,11,8,12,10 - count)
+            dvk.set_rating(9 - count)
+            dvk.set_views(70 - count)
             dvk.write_dvk()
             count = count + 1
         
     def tearDown(self):
+        """
+        Removes all test files.
+        """
         unittest.TestCase.tearDown(self)
         rmtree(self.test_dir.absolute())
         
@@ -137,5 +143,145 @@ class DvkHandlerTest(unittest.TestCase):
         assert paths[0].name == "sub1"
         assert paths[1].name == "sub2"
         assert paths[2].name == "intSub"
+    
+    def test_sort_dvks_alpha(self):
+        """
+        Tests alpha-numeric sorting with the sort_dvks function of the DvkHandler class.
+        """
+        dvk_handler = DvkHandler()
+        dvk_handler.load_dvks([self.test_dir.absolute()])
+        dvk_handler.sort_dvks("a", False)
+        assert dvk_handler.get_dvk_sorted(0).get_title() == "DVK 3"
+        assert dvk_handler.get_dvk_sorted(1).get_title() == "DVK 4"
+        assert dvk_handler.get_dvk_sorted(2).get_title() == "DVK 5"
+        assert dvk_handler.get_dvk_sorted(3).get_title() == "DVK 6"
+        assert dvk_handler.get_dvk_sorted(4).get_title() == "DVK 7"
+        assert dvk_handler.get_dvk_sorted(5).get_title() == "DVK 8"
+        assert dvk_handler.get_dvk_sorted(6).get_title() == "DVK 9"
+        assert dvk_handler.get_dvk_sorted(7).get_title() == "DVK 10"
+        #GROUP ARTISTS
+        dvk_handler.sort_dvks("a", True)
+        assert dvk_handler.get_dvk_sorted(0).get_title() == "DVK 7"
+        assert dvk_handler.get_dvk_sorted(0).get_artists() == ["Artist7"]
+        assert dvk_handler.get_dvk_sorted(1).get_title() == "DVK 8"
+        assert dvk_handler.get_dvk_sorted(1).get_artists() == ["Artist8"]
+        assert dvk_handler.get_dvk_sorted(2).get_title() == "DVK 3"
+        assert dvk_handler.get_dvk_sorted(2).get_artists() == ["Thing"]
+        assert dvk_handler.get_dvk_sorted(3).get_title() == "DVK 4"
+        assert dvk_handler.get_dvk_sorted(4).get_title() == "DVK 5"
+        assert dvk_handler.get_dvk_sorted(5).get_title() == "DVK 6"
+        assert dvk_handler.get_dvk_sorted(6).get_title() == "DVK 9"
+        assert dvk_handler.get_dvk_sorted(7).get_title() == "DVK 10"
+        #EMPTY
+        dvk_handler.load_dvks()
+        dvk_handler.sort_dvks("a", False)
+        assert dvk_handler.get_size() == 0
         
+    def test_sort_dvks_time(self):
+        """
+        Tests sorting by time with the sort_dvks function of the DvkHandler class.
+        """
+        dvk_handler = DvkHandler()
+        dvk_handler.load_dvks([self.test_dir.absolute()])
+        dvk_handler.sort_dvks("t", False)
+        assert dvk_handler.get_dvk_sorted(0).get_time() == "2019/11/08|12:03"
+        assert dvk_handler.get_dvk_sorted(1).get_time() == "2019/11/08|12:04"
+        assert dvk_handler.get_dvk_sorted(2).get_time() == "2019/11/08|12:07"
+        assert dvk_handler.get_dvk_sorted(3).get_time() == "2019/11/08|12:08"
+        assert dvk_handler.get_dvk_sorted(4).get_time() == "2019/11/08|12:19"
+        assert dvk_handler.get_dvk_sorted(5).get_time() == "2019/11/08|12:20"
+        assert dvk_handler.get_dvk_sorted(6).get_time() == "2019/11/08|12:25"
+        assert dvk_handler.get_dvk_sorted(7).get_time() == "2019/11/08|12:26"
+        #GROUP ARTISTS
+        dvk_handler.sort_dvks("t", True)
+        assert dvk_handler.get_dvk_sorted(0).get_time() == "2019/11/08|12:07"
+        assert dvk_handler.get_dvk_sorted(0).get_artists() == ["Artist7"]
+        assert dvk_handler.get_dvk_sorted(1).get_time() == "2019/11/08|12:08"
+        assert dvk_handler.get_dvk_sorted(1).get_artists() == ["Artist8"]
+        assert dvk_handler.get_dvk_sorted(2).get_time() == "2019/11/08|12:03"
+        assert dvk_handler.get_dvk_sorted(2).get_artists() == ["Thing"]
+        assert dvk_handler.get_dvk_sorted(3).get_time() == "2019/11/08|12:04"
+        assert dvk_handler.get_dvk_sorted(4).get_time() == "2019/11/08|12:19"
+        assert dvk_handler.get_dvk_sorted(5).get_time() == "2019/11/08|12:20"
+        assert dvk_handler.get_dvk_sorted(6).get_time() == "2019/11/08|12:25"
+        assert dvk_handler.get_dvk_sorted(7).get_time() == "2019/11/08|12:26"
+        #EMPTY
+        dvk_handler.load_dvks()
+        dvk_handler.sort_dvks("t", False)
+        assert dvk_handler.get_size() == 0
         
+    def test_sort_dvks_ratings(self):
+        """
+        Tests sorting by ratings with the sort_dvks function of the DvkHandler class.
+        """
+        dvk_handler = DvkHandler()
+        dvk_handler.load_dvks([self.test_dir.absolute()])
+        dvk_handler.sort_dvks("r", False)
+        assert dvk_handler.get_dvk_sorted(0).get_rating() == 2
+        assert dvk_handler.get_dvk_sorted(0).get_title() == "DVK 3"
+        assert dvk_handler.get_dvk_sorted(1).get_rating() == 2
+        assert dvk_handler.get_dvk_sorted(1).get_title() == "DVK 5"
+        assert dvk_handler.get_dvk_sorted(2).get_rating() == 2
+        assert dvk_handler.get_dvk_sorted(2).get_title() == "DVK 7"
+        assert dvk_handler.get_dvk_sorted(3).get_rating() == 3
+        assert dvk_handler.get_dvk_sorted(3).get_title() == "DVK 4"
+        assert dvk_handler.get_dvk_sorted(4).get_rating() == 3
+        assert dvk_handler.get_dvk_sorted(4).get_title() == "DVK 6"
+        assert dvk_handler.get_dvk_sorted(5).get_rating() == 3
+        assert dvk_handler.get_dvk_sorted(5).get_title() == "DVK 8"
+        assert dvk_handler.get_dvk_sorted(6).get_rating() == 4
+        assert dvk_handler.get_dvk_sorted(7).get_rating() == 5
+        #GROUP ARTISTS
+        dvk_handler.sort_dvks("r", True)
+        assert dvk_handler.get_dvk_sorted(0).get_rating() == 2
+        assert dvk_handler.get_dvk_sorted(0).get_artists() == ["Artist7"]
+        assert dvk_handler.get_dvk_sorted(1).get_rating() == 3
+        assert dvk_handler.get_dvk_sorted(1).get_artists() == ["Artist8"]
+        assert dvk_handler.get_dvk_sorted(2).get_rating() == 2
+        assert dvk_handler.get_dvk_sorted(2).get_artists() == ["Thing"]
+        assert dvk_handler.get_dvk_sorted(2).get_title() == "DVK 3"
+        assert dvk_handler.get_dvk_sorted(3).get_rating() == 2
+        assert dvk_handler.get_dvk_sorted(3).get_title() == "DVK 5"
+        assert dvk_handler.get_dvk_sorted(4).get_rating() == 3
+        assert dvk_handler.get_dvk_sorted(4).get_title() == "DVK 4"
+        assert dvk_handler.get_dvk_sorted(5).get_rating() == 3
+        assert dvk_handler.get_dvk_sorted(5).get_title() == "DVK 6"
+        assert dvk_handler.get_dvk_sorted(6).get_rating() == 4
+        assert dvk_handler.get_dvk_sorted(7).get_rating() == 5
+        #EMPTY
+        dvk_handler.load_dvks()
+        dvk_handler.sort_dvks("r", False)
+        assert dvk_handler.get_size() == 0
+        
+    def test_sort_dvks_views(self):
+        """
+        Tests sorting by view count with the sort_dvks function of the DvkHandler class.
+        """
+        dvk_handler = DvkHandler()
+        dvk_handler.load_dvks([self.test_dir.absolute()])
+        dvk_handler.sort_dvks("v", False)
+        assert dvk_handler.get_dvk_sorted(0).get_views() == 9
+        assert dvk_handler.get_dvk_sorted(1).get_views() == 10
+        assert dvk_handler.get_dvk_sorted(2).get_views() == 55
+        assert dvk_handler.get_dvk_sorted(3).get_views() == 56
+        assert dvk_handler.get_dvk_sorted(4).get_views() == 63
+        assert dvk_handler.get_dvk_sorted(5).get_views() == 64
+        assert dvk_handler.get_dvk_sorted(6).get_views() == 77
+        assert dvk_handler.get_dvk_sorted(7).get_views() == 78
+        dvk_handler.sort_dvks("v", True)
+        assert dvk_handler.get_dvk_sorted(0).get_views() == 77
+        assert dvk_handler.get_dvk_sorted(0).get_artists() == ["Artist7"]
+        assert dvk_handler.get_dvk_sorted(1).get_views() == 78
+        assert dvk_handler.get_dvk_sorted(1).get_artists() == ["Artist8"]
+        assert dvk_handler.get_dvk_sorted(2).get_views() == 9
+        assert dvk_handler.get_dvk_sorted(2).get_artists() == ["Thing"]
+        assert dvk_handler.get_dvk_sorted(3).get_views() == 10
+        assert dvk_handler.get_dvk_sorted(4).get_views() == 55
+        assert dvk_handler.get_dvk_sorted(5).get_views() == 56
+        assert dvk_handler.get_dvk_sorted(6).get_views() == 63
+        assert dvk_handler.get_dvk_sorted(7).get_views() == 64
+        #EMPTY
+        dvk_handler.load_dvks()
+        dvk_handler.sort_dvks("v", False)
+        assert dvk_handler.get_size() == 0
+            

@@ -53,6 +53,20 @@ class DvkHandler:
             int: Number of DVK files loaded
         """
         return len(self.sorted)
+    
+    def get_dvk_sorted(self, index_int:int=-1) -> Dvk:
+        """
+        Returns the Dvk object for a given index in the sorted index list.
+        
+        Parameters:
+            index_int (int): Sorted index
+            
+        Returns:
+            Dvk: Dvk object for the given index
+        """
+        if index_int > -1 and index_int < self.get_size():
+            return self.get_dvk_direct(self.sorted[index_int])
+        return Dvk()
         
     def get_dvk_direct(self, index_int:int=-1) -> Dvk:
         """
@@ -97,4 +111,60 @@ class DvkHandler:
                     paths.append(Path(p[0]))
         return sorted(clean_list(paths))
     
+    def sort_dvks(self, sort_type:str=None, group_artists_bool:bool=False):
+        """
+        Sorts the indexes in sorted list based on loaded Dvk objects.
+        
+        Parameters:
+            sort_type (str): Sort type ("t": Time, "r": Ratings, "v": Views, "a": Alpha-numeric)
+            group_artists_bool (bool): Whether to group DVKs of the same artist together
+        """
+        if self.get_size() > 0:
+            #SORT INDIVIDUAL DIRECTORIES
+            for dvk_directory in self.dvk_directories:
+                dvk_directory.sort_dvks(sort_type, group_artists_bool)
+            #SPLIT SORTED
+            separated = []
+            dir_index = 0
+            index_int = 0
+            while dir_index < len(self.dvk_directories):
+                separated.append([])
+                s = self.dvk_directories[dir_index].get_size() + index_int
+                while index_int < s:
+                    separated[dir_index].append(index_int)
+                    index_int = index_int + 1
+                dir_index = dir_index + 1
+            #MERGE
+            self.dvk_directories[0].group_artists = group_artists_bool
+            while len(separated) > 1:
+                merged = []
+                while len(separated[0]) > 0 and len(separated[1]) > 0:
+                    #COMPARE DVKS
+                    if sort_type == "t":
+                        result = self.dvk_directories[0].compare_dvks_time(self.get_dvk_direct(separated[0][0]),
+                                                                           self.get_dvk_direct(separated[1][0]))
+                    elif sort_type == "r":
+                        result = self.dvk_directories[0].compare_dvks_ratings(self.get_dvk_direct(separated[0][0]),
+                                                                              self.get_dvk_direct(separated[1][0]))
+                    elif sort_type == "v":
+                        result = self.dvk_directories[0].compare_dvks_views(self.get_dvk_direct(separated[0][0]),
+                                                                            self.get_dvk_direct(separated[1][0]))
+                    else:    
+                        result = self.dvk_directories[0].compare_dvks_alpha(self.get_dvk_direct(separated[0][0]), 
+                                                                            self.get_dvk_direct(separated[1][0]))
+                    #ADD TO MERGE
+                    if result > 0:
+                        merged.append(separated[1][0])
+                        del separated[1][0]
+                    else:
+                        merged.append(separated[0][0])
+                        del separated[0][0]
+                merged.extend(separated[0])
+                del separated[0]
+                merged.extend(separated[0])
+                del separated[0]
+                separated.append(merged)
+            self.sorted = separated[0]
+        else:
+            self.reset_sorted()
     
