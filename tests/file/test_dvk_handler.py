@@ -1,17 +1,18 @@
 import unittest
 from shutil import rmtree
 from pathlib import Path
-from file.Dvk import Dvk
-from file.DvkHandler import DvkHandler
+from drak_archive.file.dvk import Dvk
+from drak_archive.file.dvk_handler import DvkHandler
 
-class DvkHandlerTest(unittest.TestCase):
+
+class TestDvkHandler(unittest.TestCase):
     """
     Unit tests for the DvkHandler class.
-    
+
     Attributes:
         test_dir (Path): Directory for holding test files.
     """
-    
+
     def setUp(self):
         """
         Sets up test files before running tests.
@@ -26,61 +27,65 @@ class DvkHandlerTest(unittest.TestCase):
         dvk.set_media_file("unimportant")
         count = 0
         while count < 2:
-            dvk.set_file(self.test_dir.joinpath("dvk" + str(count) + ".dvk").absolute())
+            dvk_file = self.test_dir.joinpath("dvk" + str(count) + ".dvk")
+            dvk.set_file(dvk_file.absolute())
             dvk.set_title("DVK " + str(10 - count))
             dvk.set_artist("Thing")
-            dvk.set_int_time(2019,11,8,12,20 - count)
+            dvk.set_time_int(2019, 11, 8, 12, 20 - count)
             dvk.set_rating(5 - count)
             dvk.set_views(10 - count)
             dvk.write_dvk()
             count = count + 1
-        #SUB-DIRECTORY 1
+        # SUB-DIRECTORY 1
         sub1 = Path(self.test_dir.joinpath("sub1").absolute())
         sub1.mkdir(exist_ok=True)
         while count < 4:
-            dvk.set_file(sub1.joinpath("dvk" + str(10 - count) + ".dvk").absolute())
+            dvk_file = sub1.joinpath("dvk" + str(10 - count) + ".dvk")
+            dvk.set_file(dvk_file.absolute())
             dvk.set_title("DVK " + str(10 - count))
             dvk.set_artist("Artist" + str(10 - count))
-            dvk.set_int_time(2019,11,8,12, 10 - count)
+            dvk.set_time_int(2019, 11, 8, 12, 10 - count)
             dvk.set_rating(5 - count)
             dvk.set_views(80 - count)
             dvk.write_dvk()
             count = count + 1
-        #SUB-DIRECTORY 2
+        # SUB-DIRECTORY 2
         sub2 = Path(self.test_dir.joinpath("sub2").absolute())
         sub2.mkdir(exist_ok=True)
         while count < 6:
-            dvk.set_file(sub2.joinpath("dvk" + str(10 - count) + ".dvk").absolute())
-            dvk.set_title("DVK " + str(10 -count))
+            dvk_file = sub2.joinpath("dvk" + str(10 - count) + ".dvk")
+            dvk.set_file(dvk_file.absolute())
+            dvk.set_title("DVK " + str(10 - count))
             dvk.set_artist("Thing")
-            dvk.set_int_time(2019,11,8,12, 30 - count)
+            dvk.set_time_int(2019, 11, 8, 12, 30 - count)
             dvk.set_rating(7 - count)
             dvk.set_views(60 - count)
             dvk.write_dvk()
             count = count + 1
-        #INTERNAL SUB-DIRECTORY
+        # INTERNAL SUB-DIRECTORY
         int_sub = Path(sub2.joinpath("intSub").absolute())
         int_sub.mkdir(exist_ok=True)
         while count < 8:
-            dvk.set_file(int_sub.joinpath("dvk" + str(10 - count) + ".dvk").absolute())
+            dvk_file = int_sub.joinpath("dvk" + str(10 - count) + ".dvk")
+            dvk.set_file(dvk_file.absolute())
             dvk.set_title("DVK " + str(10 - count))
             dvk.set_artist("Thing")
-            dvk.set_int_time(2019,11,8,12,10 - count)
+            dvk.set_time_int(2019, 11, 8, 12, 10 - count)
             dvk.set_rating(9 - count)
             dvk.set_views(70 - count)
             dvk.write_dvk()
             count = count + 1
-        
+
     def tearDown(self):
         """
         Removes all test files.
         """
         unittest.TestCase.tearDown(self)
         rmtree(self.test_dir.absolute())
-        
+
     def test_reset_sorted(self):
         """
-        Tests the reset_sorted function of the DvkHandler class.
+        Tests the reset_sorted function.
         """
         dvk_handler = DvkHandler()
         dvk_handler.load_dvks([self.test_dir.absolute()])
@@ -91,10 +96,10 @@ class DvkHandlerTest(unittest.TestCase):
             count = count + 1
         dvk_handler.load_dvks()
         assert dvk_handler.sorted == []
-        
+
     def test_get_dvk_direct(self):
         """
-        Tests the get_dvk_direct function of the DvkHandler class.
+        Tests the get_dvk_direct function.
         """
         dvk_handler = DvkHandler()
         dvk_handler.load_dvks([self.test_dir.absolute()])
@@ -104,24 +109,25 @@ class DvkHandlerTest(unittest.TestCase):
         titles = []
         for i in range(0, 8):
             dvk = dvk_handler.get_dvk_direct(i)
-            assert not dvk.title in titles
+            assert dvk.title not in titles
             titles.append(dvk.title)
-    
+
     def test_get_size(self):
         """
-        Tests the get_size function of the DvkHandler class.
+        Tests the get_size function.
         """
         dvk_handler = DvkHandler()
         dvk_handler.load_dvks([self.test_dir.absolute()])
         assert dvk_handler.get_size() == 8
         dvk_handler.load_dvks(None)
         assert dvk_handler.get_size() == 0
-        dvk_handler.load_dvks([Path(self.test_dir.joinpath("sub1").absolute()).absolute()])
+        dvk_file = self.test_dir.joinpath("sub1").absolute()
+        dvk_handler.load_dvks([Path(dvk_file).absolute()])
         assert dvk_handler.get_size() == 2
-        
+
     def test_get_directories(self):
         """
-        Tests the get_directories function of the DvkHandler class.
+        Tests the get_directories function.
         """
         dvk_handler = DvkHandler()
         paths = dvk_handler.get_directories([self.test_dir.absolute()])
@@ -130,23 +136,26 @@ class DvkHandlerTest(unittest.TestCase):
         assert paths[1].name == "sub1"
         assert paths[2].name == "sub2"
         assert paths[3].name == "intSub"
-        paths = dvk_handler.get_directories([Path(self.test_dir.joinpath("sub2").absolute()).absolute()])
+        dvk_file = self.test_dir.joinpath("sub2").absolute()
+        paths = dvk_handler.get_directories([Path(dvk_file).absolute()])
         assert len(paths) == 2
         assert paths[0].name == "sub2"
         assert paths[1].name == "intSub"
         assert dvk_handler.get_directories() == []
         assert dvk_handler.get_directories(None) == []
         assert dvk_handler.get_directories("lskdfjo") == []
-        paths = dvk_handler.get_directories([Path(self.test_dir.joinpath("sub1").absolute()).absolute(),
-                                  Path(self.test_dir.joinpath("sub2").absolute()).absolute()])
+        s_paths = []
+        s_paths.append(self.test_dir.joinpath("sub1").absolute())
+        s_paths.append(self.test_dir.joinpath("sub2").absolute())
+        paths = dvk_handler.get_directories(s_paths)
         assert len(paths) == 3
         assert paths[0].name == "sub1"
         assert paths[1].name == "sub2"
         assert paths[2].name == "intSub"
-    
+
     def test_sort_dvks_alpha(self):
         """
-        Tests alpha-numeric sorting with the sort_dvks function of the DvkHandler class.
+        Tests alpha-numeric sorting with the sort_dvks function.
         """
         dvk_handler = DvkHandler()
         dvk_handler.load_dvks([self.test_dir.absolute()])
@@ -159,7 +168,7 @@ class DvkHandlerTest(unittest.TestCase):
         assert dvk_handler.get_dvk_sorted(5).get_title() == "DVK 8"
         assert dvk_handler.get_dvk_sorted(6).get_title() == "DVK 9"
         assert dvk_handler.get_dvk_sorted(7).get_title() == "DVK 10"
-        #GROUP ARTISTS
+        # GROUP ARTISTS
         dvk_handler.sort_dvks("a", True)
         assert dvk_handler.get_dvk_sorted(0).get_title() == "DVK 7"
         assert dvk_handler.get_dvk_sorted(0).get_artists() == ["Artist7"]
@@ -172,14 +181,14 @@ class DvkHandlerTest(unittest.TestCase):
         assert dvk_handler.get_dvk_sorted(5).get_title() == "DVK 6"
         assert dvk_handler.get_dvk_sorted(6).get_title() == "DVK 9"
         assert dvk_handler.get_dvk_sorted(7).get_title() == "DVK 10"
-        #EMPTY
+        # EMPTY
         dvk_handler.load_dvks()
         dvk_handler.sort_dvks("a", False)
         assert dvk_handler.get_size() == 0
-        
+
     def test_sort_dvks_time(self):
         """
-        Tests sorting by time with the sort_dvks function of the DvkHandler class.
+        Tests sorting by time with the sort_dvks function.
         """
         dvk_handler = DvkHandler()
         dvk_handler.load_dvks([self.test_dir.absolute()])
@@ -192,7 +201,7 @@ class DvkHandlerTest(unittest.TestCase):
         assert dvk_handler.get_dvk_sorted(5).get_time() == "2019/11/08|12:20"
         assert dvk_handler.get_dvk_sorted(6).get_time() == "2019/11/08|12:25"
         assert dvk_handler.get_dvk_sorted(7).get_time() == "2019/11/08|12:26"
-        #GROUP ARTISTS
+        # GROUP ARTISTS
         dvk_handler.sort_dvks("t", True)
         assert dvk_handler.get_dvk_sorted(0).get_time() == "2019/11/08|12:07"
         assert dvk_handler.get_dvk_sorted(0).get_artists() == ["Artist7"]
@@ -205,14 +214,14 @@ class DvkHandlerTest(unittest.TestCase):
         assert dvk_handler.get_dvk_sorted(5).get_time() == "2019/11/08|12:20"
         assert dvk_handler.get_dvk_sorted(6).get_time() == "2019/11/08|12:25"
         assert dvk_handler.get_dvk_sorted(7).get_time() == "2019/11/08|12:26"
-        #EMPTY
+        # EMPTY
         dvk_handler.load_dvks()
         dvk_handler.sort_dvks("t", False)
         assert dvk_handler.get_size() == 0
-        
+
     def test_sort_dvks_ratings(self):
         """
-        Tests sorting by ratings with the sort_dvks function of the DvkHandler class.
+        Tests sorting by ratings with the sort_dvks function.
         """
         dvk_handler = DvkHandler()
         dvk_handler.load_dvks([self.test_dir.absolute()])
@@ -231,7 +240,7 @@ class DvkHandlerTest(unittest.TestCase):
         assert dvk_handler.get_dvk_sorted(5).get_title() == "DVK 8"
         assert dvk_handler.get_dvk_sorted(6).get_rating() == 4
         assert dvk_handler.get_dvk_sorted(7).get_rating() == 5
-        #GROUP ARTISTS
+        # GROUP ARTISTS
         dvk_handler.sort_dvks("r", True)
         assert dvk_handler.get_dvk_sorted(0).get_rating() == 2
         assert dvk_handler.get_dvk_sorted(0).get_artists() == ["Artist7"]
@@ -248,14 +257,14 @@ class DvkHandlerTest(unittest.TestCase):
         assert dvk_handler.get_dvk_sorted(5).get_title() == "DVK 6"
         assert dvk_handler.get_dvk_sorted(6).get_rating() == 4
         assert dvk_handler.get_dvk_sorted(7).get_rating() == 5
-        #EMPTY
+        # EMPTY
         dvk_handler.load_dvks()
         dvk_handler.sort_dvks("r", False)
         assert dvk_handler.get_size() == 0
-        
+
     def test_sort_dvks_views(self):
         """
-        Tests sorting by view count with the sort_dvks function of the DvkHandler class.
+        Tests sorting by view count with the sort_dvks function.
         """
         dvk_handler = DvkHandler()
         dvk_handler.load_dvks([self.test_dir.absolute()])
@@ -280,8 +289,7 @@ class DvkHandlerTest(unittest.TestCase):
         assert dvk_handler.get_dvk_sorted(5).get_views() == 56
         assert dvk_handler.get_dvk_sorted(6).get_views() == 63
         assert dvk_handler.get_dvk_sorted(7).get_views() == 64
-        #EMPTY
+        # EMPTY
         dvk_handler.load_dvks()
         dvk_handler.sort_dvks("v", False)
         assert dvk_handler.get_size() == 0
-            

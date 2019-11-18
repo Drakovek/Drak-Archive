@@ -1,14 +1,15 @@
 import unittest
-from processing.StringProcessing import extend_int
+from drak_archive.processing.string_processing import extend_int
 
-class StringProcessingTest(unittest.TestCase):
+
+class TestStringProcessing(unittest.TestCase):
     """
     Unit tests for the StringProcessing.py module.
     """
-    
+
     def test_extend_int(self):
         """
-        Tests the extend_int function in the StringProcessing.py module.
+        Tests the extend_int function.
         """
         assert extend_int() == "0"
         assert extend_int(None, 5) == "00000"

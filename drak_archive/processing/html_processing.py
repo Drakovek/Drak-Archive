@@ -1,41 +1,42 @@
-def add_escapes(input_str:str=None) -> str:
+def add_escapes(input_str: str = None) -> str:
     """
     Replaces uncommon characters in a given string with HTML escape characters.
-    
+
     Parameters:
         input_str (str): String in which to replace uncommon characters.
-        
+
     Returns:
         str: String containing replacement HTML escape characters
     """
-    if input_str == None:
+    if input_str is None:
         return ""
     char_index = 0
     output_str = ""
     while char_index < len(input_str):
         char_value = ord(input_str[char_index])
-        if ((char_value > 47 and char_value < 58) or
-            (char_value > 64 and char_value < 91) or
-            (char_value > 96 and char_value < 123) or
-            char_value == ord(" ")):
+        if ((char_value > 47 and char_value < 58)
+                or (char_value > 64 and char_value < 91)
+                or (char_value > 96 and char_value < 123)
+                or char_value == ord(" ")):
             output_str = output_str + input_str[char_index]
         else:
             output_str = output_str + "&#" + str(char_value) + ";"
         char_index = char_index + 1
     return output_str
 
-def add_escapes_to_html(input_str:str=None) -> str:
+
+def add_escapes_to_html(input_str: str = None) -> str:
     """
-    Replaces uncommon characters in a HTML formatted string with HTML escape characters
+    Replaces uncommon characters in a HTML string with HTML escape characters.
     while maintaining HTML formatting and tags.
-    
+
     Parameters:
         input_str (str): Given HTML formatted string
-        
+
     Returns:
         str: HTML string with replacement escape characters
     """
-    if input_str == None:
+    if input_str is None:
         return ""
     char_index = 0
     output_str = ""
@@ -56,17 +57,21 @@ def add_escapes_to_html(input_str:str=None) -> str:
         char_index = char_index + 1
     return output_str
 
-def escape_to_char(escape:str=None) -> str:
+
+def escape_to_char(escape: str = None) -> str:
     """
     Returns a single character string from a given HTML escape character.
-    
+
     Parameters:
         escape (str): Given HTML escape character
-        
+
     Returns:
         str: Single character string representation of given escape character
     """
-    if escape == None or len(escape) < 3 or not escape[0] == "&" or not escape[-1] == ";":
+    if (escape is None
+            or len(escape) < 3
+            or not escape[0] == "&"
+            or not escape[-1] == ";"):
         return ""
     mid = escape[1:-1]
     if mid == "quot":
@@ -85,26 +90,27 @@ def escape_to_char(escape:str=None) -> str:
         try:
             out_char = chr(int(mid[1:len(mid)]))
             return out_char
-        except:
+        except ValueError:
             return ""
     return ""
 
-def replace_escapes(input_str:str=None) -> str:
+
+def replace_escapes(input_str: str = None) -> str:
     """
     Replaces HTML escape characters in a given string with unicode characters.
-    
+
     Parameters:
         input_str (str): String from which to remove escape characters
-        
+
     Returns:
         str: String with replaced escape characters
     """
-    if input_str == None:
+    if input_str is None:
         return ""
     output_str = input_str
     start = output_str.find("&")
     while not start == -1:
-        end = output_str.find(";", start) 
+        end = output_str.find(";", start)
         if not end == -1:
             end = end + 1
             replaced = output_str[0:start]

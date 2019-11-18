@@ -1,14 +1,16 @@
 import unittest
-from processing.ListProcessing import clean_list, list_to_string
+from drak_archive.processing.list_processing import clean_list
+from drak_archive.processing.list_processing import list_to_string
 
-class ListProcessingTest(unittest.TestCase):
+
+class TestListProcessing(unittest.TestCase):
     """
     Unit tests for the ListProcessing.py module.
     """
-    
+
     def test_clean_list(self):
         """
-        Tests the clean_list function in the ListProcessing.py module.
+        Tests the clean_list function.
         """
         assert len(clean_list()) == 0
         assert len(clean_list(None)) == 0
@@ -17,16 +19,15 @@ class ListProcessingTest(unittest.TestCase):
         assert cleaned[0] == "these"
         assert cleaned[1] == "are"
         assert cleaned[2] == "things"
-        
+
     def test_list_to_string(self):
         """
-        Tests the list_to_string function in the ListProcessing.py module.
+        Tests the list_to_string function.
         """
         assert list_to_string() == ""
         assert list_to_string(None) == ""
         assert list_to_string([""]) == ""
         assert list_to_string([None]) == ""
         assert list_to_string(["test"]) == "test"
-        assert list_to_string(["", "String1", None, None, "string 2", "3"]) == "String1,string 2,3"
-        
-        
+        input = ["", "String1", None, None, "string 2", "3"]
+        assert list_to_string(input) == "String1,string 2,3"

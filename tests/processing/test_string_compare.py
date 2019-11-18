@@ -1,14 +1,20 @@
 import unittest
-from processing.StringCompare import compare_strings, get_section, is_digit, compare_sections, is_number_string, compare_alphanum
+from drak_archive.processing.string_compare import compare_alphanum
+from drak_archive.processing.string_compare import compare_sections
+from drak_archive.processing.string_compare import compare_strings
+from drak_archive.processing.string_compare import get_section
+from drak_archive.processing.string_compare import is_digit
+from drak_archive.processing.string_compare import is_number_string
 
-class StringCompareTest(unittest.TestCase):
+
+class TestStringCompare(unittest.TestCase):
     """
     Unit tests for the StringCompare.py module.
     """
-    
+
     def test_compare_strings(self):
         """
-        Tests the compare_strings function of the StringCompare.py module.
+        Tests the compare_strings function.
         """
         assert compare_strings() == 0
         assert compare_strings(None, "a") == 0
@@ -18,10 +24,10 @@ class StringCompareTest(unittest.TestCase):
         assert compare_strings("a", "B") == -1
         assert compare_strings("Test1", "Test2") == -1
         assert compare_strings("Same", "same") == 0
-        
+
     def test_compare_alphanum(self):
         """
-        Tests the compare_alphanum function of the StringCompare.py module.
+        Tests the compare_alphanum function.
         """
         assert compare_alphanum() == 0
         assert compare_alphanum(None, "a") == 0
@@ -35,10 +41,10 @@ class StringCompareTest(unittest.TestCase):
         assert compare_alphanum("Test 0.5", "Test 0,05") == 1
         assert compare_alphanum("v1.2.10", "v1.2.02") == 1
         assert compare_alphanum("Thing 5 Extra", "Thing 20") == -1
-    
+
     def test_get_section(self):
         """
-        Tests the get_section function of the StringCompare.py module.
+        Tests the get_section function.
         """
         assert get_section() == ""
         assert get_section("") == ""
@@ -53,39 +59,39 @@ class StringCompareTest(unittest.TestCase):
         assert get_section("Test, and stuff.!") == "Test, and stuff.!"
         assert get_section("Number: .02!") == "Number: "
         assert get_section("# ,40") == "# "
-    
+
     def test_is_digit(self):
         """
-        Tests the is_digit function of the StringCompare.py module.
+        Tests the is_digit function.
         """
-        assert is_digit() == False
-        assert is_digit("") == False
-        assert is_digit(None) == False
-        assert is_digit("long") == False
-        assert is_digit("0") == True
-        assert is_digit("9") == True
-        assert is_digit("5") == True
-        assert is_digit("/") == False
-        assert is_digit(":") == False
-        assert is_digit("A") == False
-        
+        assert not is_digit()
+        assert not is_digit("")
+        assert not is_digit(None)
+        assert not is_digit("long")
+        assert is_digit("0")
+        assert is_digit("9")
+        assert is_digit("5")
+        assert not is_digit("/")
+        assert not is_digit(":")
+        assert not is_digit("A")
+
     def test_is_number_string(self):
         """
-        Tests the is_number_string function of the StringCompare.py module.
+        Tests the is_number_string function.
         """
-        assert is_number_string() == False
-        assert is_number_string("") == False
-        assert is_number_string(None) == False
-        assert is_number_string("string02") == False
-        assert is_number_string("25 Thing") == True
-        assert is_number_string(".34 String") == True
-        assert is_number_string(",53.4") == True
-        assert is_number_string(".not number") == False
-        assert is_number_string(", nope") == False
-        
+        assert not is_number_string()
+        assert not is_number_string("")
+        assert not is_number_string(None)
+        assert not is_number_string("string02")
+        assert is_number_string("25 Thing")
+        assert is_number_string(".34 String")
+        assert is_number_string(",53.4")
+        assert not is_number_string(".not number")
+        assert not is_number_string(", nope")
+
     def test_compare_sections(self):
         """
-        Tests the compare_sections function of the StringCompare.py module.
+        Tests the compare_sections function.
         """
         assert compare_sections() == 0
         assert compare_sections("", "a") == -1
@@ -100,9 +106,9 @@ class StringCompareTest(unittest.TestCase):
         assert compare_sections(",2", ",02") == 1
         assert compare_sections("0000000001", "0") == 1
         assert compare_sections("12.05.03", "2") == 0
-        assert compare_sections("12345678900000000000000000000000000000000000000000000", 
-                                "12345678900000000000000000000000000000000000000000001") == -1
-        assert compare_sections("0.12345678900000000000000000000000000000000000000000000", 
-                                "0.12345678900000000000000000000000000000000000000000001") == -1
-        
-        
+        section1 = "12345678900000000000000000000000000000000000000000000"
+        section2 = "12345678900000000000000000000000000000000000000000001"
+        assert compare_sections(section1, section2) == -1
+        section1 = "0.12345678900000000000000000000000000000000000000000000"
+        section2 = "0.12345678900000000000000000000000000000000000000000001"
+        assert compare_sections(section1, section2) == -1
