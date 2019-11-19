@@ -1,0 +1,7 @@
+drak_archive/__pycache__*
+drak_archive/error/__pycache__*
+drak_archive/file/__pycache__*
+drak_archive/processing/__pycache__*
+tests/error/__pycache__*
+tests/file/__pycache__*
+tests/processing/__pycache__*
