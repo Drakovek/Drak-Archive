@@ -1,4 +1,5 @@
 from os import listdir
+from tqdm import tqdm
 from drak_archive.file.dvk_handler import DvkHandler
 
 
@@ -25,7 +26,8 @@ def identical_ids(
         handler.load_dvks(dvk_directories)
     handler.sort_dvks("a", True)
     size = handler.get_size()
-    for i in range(0, size):
+    print("Searching for DVK files with identical IDs:")
+    for i in tqdm(range(0, size)):
         first = True
         if i not in located:
             for k in range(i + 1, size):
@@ -63,7 +65,8 @@ def missing_media(
     missing = []
     handler.sort_dvks("a", True)
     size = handler.get_size()
-    for i in range(0, size):
+    print("Searching for DVK files without media files:")
+    for i in tqdm(range(0, size)):
         file = handler.get_dvk_sorted(i).get_media_file()
         s_file = handler.get_dvk_sorted(i).get_secondary_file()
         if not file.exists() or (s_file is not None and not s_file.exists()):
@@ -71,7 +74,7 @@ def missing_media(
     return missing
 
 
-def missing_dvks(
+def unlinked_media(
         dvk_directories: list = None,
         dvk_handler: DvkHandler = None) -> list:
     """
@@ -91,7 +94,8 @@ def missing_dvks(
         handler = DvkHandler()
         handler.load_dvks(dvk_directories)
     missing = []
-    for dir in handler.dvk_directories:
+    print("Searching for media without corresponding DVK files:")
+    for dir in tqdm(handler.dvk_directories):
         for f in listdir(dir.directory_path.absolute()):
             file = dir.directory_path.joinpath(str(f))
             if not str(file.absolute()).endswith(".dvk") and not file.is_dir():

@@ -5,3 +5,4 @@ drak_archive/processing/__pycache__*
 tests/error/__pycache__*
 tests/file/__pycache__*
 tests/processing/__pycache__*
+tests/__pycache__*

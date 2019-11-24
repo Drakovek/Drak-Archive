@@ -1,5 +1,6 @@
 from os import walk
 from pathlib import Path
+from tqdm import tqdm
 from drak_archive.file.dvk import Dvk
 from drak_archive.file.dvk_directory import DvkDirectory
 from drak_archive.processing.list_processing import clean_list
@@ -30,7 +31,8 @@ class DvkHandler:
         """
         self.dvk_directories = []
         paths = self.get_directories(directory_strs)
-        for path in paths:
+        print("Loading DVK Files:")
+        for path in tqdm(paths):
             dvk_directory = DvkDirectory()
             dvk_directory.read_dvks(path.absolute())
             self.dvk_directories.append(dvk_directory)

@@ -4,8 +4,8 @@ from shutil import rmtree
 from drak_archive.file.dvk import Dvk
 from drak_archive.file.dvk_handler import DvkHandler
 from drak_archive.error.error_finding import identical_ids
-from drak_archive.error.error_finding import missing_dvks
 from drak_archive.error.error_finding import missing_media
+from drak_archive.error.error_finding import unlinked_media
 
 
 class TestErrorFinding(unittest.TestCase):
@@ -110,13 +110,13 @@ class TestErrorFinding(unittest.TestCase):
         """
         Tests the missing_dvks function.
         """
-        missing = missing_dvks([self.test_dir.absolute()])
+        missing = unlinked_media([self.test_dir.absolute()])
         assert len(missing) == 2
         assert missing[0].name == "file0"
         assert missing[1].name == "file1.txt"
-        assert missing_dvks() == []
+        assert unlinked_media() == []
         handler = DvkHandler()
         handler.load_dvks([self.test_dir.joinpath("sub").absolute()])
-        missing = missing_dvks(dvk_handler=handler)
+        missing = unlinked_media(dvk_handler=handler)
         assert len(missing) == 1
         assert missing[0].name == "file1.txt"
