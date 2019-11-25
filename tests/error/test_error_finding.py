@@ -106,9 +106,9 @@ class TestErrorFinding(unittest.TestCase):
         assert missing[0].name == "dvk2.dvk"
         assert missing[1].name == "dvk3.dvk"
 
-    def test_missing_dvks(self):
+    def test_unlinked_media(self):
         """
-        Tests the missing_dvks function.
+        Tests the unlinked_media function.
         """
         missing = unlinked_media([self.test_dir.absolute()])
         assert len(missing) == 2

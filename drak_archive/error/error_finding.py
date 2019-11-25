@@ -93,19 +93,34 @@ def unlinked_media(
     else:
         handler = DvkHandler()
         handler.load_dvks(dvk_directories)
+    # FIND ALL MEDIA FILES
+    print("Searching for all media files.")
     missing = []
-    print("Searching for media without corresponding DVK files:")
-    for dir in tqdm(handler.dvk_directories):
-        for f in listdir(dir.directory_path.absolute()):
-            file = dir.directory_path.joinpath(str(f))
+    for path in tqdm(handler.paths):
+        for f in listdir(path.absolute()):
+            file = path.joinpath(str(f))
             if not str(file.absolute()).endswith(".dvk") and not file.is_dir():
-                include = True
-                size = dir.get_size()
-                for i in range(0, size):
-                    if (dir.get_dvk(i).get_media_file() == file
-                            or dir.get_dvk(i).get_secondary_file() == file):
-                        include = False
-                        break
-                if include:
-                    missing.append(file)
+                missing.append(file)
+    # REMOVES UNLINKED MEDIA
+    d_size = handler.get_size()
+    for d_num in range(0, d_size):
+        # GETS MEDIA FILES FROM DVK
+        dvk = handler.get_dvk_direct(d_num)
+        d_files = [dvk.get_media_file()]
+        if dvk.get_secondary_file() is not None:
+            d_files.append(dvk.get_secondary_file())
+        # REMOVES FROM THE MISSING FILES LIST
+        m_num = 0
+        while m_num < len(missing):
+            i = 0
+            while i < len(d_files):
+                if d_files[i] == missing[m_num]:
+                    del d_files[i]
+                    del missing[m_num]
+                    i = i - 1
+                    m_num = m_num - 1
+                i = i + 1
+            m_num = m_num + 1
+            if len(d_files) == 0 or len(missing) == 0:
+                break
     return missing
