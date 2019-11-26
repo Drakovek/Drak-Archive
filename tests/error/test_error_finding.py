@@ -26,6 +26,11 @@ class TestErrorFinding(unittest.TestCase):
         self.test_dir.joinpath("file0").touch()
         sub = Path(self.test_dir.joinpath("sub").absolute())
         sub.mkdir(exist_ok=True)
+        sub2 = Path(self.test_dir.joinpath("sub2").absolute())
+        sub2.mkdir(exist_ok=True)
+        # CREATE UNLINKED FILE
+        file = sub2.joinpath("noDVK.txt")
+        file.touch()
         # DVK 1
         dvk = Dvk(self.test_dir.joinpath("dvk1.dvk").absolute())
         file = self.test_dir.joinpath("file1.txt")

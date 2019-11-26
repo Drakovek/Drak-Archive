@@ -75,6 +75,8 @@ class TestDvkHandler(unittest.TestCase):
             dvk.set_views(70 - count)
             dvk.write_dvk()
             count = count + 1
+        empty_sub = Path(sub2.joinpath("empty").absolute())
+        empty_sub.mkdir(exist_ok=True)
 
     def tearDown(self):
         """

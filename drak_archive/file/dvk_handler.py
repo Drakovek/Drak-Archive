@@ -1,5 +1,6 @@
 from os import walk
 from _functools import cmp_to_key
+from os import listdir
 from pathlib import Path
 from tqdm import tqdm
 from drak_archive.file.dvk import Dvk
@@ -106,7 +107,14 @@ class DvkHandler:
             if d is not None and not d == "":
                 directory_path = Path(d)
                 for p in walk(directory_path.absolute()):
-                    paths.append(Path(p[0]))
+                    dir = Path(p[0])
+                    add = False
+                    for file in listdir(dir.absolute()):
+                        if str(file).endswith(".dvk"):
+                            add = True
+                            break
+                    if add:
+                        paths.append(Path(p[0]))
         return sorted(clean_list(paths))
 
     def sort_dvks(
