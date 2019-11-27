@@ -17,29 +17,31 @@ def identical_ids(
     Returns:
         list: List of Paths for DVK files with identical IDs
     """
-    located = []
-    identicals = []
     if dvk_handler is not None:
         handler = dvk_handler
     else:
         handler = DvkHandler()
         handler.load_dvks(dvk_directories)
     handler.sort_dvks("a", True)
-    size = handler.get_size()
+    # CREATE LIST OF IDS
     print("Searching for DVK files with identical IDs:")
+    ids = []
+    size = handler.get_size()
+    for i in range(0, size):
+        ids.append(handler.get_dvk_sorted(i).get_id())
+    # FIND IDENTICAL IDS
+    s_ids = []
     for i in tqdm(range(0, size)):
-        first = True
-        if i not in located:
+        if i not in s_ids:
             for k in range(i + 1, size):
-                dvk_i = handler.get_dvk_sorted(i)
-                dvk_k = handler.get_dvk_sorted(k)
-                if dvk_i.get_id() == dvk_k.get_id():
-                    if first:
-                        located.append(i)
-                        identicals.append(dvk_i.get_file())
-                    first = False
-                    located.append(k)
-                    identicals.append(dvk_k.get_file())
+                if ids[i] == ids[k]:
+                    if i not in s_ids:
+                        s_ids.append(i)
+                    s_ids.append(k)
+    # CREATE PATH LIST
+    identicals = []
+    for id in s_ids:
+        identicals.append(handler.get_dvk_sorted(int(id)).get_file())
     return identicals
 
 
@@ -102,8 +104,9 @@ def unlinked_media(
             if not str(file.absolute()).endswith(".dvk") and not file.is_dir():
                 missing.append(file)
     # REMOVES UNLINKED MEDIA
+    print("Searching for all unlinked media.")
     d_size = handler.get_size()
-    for d_num in range(0, d_size):
+    for d_num in tqdm(range(0, d_size)):
         # GETS MEDIA FILES FROM DVK
         dvk = handler.get_dvk_direct(d_num)
         d_files = [dvk.get_media_file()]

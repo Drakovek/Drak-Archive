@@ -129,6 +129,7 @@ class DvkHandler:
                 ("t": Time, "r": Ratings, "v": Views, "a": Alpha-numeric)
             group_artists_bool (bool): Whether to group DVKs of the same artist
         """
+        print("Sorting DVK files...")
         self.group_artists = group_artists_bool
         if sort_type is not None and self.get_size() > 0:
             if sort_type == "t":
