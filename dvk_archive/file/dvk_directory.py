@@ -1,5 +1,5 @@
 from pathlib import Path
-from drak_archive.file.dvk import Dvk
+from dvk_archive.file.dvk import Dvk
 
 
 class DvkDirectory:

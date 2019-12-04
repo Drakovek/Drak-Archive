@@ -1,8 +1,8 @@
 import unittest
 from shutil import rmtree
 from pathlib import Path
-from drak_archive.file.dvk import Dvk
-from drak_archive.file.dvk_handler import DvkHandler
+from dvk_archive.file.dvk import Dvk
+from dvk_archive.file.dvk_handler import DvkHandler
 
 
 class TestDvkHandler(unittest.TestCase):

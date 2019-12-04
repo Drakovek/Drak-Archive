@@ -3,12 +3,12 @@ from _functools import cmp_to_key
 from os import listdir
 from pathlib import Path
 from tqdm import tqdm
-from drak_archive.file.dvk import Dvk
-from drak_archive.file.dvk_directory import DvkDirectory
-from drak_archive.processing.list_processing import clean_list
-from drak_archive.processing.list_processing import list_to_string
-from drak_archive.processing.string_compare import compare_strings
-from drak_archive.processing.string_compare import compare_alphanum
+from dvk_archive.file.dvk import Dvk
+from dvk_archive.file.dvk_directory import DvkDirectory
+from dvk_archive.processing.list_processing import clean_list
+from dvk_archive.processing.list_processing import list_to_string
+from dvk_archive.processing.string_compare import compare_strings
+from dvk_archive.processing.string_compare import compare_alphanum
 
 
 class DvkHandler:

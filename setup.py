@@ -1,11 +1,16 @@
 import setuptools
 
+console_scripts = [
+    "dvk-same-ids = dvk_archive.error.same_ids:main",
+    "dvk-unlinked = dvk_archive.error.unlinked:main",
+    "dvk-missing-media = dvk_archive.error.missing_media:main"]
+
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="dvk-archive",
-    version="0.0.1",
+    version="0.0.2",
     author="Drakovek",
     author_email="DrakovekMail@gmail.com",
     description="Modules for loading and handling .dvk files.",
@@ -17,7 +22,8 @@ setuptools.setup(
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
-        "Operating System :: OS Independent",
+        "Operating System :: OS Independent"
     ],
     python_requires='>=3.6',
+    entry_points={"console_scripts": console_scripts}
 )

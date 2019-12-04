@@ -1,8 +1,8 @@
 from json import dump, load
 from pathlib import Path
-from drak_archive.processing.html_processing import add_escapes_to_html
-from drak_archive.processing.list_processing import clean_list
-from drak_archive.processing.string_processing import extend_int
+from dvk_archive.processing.html_processing import add_escapes_to_html
+from dvk_archive.processing.list_processing import clean_list
+from dvk_archive.processing.string_processing import extend_int
 
 
 class Dvk:

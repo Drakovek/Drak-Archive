@@ -1,9 +1,8 @@
-
 import unittest
 from pathlib import Path
 from shutil import rmtree
-from drak_archive.file.dvk import Dvk
-from drak_archive.file.dvk_directory import DvkDirectory
+from dvk_archive.file.dvk import Dvk
+from dvk_archive.file.dvk_directory import DvkDirectory
 
 
 class TestDvkDirectory(unittest.TestCase):
