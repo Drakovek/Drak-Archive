@@ -1,6 +1,6 @@
 import unittest
-from drak_archive.processing.list_processing import clean_list
-from drak_archive.processing.list_processing import list_to_string
+from dvk_archive.processing.list_processing import clean_list
+from dvk_archive.processing.list_processing import list_to_string
 
 
 class TestListProcessing(unittest.TestCase):

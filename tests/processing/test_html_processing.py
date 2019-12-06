@@ -1,8 +1,8 @@
 import unittest
-from drak_archive.processing.html_processing import add_escapes
-from drak_archive.processing.html_processing import add_escapes_to_html
-from drak_archive.processing.html_processing import escape_to_char
-from drak_archive.processing.html_processing import replace_escapes
+from dvk_archive.processing.html_processing import add_escapes
+from dvk_archive.processing.html_processing import add_escapes_to_html
+from dvk_archive.processing.html_processing import escape_to_char
+from dvk_archive.processing.html_processing import replace_escapes
 
 
 class TestHtmlProcessing(unittest.TestCase):

@@ -2,10 +2,13 @@ dvk_archive/__pycache__*
 dvk_archive/error/__pycache__*
 dvk_archive/file/__pycache__*
 dvk_archive/processing/__pycache__*
+dvk_archive/web/__pycache__*
 tests/error/__pycache__*
 tests/file/__pycache__*
 tests/processing/__pycache__*
+tests/web/__pycache__*
 tests/__pycache__*
 build*
 dist*
-dvk_archive.egg-info
+dvk_archive.egg-info*
+geckodriver.log

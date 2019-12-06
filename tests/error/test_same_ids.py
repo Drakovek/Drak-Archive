@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 from shutil import rmtree
-from drak_archive.file.dvk import Dvk
+from dvk_archive.file.dvk import Dvk
 from dvk_archive.file.dvk_handler import DvkHandler
 from dvk_archive.error.same_ids import same_ids
 

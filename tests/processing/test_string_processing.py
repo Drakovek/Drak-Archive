@@ -1,5 +1,5 @@
 import unittest
-from drak_archive.processing.string_processing import extend_int
+from dvk_archive.processing.string_processing import extend_int
 
 
 class TestStringProcessing(unittest.TestCase):

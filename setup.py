@@ -18,7 +18,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Drakovek/dvk_archive",
     packages=setuptools.find_packages(),
-    install_requires=["tqdm"],
+    install_requires=["beautifulsoup4", "lxml", "selenium" "tqdm"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",

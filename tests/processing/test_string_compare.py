@@ -1,10 +1,10 @@
 import unittest
-from drak_archive.processing.string_compare import compare_alphanum
-from drak_archive.processing.string_compare import compare_sections
-from drak_archive.processing.string_compare import compare_strings
-from drak_archive.processing.string_compare import get_section
-from drak_archive.processing.string_compare import is_digit
-from drak_archive.processing.string_compare import is_number_string
+from dvk_archive.processing.string_compare import compare_alphanum
+from dvk_archive.processing.string_compare import compare_sections
+from dvk_archive.processing.string_compare import compare_strings
+from dvk_archive.processing.string_compare import get_section
+from dvk_archive.processing.string_compare import is_digit
+from dvk_archive.processing.string_compare import is_number_string
 
 
 class TestStringCompare(unittest.TestCase):
