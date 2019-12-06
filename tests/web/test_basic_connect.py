@@ -41,6 +41,10 @@ class TestBasicConnect(unittest.TestCase):
         download(filename=str(file.absolute()))
         assert listdir(test_dir.absolute()) == []
         download(
+            url="asfdwersdbsdfsd",
+            filename=str(file.absolute()))
+        assert listdir(test_dir.absolute()) == []
+        download(
             url="http://www.pythonscraping.com/img/gifts/img6.jpg",
             filename=str(file.absolute()))
         assert file.exists()

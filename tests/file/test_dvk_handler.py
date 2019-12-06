@@ -105,9 +105,9 @@ class TestDvkHandler(unittest.TestCase):
         """
         dvk_handler = DvkHandler()
         dvk_handler.load_dvks([self.test_dir.absolute()])
-        assert dvk_handler.get_dvk_direct().title == ""
-        assert dvk_handler.get_dvk_direct(-1).title == ""
-        assert dvk_handler.get_dvk_direct(8).title == ""
+        assert dvk_handler.get_dvk_direct().title is None
+        assert dvk_handler.get_dvk_direct(-1).title is None
+        assert dvk_handler.get_dvk_direct(8).title is None
         titles = []
         for i in range(0, 8):
             dvk = dvk_handler.get_dvk_direct(i)

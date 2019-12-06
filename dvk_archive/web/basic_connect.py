@@ -3,6 +3,7 @@ from requests import exceptions
 from requests import Session
 from pathlib import Path
 from urllib.request import urlretrieve
+from urllib.error import URLError
 from dvk_archive.processing.string_processing import get_extension
 
 
@@ -54,4 +55,7 @@ def download(url: str = None, filename: str = None):
             while file.exists():
                 file = Path(base + "(" + str(num) + ")" + extension)
                 num = num + 1
-        urlretrieve(url, file.absolute())
+        try:
+            urlretrieve(url, file.absolute())
+        except (URLError, ValueError):
+            print("Failed to download:" + url)

@@ -3,6 +3,7 @@ from pathlib import Path
 from dvk_archive.processing.html_processing import add_escapes_to_html
 from dvk_archive.processing.list_processing import clean_list
 from dvk_archive.processing.string_processing import extend_int
+from dvk_archive.processing.string_processing import get_filename
 
 
 class Dvk:
@@ -308,12 +309,23 @@ class Dvk:
         """
         if (self.get_file() is None
                 or self.get_id() == ""
-                or self.get_title() == ""
+                or self.get_title() is None
                 or self.get_artists() == []
                 or self.get_page_url() is None
                 or self.get_media_file() is None):
             return False
         return True
+
+    def get_filename(self) -> str:
+        """
+        Returns a filename for the DVK based on its title and ID.
+
+        Returns:
+            str: Filename
+        """
+        if self.get_title() is None or self.get_id() == "":
+            return ""
+        return get_filename(self.get_title()) + '_' + self.get_id()
 
     def set_file(self, file_path: str = None):
         """
@@ -345,7 +357,6 @@ class Dvk:
         """
         if id_str is None:
             self.id = ""
-
         else:
             self.id = id_str.upper()
 
@@ -365,10 +376,7 @@ class Dvk:
         Parameters:
             title_str (str): DVK title
         """
-        if title_str is None:
-            self.title = ""
-        else:
-            self.title = title_str
+        self.title = title_str
 
     def get_title(self) -> str:
         """

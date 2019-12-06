@@ -25,9 +25,9 @@ class TestDvk(unittest.TestCase):
         Tests the Dvk class constructor.
         """
         # CHECK EMPTY
-        assert self.dvk.get_title() == ""
+        assert self.dvk.get_title() is None
         assert self.dvk.get_id() == ""
-        assert self.dvk.get_title() == ""
+        assert self.dvk.get_title() is None
         assert self.dvk.get_artists() == []
         assert self.dvk.get_time() == "0000/00/00|00:00"
         assert self.dvk.get_web_tags() is None
@@ -143,7 +143,7 @@ class TestDvk(unittest.TestCase):
         # CHECK READING NON-EXISTANT FILE
         self.dvk.set_file(None)
         self.dvk.read_dvk()
-        assert self.dvk.get_title() == ""
+        assert self.dvk.get_title() is None
         # CHECK READING INVALID FILE
         data = {"test": "nope"}
         try:
@@ -153,7 +153,7 @@ class TestDvk(unittest.TestCase):
             print("File error: " + str(e))
         self.dvk.read_dvk()
         remove(file_path)
-        assert self.dvk.get_title() == ""
+        assert self.dvk.get_title() is None
         # CHECK WRITING INVALID FILE
         invalid_dvk = Dvk()
         invalid_path = Path("nonExistant.dvk")
@@ -225,6 +225,21 @@ class TestDvk(unittest.TestCase):
         self.dvk.set_media_file()
         assert not self.dvk.can_write()
 
+    def test_get_filename(self):
+        """
+        Tests the get_filename function.
+        """
+        assert self.dvk.get_filename() == ""
+        self.dvk.set_title("Title")
+        assert self.dvk.get_filename() == ""
+        self.dvk.set_id("ID123")
+        self.dvk.set_title(None)
+        assert self.dvk.get_filename() == ""
+        self.dvk.set_title("Yay  more-files!")
+        assert self.dvk.get_filename() == "Yay more-files_ID123"
+        self.dvk.set_title("")
+        assert self.dvk.get_filename() == "0_ID123"
+
     def test_get_set_file(self):
         """
         Tests the get_file and set_file functions.
@@ -254,8 +269,10 @@ class TestDvk(unittest.TestCase):
         Tests the get_title and set_title functions.
         """
         self.dvk.set_title()
-        assert self.dvk.get_title() == ""
+        assert self.dvk.get_title() is None
         self.dvk.set_title(None)
+        assert self.dvk.get_title() is None
+        self.dvk.set_title("")
         assert self.dvk.get_title() == ""
         self.dvk.set_title("TestTitle")
         assert self.dvk.get_title() == "TestTitle"
