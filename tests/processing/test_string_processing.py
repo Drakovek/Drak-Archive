@@ -1,5 +1,6 @@
 import unittest
 from dvk_archive.processing.string_processing import extend_int
+from dvk_archive.processing.string_processing import get_extension
 
 
 class TestStringProcessing(unittest.TestCase):
@@ -18,3 +19,13 @@ class TestStringProcessing(unittest.TestCase):
         assert extend_int(12, 0) == "0"
         assert extend_int(15, 2) == "15"
         assert extend_int(input_int=12, input_length=5) == "00012"
+
+    def test_get_extension(self):
+        assert get_extension() == ""
+        assert get_extension(None) == ""
+        assert get_extension("") == ""
+        assert get_extension("test") == ""
+        assert get_extension("http://url.com/linksNstuff") == ""
+        assert get_extension("/dot.folder/file.py") == ".py"
+        assert get_extension("file.txt") == ".txt"
+        assert get_extension("http://url.com/linksNstuff/file.png") == ".png"

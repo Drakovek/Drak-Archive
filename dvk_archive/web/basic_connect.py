@@ -1,6 +1,9 @@
 from bs4 import BeautifulSoup
 from requests import exceptions
 from requests import Session
+from pathlib import Path
+from urllib.request import urlretrieve
+from dvk_archive.processing.string_processing import get_extension
 
 
 def basic_connect(url: str = None) -> BeautifulSoup:
@@ -29,3 +32,26 @@ def basic_connect(url: str = None) -> BeautifulSoup:
     except (exceptions.ConnectionError, exceptions.MissingSchema):
         return None
     return None
+
+
+def download(url: str = None, filename: str = None):
+    """
+    Downloads a file from a given url to a given file path.
+
+    Parameters:
+        url (str): URL from which to download
+        filename (str): File path to save to
+    """
+    if (url is not None
+            and not url == ""
+            and filename is not None
+            and not filename == ""):
+        file = Path(filename)
+        if file.exists():
+            extension = get_extension(filename)
+            base = filename[0:len(filename) - len(extension)]
+            num = 1
+            while file.exists():
+                file = Path(base + "(" + str(num) + ")" + extension)
+                num = num + 1
+        urlretrieve(url, file.absolute())

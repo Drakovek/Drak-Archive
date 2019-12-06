@@ -21,3 +21,20 @@ def extend_int(input_int: int = 0, input_length: int = 0) -> str:
     while len(return_str) < input_length:
         return_str = "0" + return_str
     return return_str
+
+
+def get_extension(filename: str = None) -> str:
+    """
+    Returns the extension of a given filename.
+
+    Parameters:
+        filename (str): Given filename
+
+    Returns:
+        str: Extension of filename ("" if there is no extension)
+    """
+    if filename is not None and "." in filename:
+        extension = filename[filename.rfind("."):]
+        if len(extension) < 7:
+            return extension
+    return ""

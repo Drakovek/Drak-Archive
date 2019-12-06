@@ -1,5 +1,9 @@
 import unittest
+from os import listdir
+from pathlib import Path
+from shutil import rmtree
 from dvk_archive.web.basic_connect import basic_connect
+from dvk_archive.web.basic_connect import download
 
 
 class TestBasicConnect(unittest.TestCase):
@@ -22,3 +26,28 @@ class TestBasicConnect(unittest.TestCase):
             assert False
         else:
             assert bs.find("h1").get_text() == "An Interesting Title"
+
+    def test_download(self):
+        """
+        Tests the download function.
+        """
+        test_dir = Path("images")
+        test_dir.mkdir(exist_ok=True)
+        file = test_dir.joinpath("image.jpg")
+        download()
+        assert listdir(test_dir.absolute()) == []
+        download(url="http://www.pythonscraping.com/img/gifts/img6.jpg")
+        assert listdir(test_dir.absolute()) == []
+        download(filename=str(file.absolute()))
+        assert listdir(test_dir.absolute()) == []
+        download(
+            url="http://www.pythonscraping.com/img/gifts/img6.jpg",
+            filename=str(file.absolute()))
+        assert file.exists()
+        download(
+            url="http://www.pythonscraping.com/img/gifts/img6.jpg",
+            filename=str(file.absolute()))
+        file = test_dir.joinpath("image(1).jpg")
+        assert file.exists()
+        download()
+        rmtree(test_dir.absolute())
