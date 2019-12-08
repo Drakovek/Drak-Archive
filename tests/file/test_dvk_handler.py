@@ -155,6 +155,18 @@ class TestDvkHandler(unittest.TestCase):
         assert paths[1].name == "sub2"
         assert paths[2].name == "intSub"
 
+    def test_contains_page_urls(self):
+        """
+        Tests the contains_page_urls function.
+        """
+        dvk_handler = DvkHandler()
+        assert not dvk_handler.contains_page_url()
+        assert not dvk_handler.contains_page_url("bleh")
+        dvk_handler.load_dvks([self.test_dir.absolute()])
+        assert not dvk_handler.contains_page_url()
+        assert not dvk_handler.contains_page_url("bleh")
+        assert dvk_handler.contains_page_url("/unimportant")
+
     def test_sort_dvks_alpha(self):
         """
         Tests alpha-numeric sorting with the sort_dvks function.
