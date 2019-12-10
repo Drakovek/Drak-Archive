@@ -117,20 +117,20 @@ class DvkHandler:
                         paths.append(Path(p[0]))
         return sorted(clean_list(paths))
 
-    def contains_page_url(self, page_url: str = None) -> bool:
+    def contains_page_url(self, url: str = None) -> bool:
         """
         Returns whether dvk list contains a given page URL.
 
         Parameters:
-            page_url (str): Page URL to search for
+            url (str): Page URL to search for
 
         Returns:
             bool: Whether dvk list contains page_url
         """
-        if page_url is not None:
+        if url is not None:
             size = self.get_size()
             for i in range(0, size):
-                if self.get_dvk_direct(i).get_page_url() == page_url:
+                if str(self.get_dvk_direct(i).get_page_url()) == str(url):
                     return True
         return False
 

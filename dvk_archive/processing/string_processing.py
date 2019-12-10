@@ -91,7 +91,7 @@ def get_filename(filename: str = None) -> str:
         index = index + 1
     # TRUNCATE LONG TITLE
     cleaned_str = "".join(cleaned)
-    cleaned_str = truncate_string(cleaned_str, 40)
+    cleaned_str = truncate_string(cleaned_str, 90)
     # JOIN CLEANED LIST
     if cleaned_str == "":
         return "0"

@@ -3,14 +3,15 @@ import setuptools
 console_scripts = [
     "dvk-same-ids = dvk_archive.error.same_ids:main",
     "dvk-unlinked = dvk_archive.error.unlinked:main",
-    "dvk-missing-media = dvk_archive.error.missing_media:main"]
+    "dvk-missing-media = dvk_archive.error.missing_media:main",
+    "dvk-rename = dvk_archive.reformat.rename_files:main"]
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="dvk-archive",
-    version="0.0.5",
+    version="0.0.6",
     author="Drakovek",
     author_email="DrakovekMail@gmail.com",
     description="Modules for loading and handling .dvk files.",

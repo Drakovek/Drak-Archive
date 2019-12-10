@@ -2,6 +2,7 @@ import unittest
 from json import dump
 from os import remove
 from pathlib import Path
+from shutil import rmtree
 from dvk_archive.file.dvk import Dvk
 
 
@@ -239,6 +240,62 @@ class TestDvk(unittest.TestCase):
         assert self.dvk.get_filename() == "Yay more-files_ID123"
         self.dvk.set_title("")
         assert self.dvk.get_filename() == "0_ID123"
+
+    def test_rename_files(self):
+        """
+        Tests the rename_files function.
+        """
+        test_dir = Path("renameTest")
+        test_dir.mkdir(exist_ok=True)
+        dvk = Dvk()
+        dvk.set_file(test_dir.joinpath("dvk1.dvk").absolute())
+        dvk.set_id("DVK1234")
+        dvk.set_title("Yay DVK!")
+        dvk.set_artist("Me")
+        dvk.set_page_url("/test")
+        dvk.set_media_file("file.txt")
+        dvk.set_secondary_file("second.png")
+        dvk.get_media_file().touch()
+        dvk.get_secondary_file().touch()
+        dvk.write_dvk()
+        dvk.rename_files()
+        assert dvk.get_file().name == "Yay DVK_DVK1234.dvk"
+        assert dvk.get_file().exists()
+        assert dvk.get_media_file().name == "Yay DVK_DVK1234.txt"
+        assert dvk.get_media_file().exists()
+        assert dvk.get_secondary_file().name == "Yay DVK_DVK1234.png"
+        assert dvk.get_secondary_file().exists()
+        # CHECK SPECIFIC NAME
+        dvk.rename_files("different")
+        assert dvk.get_file().name == "different.dvk"
+        assert dvk.get_file().exists()
+        assert dvk.get_media_file().name == "different.txt"
+        assert dvk.get_media_file().exists()
+        assert dvk.get_secondary_file().name == "different.png"
+        assert dvk.get_secondary_file().exists()
+        # CHECK NO SECONDARY
+        dvk.set_title("No Sec")
+        dvk.set_secondary_file("Bleh")
+        dvk.write_dvk()
+        dvk.rename_files()
+        dvk.set_secondary_file(None)
+        dvk.write_dvk()
+        dvk.rename_files()
+        assert dvk.get_file().name == "No Sec_DVK1234.dvk"
+        assert dvk.get_file().exists()
+        assert dvk.get_media_file().name == "No Sec_DVK1234.txt"
+        assert dvk.get_media_file().exists()
+        # CHECK NO MEDIA
+        dvk.set_title("No Med")
+        dvk.set_media_file("nonexistant.png")
+        dvk.write_dvk()
+        dvk.rename_files()
+        dvk.set_media_file(None)
+        dvk.rename_files()
+        assert dvk.get_file().name == "No Med_DVK1234.dvk"
+        assert dvk.get_file().exists()
+        # DELETE TEST FILES
+        rmtree(test_dir.absolute())
 
     def test_get_set_file(self):
         """

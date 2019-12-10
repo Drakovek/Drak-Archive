@@ -47,18 +47,6 @@ class TestStringProcessing(unittest.TestCase):
         assert get_filename("$") == "0"
         assert get_filename("thing--stuff  @*-   bleh") == "thing-stuff - bleh"
         assert get_filename("a% - !b @  ??c") == "a - b - c"
-        i = "This string is way too long to work as a title p25"
-        assert get_filename(i) == "This string is way too long to work p25"
-        i = "HereIsA LongThingWithoutManySpacesWhichCanBeShort"
-        assert get_filename(i) == "HereIsA WithoutManySpacesWhichCanBeShort"
-        i = "ThisMessageIsAbsolutelyWayToLongToWorkFor-"
-        i = i + "AnyThingAtAllSoLetsSeeHowThisWillFareISuppose"
-        assert get_filename(i) == "ThisMessageIsAbsolutelyWayToLongToWorkFo"
-        i = "ThisMessageIsAbsolutelyWayToLongToWorkForAnyThing-"
-        i = i + "AtAllSoLetsSeeHowThisWillFareISuppose"
-        assert get_filename(i) == "Th-AtAllSoLetsSeeHowThisWillFareISuppose"
-        i = "ThisLongTitleHasNoSpacesAtAllSoItHasAMiddleBreak"
-        assert get_filename(i) == "ThisLongTitleHasAtAllSoItHasAMiddleBreak"
 
     def test_truncate_string(self):
         """

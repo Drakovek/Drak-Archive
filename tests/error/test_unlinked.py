@@ -8,7 +8,7 @@ from dvk_archive.error.unlinked import unlinked_media
 
 class TestUnlinkedMedia(unittest.TestCase):
     """
-    Unit tests for the ErrorFinding.py module.
+    Unit tests for the unlinked.py module.
     Attributes:
         test_dir (Path): Directory for holding test files.
     """

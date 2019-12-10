@@ -58,6 +58,9 @@ def unlinked_media(
 
 
 def main():
+    """
+    Runs the unlinked_media function from the command line.
+    """
     parser = ArgumentParser()
     parser.add_argument(
         "directory",

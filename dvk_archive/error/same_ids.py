@@ -47,6 +47,9 @@ def same_ids(
 
 
 def main():
+    """
+    Runs the same_ids function from the command line.
+    """
     parser = ArgumentParser()
     parser.add_argument(
         "directory",

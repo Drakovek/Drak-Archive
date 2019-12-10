@@ -36,6 +36,9 @@ def missing_media(
 
 
 def main():
+    """
+    Runs the missing_media function from the command line.
+    """
     parser = ArgumentParser()
     parser.add_argument(
         "directory",

@@ -1,9 +1,11 @@
+from os import remove, rename
 from json import dump, load
 from pathlib import Path
 from dvk_archive.processing.html_processing import add_escapes_to_html
 from dvk_archive.processing.list_processing import clean_list
 from dvk_archive.processing.string_processing import extend_int
 from dvk_archive.processing.string_processing import get_filename
+from dvk_archive.processing.string_processing import get_extension
 
 
 class Dvk:
@@ -326,6 +328,53 @@ class Dvk:
         if self.get_title() is None or self.get_id() == "":
             return ""
         return get_filename(self.get_title()) + '_' + self.get_id()
+
+    def rename_files(self, filename: str = None):
+        """
+        Renames the current Dvk file and any linked media files.
+
+        Parameters:
+            filename (str): Name to rename files. If none, use default.
+        """
+        if (self.get_file() is not None and self.get_file().exists()):
+            rfile = filename
+            if filename is None:
+                rfile = self.get_filename()
+            parent = Path(self.get_file().parent)
+            # RENAME DVK
+            remove(str(self.get_file().absolute()))
+            self.set_file(parent.joinpath(rfile + ".dvk"))
+            # RENAME MEDIA FILE
+            media = self.get_media_file()
+            if media is not None and media.exists():
+                num = 0
+                extension = get_extension(str(media.absolute()))
+                ifile = "xxtempXXTEMP" + self.get_id() + "_N"
+                path = parent.joinpath(ifile + str(num) + extension)
+                while path.exists():
+                    num = num + 1
+                    path = parent.joinpath(ifile + str(num) + extension)
+                rename(media.absolute(), path.absolute())
+                rpath = parent.joinpath(rfile + extension)
+                rename(path.absolute(), rpath.absolute())
+                self.set_media_file(parent.joinpath(rfile + extension))
+            else:
+                self.set_media_file("NULL-invalid-file.none")
+            # RENAME SECONDARY FILE
+            secondary = self.get_secondary_file()
+            if secondary is not None and secondary.exists():
+                num = 0
+                extension = get_extension(str(secondary.absolute()))
+                ifile = "xxtempXXTEMP" + self.get_id() + "_N"
+                path = parent.joinpath(ifile + str(num) + extension)
+                while path.exists():
+                    num = num + 1
+                    path = parent.joinpath(ifile + str(num) + extension)
+                rename(secondary.absolute(), path.absolute())
+                rpath = parent.joinpath(rfile + extension)
+                rename(path.absolute(), rpath.absolute())
+                self.set_secondary_file(parent.joinpath(rfile + extension))
+            self.write_dvk()
 
     def set_file(self, file_path: str = None):
         """
