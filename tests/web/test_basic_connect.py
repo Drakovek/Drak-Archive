@@ -1,5 +1,5 @@
 import unittest
-from os import listdir
+from os import listdir, stat
 from pathlib import Path
 from shutil import rmtree
 from dvk_archive.web.basic_connect import basic_connect
@@ -48,10 +48,12 @@ class TestBasicConnect(unittest.TestCase):
             url="http://www.pythonscraping.com/img/gifts/img6.jpg",
             filename=str(file.absolute()))
         assert file.exists()
+        assert stat(str(file.absolute())).st_size == 39785
         download(
             url="http://www.pythonscraping.com/img/gifts/img6.jpg",
             filename=str(file.absolute()))
         file = test_dir.joinpath("image(1).jpg")
         assert file.exists()
+        assert stat(str(file.absolute())).st_size == 39785
         download()
         rmtree(test_dir.absolute())

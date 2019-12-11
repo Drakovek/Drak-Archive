@@ -11,7 +11,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="dvk-archive",
-    version="0.0.6",
+    version="0.1.0",
     author="Drakovek",
     author_email="DrakovekMail@gmail.com",
     description="Modules for loading and handling .dvk files.",
@@ -19,7 +19,12 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/Drakovek/dvk_archive",
     packages=setuptools.find_packages(),
-    install_requires=["beautifulsoup4", "lxml", "selenium", "tqdm"],
+    install_requires=[
+        "beautifulsoup4",
+        "lxml",
+        "requests",
+        "selenium",
+        "tqdm"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
