@@ -4,8 +4,7 @@ from requests import exceptions
 from requests import Session
 from pathlib import Path
 from shutil import copyfileobj
-from urllib.request import urlretrieve
-from urllib.error import URLError
+from urllib.error import HTTPError
 from dvk_archive.processing.string_processing import get_extension
 
 
@@ -70,6 +69,7 @@ def download(url: str = None, filename: str = None):
             byte_obj.seek(0)
             with open(str(file.absolute()), "wb") as f:
                 copyfileobj(byte_obj, f)
-            urlretrieve(url, file.absolute())
-        except (exceptions.ConnectionError, exceptions.MissingSchema):
+        except (HTTPError,
+                exceptions.ConnectionError,
+                exceptions.MissingSchema):
             print("Failed to download:" + url)

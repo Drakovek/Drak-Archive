@@ -1,14 +1,17 @@
-from bs4 import BeautifulSoup
 from time import sleep
+from io import BytesIO
+from pathlib import Path
+from bs4 import BeautifulSoup
+from shutil import copyfileobj
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options as CO
-from selenium.webdriver.edge.options import Options as EO
 from selenium.webdriver.firefox.options import Options as FO
 from selenium.common.exceptions import InvalidArgumentException
 from selenium.common.exceptions import WebDriverException
+from dvk_archive.processing.string_processing import get_extension
 
 
 def print_driver_instructions():
@@ -24,11 +27,6 @@ def print_driver_instructions():
     print("")
     print("Chrome/Chromium:")
     print("https://sites.google.com/a/chromium.org/chromedriver/downloads")
-    print("")
-    print("Edge:")
-    edge_url = "https://developer.microsoft.com/"
-    edge_url = edge_url + "en-us/microsoft-edge/tools/webdriver/"
-    print(edge_url)
     print("")
     print("Copy Selenium driver(s) to your PATH directory.")
     print("(On Windows, find PATH with command \"echo %PATH%\" )")
@@ -49,33 +47,31 @@ class HeavyConnect:
         """
         self.initialize_driver(headless)
 
-    def initialize_driver(self, headless: bool = True):
+    def initialize_driver(self, driver: str = "f", headless: bool = True):
         """
         Starts the selenium driver.
 
         Parameters:
+            driver (str): Driver to use ("f" for firefox, "c" for chrome)
             headless (bool): Whether to run in headless mode
         """
-        try:
-            # TRY FIREFOX DRIVER
-            options = FO()
-            options.set_headless(headless=headless)
-            self.driver = webdriver.Firefox(options=options)
-        except WebDriverException:
+        if driver == "f":
+            try:
+                # TRY FIREFOX DRIVER
+                options = FO()
+                options.set_headless(headless=headless)
+                self.driver = webdriver.Firefox(options=options)
+            except WebDriverException:
+                self.initialize_driver("c", headless)
+        else:
             try:
                 # TRY CHROME DRIVER
                 options = CO()
                 options.set_headless(headless=headless)
                 self.driver = webdriver.Chrome(options=options)
             except WebDriverException:
-                try:
-                    # TRY EDGE DRIVER
-                    options = EO()
-                    options.set_headless(headless=headless)
-                    self.driver = webdriver.Edge(options=options)
-                except WebDriverException:
-                    self.driver = None
-                    print_driver_instructions()
+                self.driver = None
+                print_driver_instructions()
 
     def get_page(
             self, url: str = None,
@@ -107,6 +103,35 @@ class HeavyConnect:
         except (InvalidArgumentException, WebDriverException):
             return None
         return None
+
+    def download(self, url: str = None, filename: str = None):
+        """
+        Downloads a file from a given url to a given file path.
+
+        Parameters:
+            url (str): URL from which to download
+            filename (str): File path to save to
+        """
+        if (url is not None
+                and not url == ""
+                and filename is not None
+                and not filename == ""):
+            file = Path(filename)
+            if file.exists():
+                extension = get_extension(filename)
+                base = filename[0:len(filename) - len(extension)]
+                num = 1
+                while file.exists():
+                    file = Path(base + "(" + str(num) + ")" + extension)
+                    num = num + 1
+            # SAVE FILE
+            try:
+                byte_obj = BytesIO(self.driver.get(url))
+                byte_obj.seek(0)
+                with open(str(file.absolute()), "wb") as f:
+                    copyfileobj(byte_obj, f)
+            except (InvalidArgumentException, WebDriverException):
+                print("Failed to download:" + url)
 
     def close_driver(self):
         """

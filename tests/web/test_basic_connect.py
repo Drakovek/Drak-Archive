@@ -55,5 +55,4 @@ class TestBasicConnect(unittest.TestCase):
         file = test_dir.joinpath("image(1).jpg")
         assert file.exists()
         assert stat(str(file.absolute())).st_size == 39785
-        download()
         rmtree(test_dir.absolute())
