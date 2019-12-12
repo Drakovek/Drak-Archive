@@ -1,6 +1,6 @@
 import unittest
 from json import dump
-from os import remove
+from os import listdir, remove, stat
 from pathlib import Path
 from shutil import rmtree
 from dvk_archive.file.dvk import Dvk
@@ -160,6 +160,54 @@ class TestDvk(unittest.TestCase):
         invalid_path = Path("nonExistant.dvk")
         invalid_dvk.set_file(invalid_path.absolute())
         assert not invalid_path.exists()
+
+    def test_write_media(self):
+        """
+        Tests the write_media function.
+        """
+        test_dir = Path("renameTest")
+        test_dir.mkdir(exist_ok=True)
+        try:
+            # INVALID DVK
+            dvk = Dvk()
+            dvk.set_id("ID123")
+            dvk.set_title("Title")
+            dvk.set_artist("Artist")
+            dvk.set_file(test_dir.joinpath("dvk1.dvk"))
+            dvk.set_media_file("media.jpg")
+            dvk.set_direct_url("kjlmlwonluyhj")
+            dvk.write_media()
+            assert listdir(str(test_dir.absolute())) == []
+            # INVALID DIRECT URL
+            dvk.set_page_url("/whatever")
+            dvk.write_media()
+            assert listdir(str(test_dir.absolute())) == []
+            # VALID MEDIA
+            url = "http://www.pythonscraping.com/img/gifts/img6.jpg"
+            dvk.set_direct_url(url)
+            dvk.write_media()
+            assert dvk.get_file().exists()
+            assert dvk.get_media_file().exists()
+            assert stat(str(dvk.get_media_file().absolute())).st_size == 39785
+            remove(str(dvk.get_file().absolute()))
+            remove(str(dvk.get_media_file().absolute()))
+            # INVALID SECONDARY URL
+            dvk.set_secondary_file("second.jpg")
+            dvk.set_secondary_url("lksjamelkwelkmwm")
+            dvk.write_media()
+            assert listdir(str(test_dir.absolute())) == []
+            # VALID DIRECT AND SECONDARY URLS
+            dvk.set_secondary_url(url)
+            dvk.write_media()
+            assert dvk.get_file().exists()
+            assert dvk.get_media_file().exists()
+            assert dvk.get_secondary_file().exists()
+            assert stat(str(dvk.get_media_file().absolute())).st_size == 39785
+            filename = str(dvk.get_secondary_file().absolute())
+            assert stat(filename).st_size == 39785
+        finally:
+            # DELETE TEST FILES
+            rmtree(test_dir.absolute())
 
     def test_add_to_dict(self):
         """

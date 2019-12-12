@@ -6,6 +6,7 @@ from dvk_archive.processing.list_processing import clean_list
 from dvk_archive.processing.string_processing import extend_int
 from dvk_archive.processing.string_processing import get_filename
 from dvk_archive.processing.string_processing import get_extension
+from dvk_archive.web.basic_connect import download
 
 
 class Dvk:
@@ -146,6 +147,29 @@ class Dvk:
 
             except IOError as e:
                 print("File error: " + str(e))
+
+    def write_media(self):
+        """
+        Writes the DVK file and downloads associated media, if available.
+        Nothing is writen if DVK or media URLs are invalid.
+        """
+        self.write_dvk()
+        if self.get_file().exists():
+            # DOWNLOAD MEDIA FILE
+            download(
+                self.get_direct_url(),
+                str(self.get_media_file().absolute()))
+            if self.get_media_file().exists():
+                # DOWNLOAD SECONDARY FILE
+                if self.get_secondary_url() is not None:
+                    download(
+                        self.get_secondary_url(),
+                        self.get_secondary_file().absolute())
+                    if not self.get_secondary_file().exists():
+                        remove(str(self.get_media_file().absolute()))
+                        remove(str(self.get_file().absolute()))
+            else:
+                remove(str(self.get_file().absolute()))
 
     def read_dvk(self):
         """

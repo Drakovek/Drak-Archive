@@ -5,6 +5,7 @@ from requests import Session
 from pathlib import Path
 from shutil import copyfileobj
 from urllib.error import HTTPError
+
 from dvk_archive.processing.string_processing import get_extension
 
 
@@ -36,7 +37,9 @@ def basic_connect(url: str = None) -> BeautifulSoup:
         request = session.get(url, headers=headers)
         bs = BeautifulSoup(request.text, features="lxml")
         return bs
-    except (exceptions.ConnectionError, exceptions.MissingSchema):
+    except (exceptions.ConnectionError,
+            exceptions.MissingSchema,
+            ConnectionResetError):
         return None
     return None
 
@@ -71,5 +74,6 @@ def download(url: str = None, filename: str = None):
                 copyfileobj(byte_obj, f)
         except (HTTPError,
                 exceptions.ConnectionError,
-                exceptions.MissingSchema):
+                exceptions.MissingSchema,
+                ConnectionResetError):
             print("Failed to download:" + url)
