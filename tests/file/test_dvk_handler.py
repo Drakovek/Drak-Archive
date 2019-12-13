@@ -155,9 +155,9 @@ class TestDvkHandler(unittest.TestCase):
         assert paths[1].name == "sub2"
         assert paths[2].name == "intSub"
 
-    def test_contains_page_urls(self):
+    def test_contains_page_url(self):
         """
-        Tests the contains_page_urls function.
+        Tests the contains_page_url function.
         """
         dvk_handler = DvkHandler()
         assert not dvk_handler.contains_page_url()
@@ -166,6 +166,32 @@ class TestDvkHandler(unittest.TestCase):
         assert not dvk_handler.contains_page_url()
         assert not dvk_handler.contains_page_url("bleh")
         assert dvk_handler.contains_page_url("/unimportant")
+
+    def test_contains_id(self):
+        """
+        Tests the contains_id function.
+        """
+        dvk_handler = DvkHandler()
+        assert not dvk_handler.contains_id()
+        assert not dvk_handler.contains_id("bleh")
+        dvk_handler.load_dvks([self.test_dir.absolute()])
+        assert not dvk_handler.contains_id()
+        assert not dvk_handler.contains_id("bleh")
+        assert dvk_handler.contains_id("UNIMPORTANT")
+
+    def test_add_dvk(self):
+        """
+        Tests the add_dvk function.
+        """
+        dvk_handler = DvkHandler()
+        dvk_handler.load_dvks([self.test_dir.absolute()])
+        assert dvk_handler.get_size() == 8
+        dvk_handler.add_dvk()
+        assert dvk_handler.get_size() == 8
+        dvk = Dvk()
+        dvk.set_title()
+        dvk_handler.add_dvk(dvk)
+        assert dvk_handler.get_size() == 9
 
     def test_sort_dvks_alpha(self):
         """

@@ -134,6 +134,31 @@ class DvkHandler:
                     return True
         return False
 
+    def contains_id(self, id: str = None) -> bool:
+        """
+        Returns whether dvk list contains a given ID.
+
+        Parameters:
+            id (str):ID to search for
+
+        Returns:
+            bool: Whether dvk list contains ID
+        """
+        if id is not None:
+            size = self.get_size()
+            for i in range(0, size):
+                if str(self.get_dvk_direct(i).get_id()) == str(id):
+                    return True
+        return False
+
+    def add_dvk(self, dvk: Dvk = None):
+        """
+        Adds a Dvk object to the handler's list of Dvk objects.
+        """
+        if dvk is not None:
+            self.dvks.append(dvk)
+            self.reset_sorted()
+
     def sort_dvks(
             self,
             sort_type: str = None,
