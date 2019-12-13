@@ -6,7 +6,7 @@ from dvk_archive.processing.list_processing import clean_list
 from dvk_archive.processing.string_processing import extend_int
 from dvk_archive.processing.string_processing import get_filename
 from dvk_archive.processing.string_processing import get_extension
-from dvk_archive.web.basic_connect import download
+from dvk_archive.web.basic_connect import download, get_last_modified
 
 
 class Dvk:
@@ -148,17 +148,20 @@ class Dvk:
             except IOError as e:
                 print("File error: " + str(e))
 
-    def write_media(self):
+    def write_media(self, get_time: bool = False):
         """
         Writes the DVK file and downloads associated media, if available.
         Nothing is writen if DVK or media URLs are invalid.
+
+        Parameters:
+            get_time (bool): Whether to get the last modified time of URL
+                             for the DVK's time published
         """
         self.write_dvk()
         if self.get_file().exists():
             # DOWNLOAD MEDIA FILE
-            download(
-                self.get_direct_url(),
-                str(self.get_media_file().absolute()))
+            mf = str(self.get_media_file().absolute())
+            headers = download(self.get_direct_url(), mf)
             if self.get_media_file().exists():
                 # DOWNLOAD SECONDARY FILE
                 if self.get_secondary_url() is not None:
@@ -170,6 +173,9 @@ class Dvk:
                         remove(str(self.get_file().absolute()))
             else:
                 remove(str(self.get_file().absolute()))
+        if get_time and self.get_file().exists():
+            self.set_time(get_last_modified(headers))
+            self.write_dvk()
 
     def read_dvk(self):
         """

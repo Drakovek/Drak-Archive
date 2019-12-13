@@ -23,7 +23,11 @@ class TestHeavyConnect(unittest.TestCase):
             if bs is None:
                 assert False
             else:
-                assert bs.find("h1").get_text() == "An Interesting Title"
+                h1 = bs.find("h1")
+                if h1 is None:
+                    assert False
+                else:
+                    assert h1.get_text() == "An Interesting Title"
             url = "http://pythonscraping.com/pages/javascript/ajaxDemo.html"
             bs = connect.get_page(url, element="//button[@id='loadedButton']")
             if bs is None:

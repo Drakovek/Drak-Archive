@@ -1,8 +1,5 @@
 from time import sleep
-from io import BytesIO
-from pathlib import Path
 from bs4 import BeautifulSoup
-from shutil import copyfileobj
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -11,7 +8,6 @@ from selenium.webdriver.chrome.options import Options as CO
 from selenium.webdriver.firefox.options import Options as FO
 from selenium.common.exceptions import InvalidArgumentException
 from selenium.common.exceptions import WebDriverException
-from dvk_archive.processing.string_processing import get_extension
 
 
 def print_driver_instructions():
@@ -73,6 +69,15 @@ class HeavyConnect:
                 self.driver = None
                 print_driver_instructions()
 
+    def get_driver(self) -> webdriver:
+        """
+        Returns the current Selenium webdriver.
+
+        Returns:
+            webdriver: Selenium Web Driver
+        """
+        return self.driver
+
     def get_page(
             self, url: str = None,
             wait: int = 0,
@@ -103,35 +108,6 @@ class HeavyConnect:
         except (InvalidArgumentException, WebDriverException):
             return None
         return None
-
-    def download(self, url: str = None, filename: str = None):
-        """
-        Downloads a file from a given url to a given file path.
-
-        Parameters:
-            url (str): URL from which to download
-            filename (str): File path to save to
-        """
-        if (url is not None
-                and not url == ""
-                and filename is not None
-                and not filename == ""):
-            file = Path(filename)
-            if file.exists():
-                extension = get_extension(filename)
-                base = filename[0:len(filename) - len(extension)]
-                num = 1
-                while file.exists():
-                    file = Path(base + "(" + str(num) + ")" + extension)
-                    num = num + 1
-            # SAVE FILE
-            try:
-                byte_obj = BytesIO(self.driver.get(url))
-                byte_obj.seek(0)
-                with open(str(file.absolute()), "wb") as f:
-                    copyfileobj(byte_obj, f)
-            except (InvalidArgumentException, WebDriverException):
-                print("Failed to download:" + url)
 
     def close_driver(self):
         """

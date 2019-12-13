@@ -186,6 +186,7 @@ class TestDvk(unittest.TestCase):
             url = "http://www.pythonscraping.com/img/gifts/img6.jpg"
             dvk.set_direct_url(url)
             dvk.write_media()
+            assert dvk.get_time() == "0000/00/00|00:00"
             assert dvk.get_file().exists()
             assert dvk.get_media_file().exists()
             assert stat(str(dvk.get_media_file().absolute())).st_size == 39785
@@ -198,7 +199,8 @@ class TestDvk(unittest.TestCase):
             assert listdir(str(test_dir.absolute())) == []
             # VALID DIRECT AND SECONDARY URLS
             dvk.set_secondary_url(url)
-            dvk.write_media()
+            dvk.write_media(True)
+            assert dvk.get_time() == "2014/08/04|00:49"
             assert dvk.get_file().exists()
             assert dvk.get_media_file().exists()
             assert dvk.get_secondary_file().exists()

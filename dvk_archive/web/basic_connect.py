@@ -5,6 +5,7 @@ from requests import Session
 from pathlib import Path
 from shutil import copyfileobj
 from urllib.error import HTTPError
+from dvk_archive.processing.string_processing import extend_int
 
 from dvk_archive.processing.string_processing import get_extension
 
@@ -44,7 +45,7 @@ def basic_connect(url: str = None) -> BeautifulSoup:
     return None
 
 
-def download(url: str = None, filename: str = None):
+def download(url: str = None, filename: str = None) -> dict:
     """
     Downloads a file from a given url to a given file path.
 
@@ -68,12 +69,57 @@ def download(url: str = None, filename: str = None):
         try:
             session = Session()
             headers = get_headers()
-            byte_obj = BytesIO(session.get(url, headers=headers).content)
+            response = session.get(url, headers=headers)
+            byte_obj = BytesIO(response.content)
             byte_obj.seek(0)
             with open(str(file.absolute()), "wb") as f:
                 copyfileobj(byte_obj, f)
+            return response.headers
         except (HTTPError,
                 exceptions.ConnectionError,
                 exceptions.MissingSchema,
                 ConnectionResetError):
             print("Failed to download:" + url)
+    return dict()
+
+
+def get_last_modified(headers: dict = None) -> str:
+    """
+    Returns the time a webpage was last formatted from its request headers.
+
+    Parameters:
+        headers (dict): HTML request headers
+
+    Returns:
+        str: Last formatted date and time in DVK format
+    """
+    if headers is None:
+        return ""
+    try:
+        modified = headers["Last-Modified"]
+    except KeyError:
+        return ""
+    try:
+        day = int(modified[5:7])
+        month_str = modified[8:11].lower()
+        year = int(modified[12:16])
+        hour = int(modified[17:19])
+        minute = int(modified[20:22])
+        # GET MONTH
+        months = [
+            "jan", "feb", "mar", "apr", "may", "jun",
+            "jul", "aug", "sep", "oct", "nov", "dec"]
+        month = 0
+        while month < 12:
+            if month_str == months[month]:
+                break
+            month += 1
+        month += 1
+        if month > 12:
+            return ""
+        time = extend_int(year, 4) + "/" + extend_int(month, 2) + "/"
+        time = time + extend_int(day, 2) + "|" + extend_int(hour, 2)
+        time = time + ":" + extend_int(minute, 2)
+        return time
+    except ValueError:
+        return ""
