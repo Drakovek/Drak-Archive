@@ -360,6 +360,27 @@ class TestDvk(unittest.TestCase):
         self.dvk.set_file("test_path.dvk")
         assert self.dvk.get_file().name == "test_path.dvk"
 
+    def test_generate_id(self):
+        """
+        Tests the generate_id function.
+        """
+        self.dvk.generate_id("DVK")
+        assert self.dvk.get_id() == ""
+        self.dvk.set_title("Title1")
+        self.dvk.generate_id()
+        assert self.dvk.get_id() == ""
+        self.dvk.set_artist("artist")
+        self.dvk.set_page_url("/url")
+        self.dvk.generate_id()
+        assert self.dvk.get_id() == "4309082618"
+        self.dvk.generate_id("VGK")
+        assert self.dvk.get_id() == "VGK4309082618"
+        self.dvk.generate_id("VGK", extra="bleh")
+        assert self.dvk.get_id() == "VGK9821911274"
+        self.dvk.set_title("Title2")
+        self.dvk.generate_id("DVK")
+        assert self.dvk.get_id() == "DVK9413915306"
+
     def test_get_set_id(self):
         """
         Tests the get_id and set_id functions.

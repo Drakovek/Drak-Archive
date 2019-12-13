@@ -1,6 +1,7 @@
 from os import remove, rename
 from json import dump, load
 from pathlib import Path
+from random import seed, randint
 from dvk_archive.processing.html_processing import add_escapes_to_html
 from dvk_archive.processing.list_processing import clean_list
 from dvk_archive.processing.string_processing import extend_int
@@ -426,6 +427,21 @@ class Dvk:
             path: DVK file path
         """
         return self.dvk_file
+
+    def generate_id(self, prefix: str = "", extra: str = ""):
+        """
+        Generates a psudorandom deterministic ID.
+        Based on title, artists, and page URL.
+
+        Parameters:
+            prefix (str): String at the start of ID
+            extra (str): Extra string for changing random seed
+        """
+        if self.get_title() is not None and len(self.get_artists()) > 0 and self.get_page_url() is not None:
+            s = self.get_title() + str(self.get_artists()) + self.get_page_url()
+            s = s + extra
+            seed(s)
+            self.set_id(prefix + str(randint(1, 9999999999)))
 
     def set_id(self, id_str: str = None):
         """
