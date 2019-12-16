@@ -28,6 +28,15 @@ class DvkHandler:
         self.sorted = []
         self.paths = []
 
+    def get_paths(self) -> list:
+        """
+        Returns list of paths loaded in the DvkHandler.
+
+        Returns:
+            list: List of pathlib paths
+        """
+        return self.paths
+
     def load_dvks(self, directory_strs: list = None):
         """
         Loads DVK files from a given directory and sub-directories.
