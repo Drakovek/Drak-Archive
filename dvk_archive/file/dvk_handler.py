@@ -109,7 +109,7 @@ class DvkHandler:
         Returns:
             list: Internal directories in the form of pathlib Path objects
         """
-        if directory_strs is None:
+        if directory_strs is None or len(directory_strs) < 1:
             return []
         paths = []
         for d in directory_strs:
@@ -124,7 +124,12 @@ class DvkHandler:
                             break
                     if add:
                         paths.append(Path(p[0]))
-        return sorted(clean_list(paths))
+        return_list = sorted(clean_list(paths))
+        if return_list == []:
+            single_path = Path(directory_strs[0])
+            if single_path.is_dir():
+                return_list = [single_path]
+        return return_list
 
     def contains_page_url(self, url: str = None) -> bool:
         """
