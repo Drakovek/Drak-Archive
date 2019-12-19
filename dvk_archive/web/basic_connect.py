@@ -123,3 +123,42 @@ def get_last_modified(headers: dict = None) -> str:
         return time
     except ValueError:
         return ""
+
+
+def remove_header_footer(input_str: str = None) -> str:
+    """
+    Returns html string with header and footer removed.
+
+    Parameters:
+        input_str (str): Given HTML string
+
+    Returns:
+        str: String with header and footer removed
+    """
+    if input_str is None or input_str == "":
+        return ""
+    # REMOVE FOOTER
+    final = input_str
+    print(final)
+    if final[len(final) - 1] == ">":
+        end = final.rfind("<")
+        final = final[0:end]
+    # REMOVE HEADER
+    if len(final) > 0 and final[0] == "<":
+        print("head")
+        try:
+            start = final.index(">") + 1
+            final = final[start:]
+        except ValueError:
+            pass
+    # REMOVE START SPACE
+    start = 0
+    while start < len(final) and final[start] == " ":
+        start += 1
+    final = final[start:]
+    # REMOVE END SPACE
+    end = len(final) - 1
+    while end > -1 and final[end] == " ":
+        end -= 1
+    final = final[0:end + 1]
+    return final

@@ -5,6 +5,7 @@ from shutil import rmtree
 from dvk_archive.web.basic_connect import basic_connect
 from dvk_archive.web.basic_connect import download
 from dvk_archive.web.basic_connect import get_last_modified
+from dvk_archive.web.basic_connect import remove_header_footer
 
 
 class TestBasicConnect(unittest.TestCase):
@@ -103,3 +104,17 @@ class TestBasicConnect(unittest.TestCase):
         assert get_last_modified(dic) == "2019/12/01|12:00"
         dic = {"Last-Modified": "Udf, 10 Nop 2010 12:05:55 GMT"}
         assert get_last_modified(dic) == ""
+
+    def test_remove_header_footer(self):
+        """
+        Tests the remove_header_footer function.
+        """
+        assert remove_header_footer() == ""
+        assert remove_header_footer("") == ""
+        assert remove_header_footer("   ") == ""
+        assert remove_header_footer("<p>") == ""
+        assert remove_header_footer("<head><foot>") == ""
+        assert remove_header_footer("<p>  test") == "test"
+        assert remove_header_footer("test </p>") == "test"
+        assert remove_header_footer("<head> Things   </foot>") == "Things"
+        assert remove_header_footer("<div><p>bleh</p></div>") == "<p>bleh</p>"
