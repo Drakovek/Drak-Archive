@@ -139,13 +139,11 @@ def remove_header_footer(input_str: str = None) -> str:
         return ""
     # REMOVE FOOTER
     final = input_str
-    print(final)
     if final[len(final) - 1] == ">":
         end = final.rfind("<")
         final = final[0:end]
     # REMOVE HEADER
     if len(final) > 0 and final[0] == "<":
-        print("head")
         try:
             start = final.index(">") + 1
             final = final[start:]
