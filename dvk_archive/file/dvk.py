@@ -144,7 +144,7 @@ class Dvk:
             # WRITE
             try:
                 with open(self.get_file().absolute(), "w") as out_file:
-                    dump(data, out_file)
+                    dump(data, out_file, indent=4, separators=(",", ": "))
 
             except IOError as e:
                 print("File error: " + str(e))
@@ -437,9 +437,11 @@ class Dvk:
             prefix (str): String at the start of ID
             extra (str): Extra string for changing random seed
         """
-        if self.get_title() is not None and len(self.get_artists()) > 0 and self.get_page_url() is not None:
-            s = self.get_title() + str(self.get_artists()) + self.get_page_url()
-            s = s + extra
+        if (self.get_title() is not None
+                and len(self.get_artists()) > 0
+                and self.get_page_url() is not None):
+            s = self.get_title() + str(self.get_artists())
+            s = s + self.get_page_url() + extra
             seed(s)
             self.set_id(prefix + str(randint(1, 9999999999)))
 

@@ -1,6 +1,7 @@
 import unittest
 from dvk_archive.processing.list_processing import clean_list
 from dvk_archive.processing.list_processing import list_to_string
+from dvk_archive.processing.list_processing import sort_alphanum
 
 
 class TestListProcessing(unittest.TestCase):
@@ -31,3 +32,13 @@ class TestListProcessing(unittest.TestCase):
         assert list_to_string(["test"]) == "test"
         input = ["", "String1", None, None, "string 2", "3"]
         assert list_to_string(input) == "String1,string 2,3"
+
+    def test_sort_alphanum(self):
+        """
+        Tests the sort_alphanum function.
+        """
+        list = ["10,05", "010,5", "5"]
+        list = sort_alphanum(list)
+        assert list == ["5", "10,05", "010,5"]
+        assert sort_alphanum() == []
+        assert sort_alphanum([]) == []

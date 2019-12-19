@@ -154,6 +154,12 @@ class TestDvkHandler(unittest.TestCase):
         assert paths[0].name == "sub1"
         assert paths[1].name == "sub2"
         assert paths[2].name == "intSub"
+        # EMPTY FOLDER
+        empty_dir = self.test_dir.joinpath("empty")
+        empty_dir.mkdir(exist_ok=True)
+        paths = dvk_handler.get_directories([empty_dir.absolute()])
+        assert len(paths) == 1
+        assert paths[0].name == "empty"
 
     def test_contains_page_url(self):
         """

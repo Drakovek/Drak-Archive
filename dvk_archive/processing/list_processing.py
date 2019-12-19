@@ -1,3 +1,7 @@
+from _functools import cmp_to_key
+from dvk_archive.processing.string_compare import compare_alphanum
+
+
 def clean_list(input_list: list = None) -> list:
     """
     Cleans a given list to contain no duplicates or entries with no value.
@@ -51,3 +55,20 @@ def list_to_string(input_list: list = None) -> str:
             else:
                 result = result + "," + next_string
     return result
+
+
+def sort_alphanum(input_list: list = None) -> list:
+    """
+    Sorts a given string list alpha-numeriacally.
+
+    Parameters:
+        input_list (list): Given string list
+
+    Returns:
+        list: Sorted string list
+    """
+    if input_list is None or input_list == []:
+        return []
+    comparator = cmp_to_key(compare_alphanum)
+    output = sorted(input_list, key=comparator)
+    return output

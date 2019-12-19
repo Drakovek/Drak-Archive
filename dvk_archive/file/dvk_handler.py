@@ -295,6 +295,17 @@ class DvkHandler:
         return result
 
     def compare_artists(self, x: Dvk = None, y: Dvk = None) -> int:
+        """
+        Compares two DVK objects by their artists.
+
+        Parameters:
+            x (Dvk): 1st Dvk object to compare
+            y (Dvk): 2nd Dvk object to compare
+
+        Returns:
+            int: Which Dvk should come first.
+                -1 for x, 1 for y, 0 for indeterminate
+        """
         x_artists = list_to_string(x.get_artists())
         y_artists = list_to_string(y.get_artists())
         return compare_alphanum(x_artists, y_artists)
