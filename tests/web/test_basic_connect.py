@@ -24,10 +24,20 @@ class TestBasicConnect(unittest.TestCase):
         assert basic_connect("http://lakjwj;wklk;okjovz") is None
         url = "http://pythonscraping.com/exercises/exercise1.html"
         bs = basic_connect(url)
-        if bs is None:
-            assert False
-        else:
-            assert bs.find("h1").get_text() == "An Interesting Title"
+        assert bs is not None
+        assert bs.find("h1").get_text() == "An Interesting Title"
+        url = "https://mangadex.org/title/27152/jojo"
+        bs = basic_connect(url)
+        d = ""
+        assert bs is not None
+        bs_list = bs.findAll("div", {"class": "col-lg-3 col-xl-2 strong"})
+        for item in bs_list:
+            if item.get_text() == "Description:":
+                sibling = item.find_next_sibling("div")
+                d = remove_header_footer(str(sibling))
+                break
+        print(d)
+        assert d.startswith("Second story arc of JoJo no Kimyou na Bouken series.<br/><br/>Takes place in the 1930s")
 
     def test_download(self):
         """

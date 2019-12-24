@@ -36,6 +36,7 @@ def basic_connect(url: str = None) -> BeautifulSoup:
     headers = get_headers()
     try:
         request = session.get(url, headers=headers)
+        request.encoding = request.apparent_encoding
         bs = BeautifulSoup(request.text, features="lxml")
         return bs
     except (exceptions.ConnectionError,
@@ -138,7 +139,7 @@ def remove_header_footer(input_str: str = None) -> str:
     if input_str is None or input_str == "":
         return ""
     # REMOVE FOOTER
-    final = input_str
+    final = input_str.replace("\n", "")
     if final[len(final) - 1] == ">":
         end = final.rfind("<")
         final = final[0:end]
