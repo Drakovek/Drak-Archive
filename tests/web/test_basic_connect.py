@@ -36,8 +36,9 @@ class TestBasicConnect(unittest.TestCase):
                 sibling = item.find_next_sibling("div")
                 d = remove_header_footer(str(sibling))
                 break
-        print(d)
-        assert d.startswith("Second story arc of JoJo no Kimyou na Bouken series.<br/><br/>Takes place in the 1930s")
+        desc = "Second story arc of JoJo no Kimyou na Bouken series."
+        desc = desc + "<br/><br/>Takes place in the 1930s"
+        assert d.startswith(desc)
 
     def test_download(self):
         """

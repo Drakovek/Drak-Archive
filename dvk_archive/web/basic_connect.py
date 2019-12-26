@@ -19,13 +19,14 @@ def get_headers() -> dict:
     return headers
 
 
-def basic_connect(url: str = None) -> BeautifulSoup:
+def basic_connect(url: str = None, encoding: str = "utf-8") -> BeautifulSoup:
     """
     Connects to a URL and returns a BeautifulSoup object.
     Incapable of working with JavaScript.
 
     Parameters:
         url (str): URL to retrieve
+        encoding (str): Text encoding to use
 
     Returns:
         BeautifulSoup: BeautifulSoup object of the url page
@@ -36,7 +37,10 @@ def basic_connect(url: str = None) -> BeautifulSoup:
     headers = get_headers()
     try:
         request = session.get(url, headers=headers)
-        request.encoding = request.apparent_encoding
+        if encoding is None:
+            request.encoding = request.apparent_encodin
+        else:
+            request.encoding = encoding
         bs = BeautifulSoup(request.text, features="lxml")
         return bs
     except (exceptions.ConnectionError,
