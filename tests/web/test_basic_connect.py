@@ -2,6 +2,8 @@ import unittest
 from os import listdir, stat
 from pathlib import Path
 from shutil import rmtree
+from dvk_archive.web.basic_connect import bs_connect
+from dvk_archive.web.basic_connect import json_connect
 from dvk_archive.web.basic_connect import basic_connect
 from dvk_archive.web.basic_connect import download
 from dvk_archive.web.basic_connect import get_last_modified
@@ -13,21 +15,21 @@ class TestBasicConnect(unittest.TestCase):
     Unit tests for the basic_connect.py module.
     """
 
-    def test_basic_connect(self):
+    def test_bs_connect(self):
         """
-        Tests the basic_connect function.
+        Tests the bs_connect function.
         """
-        assert basic_connect() is None
-        assert basic_connect(None) is None
-        assert basic_connect("") is None
-        assert basic_connect("jkslkeerkn") is None
-        assert basic_connect("http://lakjwj;wklk;okjovz") is None
+        assert bs_connect() is None
+        assert bs_connect(None) is None
+        assert bs_connect("") is None
+        assert bs_connect("jkslkeerkn") is None
+        assert bs_connect("http://lakjwj;wklk;okjovz") is None
         url = "http://pythonscraping.com/exercises/exercise1.html"
-        bs = basic_connect(url)
+        bs = bs_connect(url)
         assert bs is not None
         assert bs.find("h1").get_text() == "An Interesting Title"
         url = "https://mangadex.org/title/27152/jojo"
-        bs = basic_connect(url)
+        bs = bs_connect(url)
         d = ""
         assert bs is not None
         bs_list = bs.findAll("div", {"class": "col-lg-3 col-xl-2 strong"})
@@ -39,6 +41,34 @@ class TestBasicConnect(unittest.TestCase):
         desc = "Second story arc of JoJo no Kimyou na Bouken series."
         desc = desc + "<br/><br/>Takes place in the 1930s"
         assert d.startswith(desc)
+
+    def test_json_connect(self):
+        # TEST JSON
+        json = json_connect("http://echo.jsontest.com/key/test/next/blah")
+        assert json is not None
+        assert json["key"] == "test"
+        assert json["next"] == "blah"
+        # TEST NON-JSON
+        url = "http://pythonscraping.com/exercises/exercise1.html"
+        json = json_connect(url)
+        print(type(json))
+        assert json is None
+        # TEST INVALID
+        assert json_connect() is None
+
+    def test_basic_connect(self):
+        """
+        Tests the basic_connect function.
+        """
+        assert basic_connect() is None
+        assert basic_connect(None) is None
+        assert basic_connect("") is None
+        assert basic_connect("jkslkeerkn") is None
+        assert basic_connect("http://lakjwj;wklk;okjovz") is None
+        url = "http://pythonscraping.com/exercises/exercise1.html"
+        html = basic_connect(url)
+        assert html is not None
+        assert html.startswith("<html>\n<head>\n<title>A Useful Page</title>")
 
     def test_download(self):
         """

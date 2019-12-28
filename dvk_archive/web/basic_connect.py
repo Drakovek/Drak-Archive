@@ -1,3 +1,5 @@
+from json import loads
+from json.decoder import JSONDecodeError
 from io import BytesIO
 from bs4 import BeautifulSoup
 from requests import exceptions
@@ -19,7 +21,7 @@ def get_headers() -> dict:
     return headers
 
 
-def basic_connect(url: str = None, encoding: str = "utf-8") -> BeautifulSoup:
+def bs_connect(url: str = None, encoding: str = "utf-8") -> BeautifulSoup:
     """
     Connects to a URL and returns a BeautifulSoup object.
     Incapable of working with JavaScript.
@@ -31,6 +33,46 @@ def basic_connect(url: str = None, encoding: str = "utf-8") -> BeautifulSoup:
     Returns:
         BeautifulSoup: BeautifulSoup object of the url page
     """
+    html = basic_connect(url, encoding)
+    if html is None or html == "":
+        return None
+    return BeautifulSoup(html, features="lxml")
+
+
+def json_connect(url: str = None, encoding: str = "utf-8") -> dict:
+    """
+    Connects to a URL and returns a dictionary based on JSON data.
+    Incapable of working with JavaScript.
+
+    Parameters:
+        url (str): URL to retrieve
+        encoding (str): Text encoding to use
+
+    Returns:
+        dict: Dictionary from JSON data
+    """
+    html = basic_connect(url, encoding)
+    if html is None or html == "":
+        return None
+    try:
+        json = loads(html)
+        return json
+    except JSONDecodeError:
+        return None
+
+
+def basic_connect(url: str = None, encoding: str = "utf-8") -> str:
+    """
+    Connects to a URL and returns a the HTML source.
+    Incapable of working with JavaScript.
+
+    Parameters:
+        url (str): URL to retrieve
+        encoding (str): Text encoding to use
+
+    Returns:
+        str: HTML source
+    """
     if url is None or url == "":
         return None
     session = Session()
@@ -38,11 +80,10 @@ def basic_connect(url: str = None, encoding: str = "utf-8") -> BeautifulSoup:
     try:
         request = session.get(url, headers=headers)
         if encoding is None:
-            request.encoding = request.apparent_encodin
+            request.encoding = request.apparent_encoding
         else:
             request.encoding = encoding
-        bs = BeautifulSoup(request.text, features="lxml")
-        return bs
+        return request.text
     except (exceptions.ConnectionError,
             exceptions.MissingSchema,
             ConnectionResetError):
