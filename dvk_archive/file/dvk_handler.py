@@ -69,7 +69,7 @@ class DvkHandler:
         Returns:
             int: Number of DVK files loaded
         """
-        return len(self.sorted)
+        return len(self.dvks)
 
     def get_dvk_sorted(self, index_int: int = -1) -> Dvk:
         """
@@ -188,7 +188,6 @@ class DvkHandler:
         """
         if dvk is not None:
             self.dvks.append(dvk)
-            self.reset_sorted()
 
     def sort_dvks(
             self,
