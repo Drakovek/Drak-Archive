@@ -148,6 +148,23 @@ class DvkHandler:
                     return True
         return False
 
+    def contains_direct_url(self, url: str = None) -> bool:
+        """
+        Returns whether dvk list contains a given direce URL.
+
+        Parameters:
+            url (str): Direct URL to search for
+
+        Returns:
+            bool: Whether dvk list contains direct_url
+        """
+        if url is not None:
+            size = self.get_size()
+            for i in range(0, size):
+                if str(self.get_dvk_direct(i).get_direct_url()) == str(url):
+                    return True
+        return False
+
     def contains_id(self, id: str = None) -> bool:
         """
         Returns whether dvk list contains a given ID.

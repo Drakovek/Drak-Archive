@@ -24,6 +24,7 @@ class TestDvkHandler(unittest.TestCase):
         dvk.set_file(self.test_dir.joinpath("dvk.dvk").absolute())
         dvk.set_id("Unimportant")
         dvk.set_page_url("/unimportant")
+        dvk.set_direct_url("/thing")
         dvk.set_media_file("unimportant")
         count = 0
         while count < 2:
@@ -172,6 +173,18 @@ class TestDvkHandler(unittest.TestCase):
         assert not dvk_handler.contains_page_url()
         assert not dvk_handler.contains_page_url("bleh")
         assert dvk_handler.contains_page_url("/unimportant")
+
+    def test_contains_direct_url(self):
+        """
+        Tests the contains_page_url function.
+        """
+        dvk_handler = DvkHandler()
+        assert not dvk_handler.contains_direct_url()
+        assert not dvk_handler.contains_direct_url("bleh")
+        dvk_handler.load_dvks([self.test_dir.absolute()])
+        assert not dvk_handler.contains_direct_url()
+        assert not dvk_handler.contains_direct_url("bleh")
+        assert dvk_handler.contains_direct_url("/thing")
 
     def test_contains_id(self):
         """
