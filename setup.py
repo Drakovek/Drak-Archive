@@ -11,7 +11,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="dvk-archive",
-    version="0.2.5",
+    version="0.2.6",
     author="Drakovek",
     author_email="DrakovekMail@gmail.com",
     description="Modules for loading and handling .dvk files.",

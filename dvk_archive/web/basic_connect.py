@@ -21,7 +21,10 @@ def get_headers() -> dict:
     return headers
 
 
-def bs_connect(url: str = None, encoding: str = "utf-8") -> BeautifulSoup:
+def bs_connect(
+        url: str = None,
+        encoding: str = "utf-8",
+        data: dict = None) -> BeautifulSoup:
     """
     Connects to a URL and returns a BeautifulSoup object.
     Incapable of working with JavaScript.
@@ -29,17 +32,21 @@ def bs_connect(url: str = None, encoding: str = "utf-8") -> BeautifulSoup:
     Parameters:
         url (str): URL to retrieve
         encoding (str): Text encoding to use
+        data (dict): Request payload for post requests
 
     Returns:
         BeautifulSoup: BeautifulSoup object of the url page
     """
-    html = basic_connect(url, encoding)
+    html = basic_connect(url, encoding, data)
     if html is None or html == "":
         return None
     return BeautifulSoup(html, features="lxml")
 
 
-def json_connect(url: str = None, encoding: str = "utf-8") -> dict:
+def json_connect(
+        url: str = None,
+        encoding: str = "utf-8",
+        data: dict = None) -> dict:
     """
     Connects to a URL and returns a dictionary based on JSON data.
     Incapable of working with JavaScript.
@@ -47,11 +54,12 @@ def json_connect(url: str = None, encoding: str = "utf-8") -> dict:
     Parameters:
         url (str): URL to retrieve
         encoding (str): Text encoding to use
+        data (dict): Request payload for post requests
 
     Returns:
         dict: Dictionary from JSON data
     """
-    html = basic_connect(url, encoding)
+    html = basic_connect(url, encoding, data)
     if html is None or html == "":
         return None
     try:
@@ -61,7 +69,10 @@ def json_connect(url: str = None, encoding: str = "utf-8") -> dict:
         return None
 
 
-def basic_connect(url: str = None, encoding: str = "utf-8") -> str:
+def basic_connect(
+        url: str = None,
+        encoding: str = "utf-8",
+        data: dict = None) -> str:
     """
     Connects to a URL and returns a the HTML source.
     Incapable of working with JavaScript.
@@ -69,6 +80,7 @@ def basic_connect(url: str = None, encoding: str = "utf-8") -> str:
     Parameters:
         url (str): URL to retrieve
         encoding (str): Text encoding to use
+        data (dict): Request payload for post requests
 
     Returns:
         str: HTML source
@@ -78,7 +90,10 @@ def basic_connect(url: str = None, encoding: str = "utf-8") -> str:
     session = Session()
     headers = get_headers()
     try:
-        request = session.get(url, headers=headers)
+        if data is None:
+            request = session.get(url, headers=headers)
+        else:
+            request = session.post(url, data=data)
         if encoding is None:
             request.encoding = request.apparent_encoding
         else:
