@@ -124,11 +124,12 @@ class DvkHandler:
                             break
                     if add:
                         paths.append(Path(p[0]))
-        return_list = sorted(clean_list(paths))
-        if return_list == []:
-            single_path = Path(directory_strs[0])
-            if single_path.is_dir():
-                return_list = [single_path]
+        single_path = Path(directory_strs[0])
+        return_list = []
+        if single_path.is_dir():
+            return_list.append(single_path)
+        return_list.extend(paths)
+        return_list = sorted(clean_list(return_list))
         return return_list
 
     def contains_page_url(self, url: str = None) -> bool:

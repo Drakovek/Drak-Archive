@@ -28,19 +28,6 @@ class TestBasicConnect(unittest.TestCase):
         bs = bs_connect(url)
         assert bs is not None
         assert bs.find("h1").get_text() == "An Interesting Title"
-        url = "https://mangadex.org/title/27152/jojo"
-        bs = bs_connect(url)
-        d = ""
-        assert bs is not None
-        bs_list = bs.findAll("div", {"class": "col-lg-3 col-xl-2 strong"})
-        for item in bs_list:
-            if item.get_text() == "Description:":
-                sibling = item.find_next_sibling("div")
-                d = remove_header_footer(str(sibling))
-                break
-        desc = "Second story arc of JoJo no Kimyou na Bouken series."
-        desc = desc + "<br/><br/>Takes place in the 1930s"
-        assert d.startswith(desc)
 
     def test_json_connect(self):
         # TEST JSON
