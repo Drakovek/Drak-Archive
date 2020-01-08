@@ -1,23 +1,21 @@
-import unittest
 from pathlib import Path
 from shutil import rmtree
 from dvk_archive.file.dvk import Dvk
 from dvk_archive.file.dvk_handler import DvkHandler
-from dvk_archive.error.unlinked import unlinked_media
+from dvk_archive.error.missing_media import missing_media
 
 
-class TestUnlinkedMedia(unittest.TestCase):
+class TestMissingMedia():
     """
-    Unit tests for the unlinked.py module.
+    Unit tests for the missing_media.py module.
     Attributes:
         test_dir (Path): Directory for holding test files.
     """
 
-    def setUp(self):
+    def set_up(self):
         """
         Sets up test files before running unit tests.
         """
-        unittest.TestCase.setUp(self)
         self.test_dir = Path("finding")
         self.test_dir.mkdir(exist_ok=True)
         self.test_dir.joinpath("file0").touch()
@@ -67,24 +65,36 @@ class TestUnlinkedMedia(unittest.TestCase):
         dvk.set_media_file(file)
         dvk.write_dvk()
 
-    def tearDown(self):
+    def tear_down(self):
         """
         Deletes test files after ErrorFinding testing.
         """
-        unittest.TestCase.tearDown(self)
         rmtree(self.test_dir.absolute())
 
-    def test_unlinked_media(self):
+    def test_missing_media(self):
         """
-        Tests the unlinked_media function.
+        Tests the missing_media function.
         """
-        missing = unlinked_media([self.test_dir.absolute()])
-        assert len(missing) == 2
-        assert missing[0].name == "file0"
-        assert missing[1].name == "file1.txt"
-        assert unlinked_media() == []
-        handler = DvkHandler()
-        handler.load_dvks([self.test_dir.joinpath("sub").absolute()])
-        missing = unlinked_media(dvk_handler=handler)
-        assert len(missing) == 1
-        assert missing[0].name == "file1.txt"
+        try:
+            self.set_up()
+            handler = DvkHandler()
+            handler.load_dvks([self.test_dir.absolute()])
+            missing = missing_media(dvk_handler=handler)
+            assert len(missing) == 3
+            assert missing[0].name == "dvk2.dvk"
+            assert missing[1].name == "dvk3.dvk"
+            assert missing[2].name == "dvk4.dvk"
+            assert missing_media() == []
+            sub = Path(self.test_dir.joinpath("sub").absolute())
+            missing = missing_media([sub.absolute()])
+            assert len(missing) == 2
+            assert missing[0].name == "dvk2.dvk"
+            assert missing[1].name == "dvk3.dvk"
+        finally:
+            self.tear_down()
+
+    def test_all(self):
+        """
+        Tests all functions of the missing_media.py module.
+        """
+        self.test_missing_media()

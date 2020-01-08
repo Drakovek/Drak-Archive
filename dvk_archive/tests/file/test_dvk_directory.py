@@ -1,11 +1,10 @@
-import unittest
 from pathlib import Path
 from shutil import rmtree
 from dvk_archive.file.dvk import Dvk
 from dvk_archive.file.dvk_directory import DvkDirectory
 
 
-class TestDvkDirectory(unittest.TestCase):
+class TestDvkDirectory():
     """
     Unit tests for the DvkDirectory class.
 
@@ -14,11 +13,10 @@ class TestDvkDirectory(unittest.TestCase):
         dvk_directory (DvkDirectory):
     """
 
-    def setUp(self):
+    def set_up(self):
         """
         Initializes DvkDirectoryTest attributes for testing.
         """
-        unittest.TestCase.setUp(self)
         self.test_dir = Path("dirtest")
         self.test_dir.mkdir(exist_ok=True)
         # DVK 1
@@ -62,17 +60,26 @@ class TestDvkDirectory(unittest.TestCase):
         self.dvk_directory = DvkDirectory()
         self.dvk_directory.read_dvks(self.test_dir.absolute())
 
-    def tearDown(self):
+    def tear_down(self):
         """
         Deletes test files after DvkDirectory testing.
         """
-        unittest.TestCase.tearDown(self)
         rmtree(self.test_dir.absolute())
 
     def test_get_size(self):
         """
         Tests the get_size function.
         """
-        assert self.dvk_directory.get_size() == 5
-        self.dvk_directory.read_dvks()
-        assert self.dvk_directory.get_size() == 0
+        try:
+            self.set_up()
+            assert self.dvk_directory.get_size() == 5
+            self.dvk_directory.read_dvks()
+            assert self.dvk_directory.get_size() == 0
+        finally:
+            self.tear_down()
+
+    def test_all(self):
+        """
+        Tests all functions of the DvkDirectory class.
+        """
+        self.test_get_size()

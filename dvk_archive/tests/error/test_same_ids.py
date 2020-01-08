@@ -1,23 +1,21 @@
-import unittest
 from pathlib import Path
 from shutil import rmtree
 from dvk_archive.file.dvk import Dvk
 from dvk_archive.file.dvk_handler import DvkHandler
-from dvk_archive.error.missing_media import missing_media
+from dvk_archive.error.same_ids import same_ids
 
 
-class TestMissingMedia(unittest.TestCase):
+class TestSameIDs():
     """
-    Unit tests for the ErrorFinding.py module.
+    Unit tests for the same_ids.py module.
     Attributes:
         test_dir (Path): Directory for holding test files.
     """
 
-    def setUp(self):
+    def set_up(self):
         """
         Sets up test files before running unit tests.
         """
-        unittest.TestCase.setUp(self)
         self.test_dir = Path("finding")
         self.test_dir.mkdir(exist_ok=True)
         self.test_dir.joinpath("file0").touch()
@@ -67,27 +65,34 @@ class TestMissingMedia(unittest.TestCase):
         dvk.set_media_file(file)
         dvk.write_dvk()
 
-    def tearDown(self):
+    def tear_down(self):
         """
         Deletes test files after ErrorFinding testing.
         """
-        unittest.TestCase.tearDown(self)
         rmtree(self.test_dir.absolute())
 
-    def test_missing_media(self):
+    def test_identical_ids(self):
         """
-        Tests the missing_media function.
+        Tests the identical_ids function.
         """
-        handler = DvkHandler()
-        handler.load_dvks([self.test_dir.absolute()])
-        missing = missing_media(dvk_handler=handler)
-        assert len(missing) == 3
-        assert missing[0].name == "dvk2.dvk"
-        assert missing[1].name == "dvk3.dvk"
-        assert missing[2].name == "dvk4.dvk"
-        assert missing_media() == []
-        sub = Path(self.test_dir.joinpath("sub").absolute())
-        missing = missing_media([sub.absolute()])
-        assert len(missing) == 2
-        assert missing[0].name == "dvk2.dvk"
-        assert missing[1].name == "dvk3.dvk"
+        try:
+            self.set_up()
+            handler = DvkHandler()
+            handler.load_dvks([self.test_dir.absolute()])
+            ids = same_ids(dvk_handler=handler)
+            assert len(ids) == 3
+            assert ids[0].name == "dvk1.dvk"
+            assert ids[1].name == "dvk3.dvk"
+            assert ids[2].name == "dvk4.dvk"
+            sub = Path(self.test_dir.joinpath("sub").absolute())
+            assert same_ids([sub.absolute()]) == []
+            assert same_ids() == []
+            assert len(same_ids([self.test_dir.absolute()])) == 3
+        finally:
+            self.tear_down()
+
+    def test_all(self):
+        """
+        Tests all functions of the same_ids.py module.
+        """
+        self.test_identical_ids()

@@ -1,23 +1,21 @@
-import unittest
 from pathlib import Path
 from shutil import rmtree
 from dvk_archive.file.dvk import Dvk
 from dvk_archive.file.dvk_handler import DvkHandler
-from dvk_archive.error.same_ids import same_ids
+from dvk_archive.error.unlinked import unlinked_media
 
 
-class TestSameIDs(unittest.TestCase):
+class TestUnlinkedMedia():
     """
-    Unit tests for the same_ids.py module.
+    Unit tests for the unlinked.py module.
     Attributes:
         test_dir (Path): Directory for holding test files.
     """
 
-    def setUp(self):
+    def set_up(self):
         """
         Sets up test files before running unit tests.
         """
-        unittest.TestCase.setUp(self)
         self.test_dir = Path("finding")
         self.test_dir.mkdir(exist_ok=True)
         self.test_dir.joinpath("file0").touch()
@@ -67,25 +65,33 @@ class TestSameIDs(unittest.TestCase):
         dvk.set_media_file(file)
         dvk.write_dvk()
 
-    def tearDown(self):
+    def tear_down(self):
         """
         Deletes test files after ErrorFinding testing.
         """
-        unittest.TestCase.tearDown(self)
         rmtree(self.test_dir.absolute())
 
-    def test_identical_ids(self):
+    def test_unlinked_media(self):
         """
-        Tests the identical_ids function.
+        Tests the unlinked_media function.
         """
-        handler = DvkHandler()
-        handler.load_dvks([self.test_dir.absolute()])
-        ids = same_ids(dvk_handler=handler)
-        assert len(ids) == 3
-        assert ids[0].name == "dvk1.dvk"
-        assert ids[1].name == "dvk3.dvk"
-        assert ids[2].name == "dvk4.dvk"
-        sub = Path(self.test_dir.joinpath("sub").absolute())
-        assert same_ids([sub.absolute()]) == []
-        assert same_ids() == []
-        assert len(same_ids([self.test_dir.absolute()])) == 3
+        try:
+            self.set_up()
+            missing = unlinked_media([self.test_dir.absolute()])
+            assert len(missing) == 2
+            assert missing[0].name == "file0"
+            assert missing[1].name == "file1.txt"
+            assert unlinked_media() == []
+            handler = DvkHandler()
+            handler.load_dvks([self.test_dir.joinpath("sub").absolute()])
+            missing = unlinked_media(dvk_handler=handler)
+            assert len(missing) == 1
+            assert missing[0].name == "file1.txt"
+        finally:
+            self.tear_down()
+
+    def test_all(self):
+        """
+        Tests all functions of the unlinked.py module.
+        """
+        self.test_unlinked_media()
