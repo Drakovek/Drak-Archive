@@ -130,8 +130,8 @@ def compare_sections(str1: str = None, str2: str = None) -> int:
                     return -1
                 elif val1 > val2:
                     return 1
-            except ValueError as e:
-                print("Invalid number caught: " + str(e))
+            except ValueError:
+                pass
         else:
             return compare_strings(str1, str2)
     return 0

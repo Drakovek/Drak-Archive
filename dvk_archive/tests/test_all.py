@@ -1,9 +1,10 @@
 from traceback import print_exc
-from dvk_archive.tests.error.test_error import test_error
-from dvk_archive.tests.file.test_file import test_file
-from dvk_archive.tests.processing.test_processing import test_processing
-from dvk_archive.tests.reformat.test_reformat import test_reformat
-from dvk_archive.tests.web.test_web import test_web
+from argparse import ArgumentParser
+from dvk_archive.tests.error.test_error import test_error as error
+from dvk_archive.tests.file.test_file import test_file as file
+from dvk_archive.tests.processing.test_processing import test_processing as pro
+from dvk_archive.tests.reformat.test_reformat import test_reformat as reformat
+from dvk_archive.tests.web.test_web import test_web as web
 
 
 def test_all():
@@ -11,11 +12,71 @@ def test_all():
     Runs all test cases.
     """
     try:
-        test_error()
-        test_file()
-        test_processing()
-        test_reformat()
-        test_web()
+        error()
+        file()
+        pro()
+        reformat()
+        web()
+        print("\033[32mAll dvk_archive tests passed.\033[0m")
+    except AssertionError:
+        print("\033[31mCheck failed:\033[0m")
+        print_exc()
+
+
+def test_error():
+    """
+    Runs error tests.
+    """
+    try:
+        error()
+        print("\033[32mAll dvk_archive tests passed.\033[0m")
+    except AssertionError:
+        print("\033[31mCheck failed:\033[0m")
+        print_exc()
+
+
+def test_file():
+    """
+    Runs file tests.
+    """
+    try:
+        file()
+        print("\033[32mAll dvk_archive tests passed.\033[0m")
+    except AssertionError:
+        print("\033[31mCheck failed:\033[0m")
+        print_exc()
+
+
+def test_processing():
+    """
+    Runs processing tests.
+    """
+    try:
+        pro()
+        print("\033[32mAll dvk_archive tests passed.\033[0m")
+    except AssertionError:
+        print("\033[31mCheck failed:\033[0m")
+        print_exc()
+
+
+def test_reformat():
+    """
+    Runs reformatting tests.
+    """
+    try:
+        reformat()
+        print("\033[32mAll dvk_archive tests passed.\033[0m")
+    except AssertionError:
+        print("\033[31mCheck failed:\033[0m")
+        print_exc()
+
+
+def test_web():
+    """
+    Runs web tests.
+    """
+    try:
+        web()
         print("\033[32mAll dvk_archive tests passed.\033[0m")
     except AssertionError:
         print("\033[31mCheck failed:\033[0m")
@@ -23,7 +84,50 @@ def test_all():
 
 
 def main():
-    test_all()
+    """
+    Runs tests specified by command line argument.
+    By default, runs all dvk_archive tests.
+    """
+    parser = ArgumentParser()
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "-e",
+        "--error",
+        help="Runs tests for error finding modules.",
+        action="store_true")
+    group.add_argument(
+        "-f",
+        "--file",
+        help="Runs tests for file handling modules.",
+        action="store_true")
+    group.add_argument(
+        "-p",
+        "--processing",
+        help="Runs tests for internal processing modules.",
+        action="store_true")
+    group.add_argument(
+        "-r",
+        "--reformatting",
+        help="Runs tests for file reformatting modules.",
+        action="store_true")
+    group.add_argument(
+        "-w",
+        "--web",
+        help="Runs tests for web modules.",
+        action="store_true")
+    args = parser.parse_args()
+    if args.error:
+        test_error()
+    elif args.file:
+        test_file()
+    elif args.processing:
+        test_processing()
+    elif args.reformatting:
+        test_reformat()
+    elif args.web:
+        test_web()
+    else:
+        test_all()
 
 
 if __name__ == "__main__":
