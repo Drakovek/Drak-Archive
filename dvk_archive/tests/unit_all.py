@@ -1,10 +1,10 @@
 from traceback import print_exc
 from argparse import ArgumentParser
-from dvk_archive.tests.error.test_error import test_error as error
-from dvk_archive.tests.file.test_file import test_file as file
-from dvk_archive.tests.processing.test_processing import test_processing as pro
-from dvk_archive.tests.reformat.test_reformat import test_reformat as reformat
-from dvk_archive.tests.web.test_web import test_web as web
+from dvk_archive.tests.error.unit_error import test_error as error
+from dvk_archive.tests.file.unit_file import test_file as file
+from dvk_archive.tests.processing.unit_processing import test_processing as pro
+from dvk_archive.tests.reformat.unit_reformat import test_reformat as reformat
+from dvk_archive.tests.web.unit_web import test_web as web
 
 
 def test_all():
