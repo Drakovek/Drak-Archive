@@ -76,7 +76,7 @@ class TestRenameFiles():
         finally:
             self.tear_down()
 
-    def test_all(self):
+    def run_all(self):
         """
         Tests all functions of the rename_files.py module.
         """

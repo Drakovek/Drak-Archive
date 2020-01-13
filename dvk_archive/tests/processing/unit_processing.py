@@ -1,8 +1,8 @@
-from dvk_archive.tests.processing.test_html_processing import test_all as ht_p
-from dvk_archive.tests.processing.test_list_processing import test_all as ls_p
-from dvk_archive.tests.processing.test_printing import test_all as ts_p
-from dvk_archive.tests.processing.test_string_compare import test_all as sc_p
-from dvk_archive.tests.processing.test_string_processing import test_all as sp
+from dvk_archive.tests.processing.test_html_processing import run_all as ht_p
+from dvk_archive.tests.processing.test_list_processing import run_all as ls_p
+from dvk_archive.tests.processing.test_printing import run_all as ts_p
+from dvk_archive.tests.processing.test_string_compare import run_all as sc_p
+from dvk_archive.tests.processing.test_string_processing import run_all as sp
 
 
 def test_processing():

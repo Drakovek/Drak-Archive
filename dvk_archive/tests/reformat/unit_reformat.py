@@ -6,4 +6,4 @@ def test_reformat():
     Run all reformat tests.
     """
     test_rename_files = TestRenameFiles()
-    test_rename_files.test_all()
+    test_rename_files.run_all()

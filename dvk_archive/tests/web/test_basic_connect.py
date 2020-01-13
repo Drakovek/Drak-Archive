@@ -150,7 +150,7 @@ def test_remove_header_footer():
     assert remove_header_footer("<div><p>bleh</p></div>") == "<p>bleh</p>"
 
 
-def test_all():
+def run_all():
     """
     Tests all functions of the basic_connect.py module.
     """

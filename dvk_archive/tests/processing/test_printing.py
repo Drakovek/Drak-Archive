@@ -15,7 +15,7 @@ def test_truncate_path():
     assert truncate_path(sub, base_path) == ".../sub"
 
 
-def test_all():
+def run_all():
     """
     Tests all functions of the printing.py module
     """

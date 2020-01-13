@@ -113,7 +113,7 @@ def test_compare_sections():
     assert compare_sections(section1, section2) == -1
 
 
-def test_all():
+def run_all():
     """
     Tests all functions in the string_compare.py module.
     """

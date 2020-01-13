@@ -93,7 +93,7 @@ class TestMissingMedia():
         finally:
             self.tear_down()
 
-    def test_all(self):
+    def run_all(self):
         """
         Tests all functions of the missing_media.py module.
         """

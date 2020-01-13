@@ -40,7 +40,7 @@ def test_sort_alphanum():
     assert sort_alphanum([]) == []
 
 
-def test_all():
+def run_all():
     """
     Tests all functions of the list_processing.py module.
     """

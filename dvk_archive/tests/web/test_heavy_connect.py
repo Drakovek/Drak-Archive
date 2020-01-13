@@ -36,5 +36,5 @@ def test_get_page():
         connect.close_driver()
 
 
-def test_all():
+def run_all():
     test_get_page()

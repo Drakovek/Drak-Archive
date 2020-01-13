@@ -929,7 +929,7 @@ def test_get_set_user_tags():
     assert dvk.get_user_tags()[2] == "other tag"
 
 
-def test_all():
+def run_all():
     """
     Tests all functions in the Dvk class.
     """

@@ -64,7 +64,7 @@ def test_replace_escapes():
     assert replace_escapes(input) == "remove"
 
 
-def test_all():
+def run_all():
     """
     Tests all functions of the html_processing.py module.
     """

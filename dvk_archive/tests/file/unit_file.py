@@ -1,6 +1,6 @@
 from dvk_archive.tests.file.test_dvk_handler import TestDvkHandler
 from dvk_archive.tests.file.test_dvk_directory import TestDvkDirectory
-from dvk_archive.tests.file.test_dvk import test_all as test_dvk
+from dvk_archive.tests.file.test_dvk import run_all as test_dvk
 
 
 def test_file():
@@ -10,5 +10,5 @@ def test_file():
     test_dvk_handler = TestDvkHandler()
     test_dvk_directory = TestDvkDirectory()
     test_dvk()
-    test_dvk_handler.test_all()
-    test_dvk_directory.test_all()
+    test_dvk_handler.run_all()
+    test_dvk_directory.run_all()

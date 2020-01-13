@@ -76,7 +76,7 @@ def test_truncate_string():
     assert truncate_string(i, 40) == o
 
 
-def test_all():
+def run_all():
     test_extend_int()
     test_get_extension()
     test_get_filename()
