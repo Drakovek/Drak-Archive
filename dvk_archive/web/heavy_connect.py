@@ -21,9 +21,6 @@ def print_driver_instructions():
     print("Firefox:")
     print("https://github.com/mozilla/geckodriver/releases")
     print("")
-    print("Chrome/Chromium:")
-    print("https://sites.google.com/a/chromium.org/chromedriver/downloads")
-    print("")
     print("Copy Selenium driver(s) to your PATH directory.")
     print("(On Windows, find PATH with command \"echo %PATH%\" )")
     print("(On Mac/Linux, find PATH with command \"echo $PATH\" )")
@@ -51,23 +48,15 @@ class HeavyConnect:
             driver (str): Driver to use ("f" for firefox, "c" for chrome)
             headless (bool): Whether to run in headless mode
         """
-        if driver == "f":
-            try:
-                # TRY FIREFOX DRIVER
-                options = FO()
-                options.set_headless(headless=headless)
-                self.driver = webdriver.Firefox(options=options)
-            except WebDriverException:
-                self.initialize_driver("c", headless)
-        else:
-            try:
-                # TRY CHROME DRIVER
-                options = CO()
-                options.set_headless(headless=headless)
-                self.driver = webdriver.Chrome(options=options)
-            except WebDriverException:
-                self.driver = None
-                print_driver_instructions()
+        try:
+            # TRY FIREFOX DRIVER
+            options = FO()
+            options.headless = headless
+            self.driver = webdriver.Firefox(options=options)
+        except WebDriverException:
+            self.driver = None
+            print_driver_instructions()
+
 
     def get_driver(self) -> webdriver:
         """
@@ -94,7 +83,7 @@ class HeavyConnect:
         Returns:
             BeautifulSoup: BeautifulSoup object of the url page
         """
-        if url is None or url == "":
+        if url is None or url == "" or self.driver is None:
             return None
         try:
             self.driver.get(url)
