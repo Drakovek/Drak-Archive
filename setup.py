@@ -10,12 +10,14 @@ console_scripts = [
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+desc = "Utility for loading and handling media files in the DVK file format."
+
 setuptools.setup(
     name="dvk-archive",
     version="0.3.5",
     author="Drakovek",
     author_email="DrakovekMail@gmail.com",
-    description="Modules for loading and handling .dvk files.",
+    description=desc,
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/Drakovek/dvk_archive",

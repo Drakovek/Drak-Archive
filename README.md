@@ -3,11 +3,13 @@
 Utility for loading and handling media files in the DVK file format.
 
 - [Installation](#installation)
+- [Scripts](#scripts)
 - [DVK File Format](#dvk-file-format)
 
 # Installation
 
 DVK Archive can be installed from its [PyPI package](https://pypi.org/project/dvk-archive/) using pip:
+
     pip install dvk-archive
 
 If you are installing from source, the following python packages are required:
@@ -16,6 +18,53 @@ If you are installing from source, the following python packages are required:
 * [requests](https://pypi.org/project/requests/)
 * [selenium](https://pypi.org/project/selenium/)
 * [tqdm](https://pypi.org/project/tqdm/)
+
+# Scripts
+
+All scripts contain a [directory] field, which tells the script which directory to search.
+If left empty, [directory] defaults to the current working directoy.
+Scripts search both [directory] and its subdirectories.
+
+- [dvk-same-ids](#dvk-same-ids)
+- [dvk-unlinked](#dvk-unlinked)
+- [dvk-missing-media](#dvk-missing-media)
+- [dvk-rename](#dvk-rename)
+
+## Finding Errors
+
+Scripts for finding errors in DVK files and their referenced media.
+
+### dvk-same-ids
+
+    dvk-same-ids [directory]
+
+Checks for DVK files in [directory] that share the same ID.
+Prints file paths if any are found.
+
+### dvk-unlinked
+
+    dvk-unlinked [directory]
+
+Checks for any files in [directory] that are not linked to a DVK file.
+Ignores folders that contain no DVKs.
+Prints file paths if any are found.
+
+### dvk-missing-media
+
+    dvk-missing-media [directory]
+
+Checks for any DVK files in [directory] which reference media files or secondary media files that do not exist.
+Prints file paths if any are found.
+
+## Reformatting
+
+Scripts for editing DVK files and their referenced media.
+
+### dvk-rename
+
+    dvk_rename [directory]
+
+Renames all DVKs and their referenced media in [directory] to fit the standard naming convention: TITLE_ID
 
 # DVK File Format
 
@@ -43,10 +92,12 @@ A list of artists/authors who created the referenced media.
 
 (String)
 A string showing the time and date in which the referenced media was published/uploaded.
+
 Formatted YYYY/MM/DD|hh:mm
+
 Example: 6 October, 2017 @ 5:00PM -> 2017/10/06|17:00
 
-### web_tag
+### web_tags
 
 (String Array)
 A list of tags gathered from the referenced media's original web source.
