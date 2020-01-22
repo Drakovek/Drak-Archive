@@ -1,4 +1,4 @@
-# DVK Archive
+# DVK Archive (Python)
 
 Utility for loading and handling media files in the DVK file format.
 
