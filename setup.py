@@ -14,7 +14,7 @@ desc = "Utility for loading and handling media files in the DVK file format."
 
 setuptools.setup(
     name="dvk-archive",
-    version="0.3.5",
+    version="0.3.6",
     author="Drakovek",
     author_email="DrakovekMail@gmail.com",
     description=desc,
@@ -33,6 +33,6 @@ setuptools.setup(
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent"
     ],
-    python_requires='>=3.6',
+    python_requires='>=3.0',
     entry_points={"console_scripts": console_scripts}
 )
