@@ -1,6 +1,6 @@
 from tqdm import tqdm
-from pathlib import Path
 from os import getcwd, listdir
+from os.path import abspath, join, isdir
 from argparse import ArgumentParser
 from dvk_archive.file.dvk_handler import DvkHandler
 from dvk_archive.processing.printing import print_paths
@@ -16,7 +16,7 @@ def unlinked_media(
             Used if dvk_handler is None
         dvk_handler (list): DvkHandler with loaded DVK files.
     Returns:
-        list: List of Paths for files with no corresponding DVK file
+        list: List of paths for files with no corresponding DVK file
     """
     if dvk_handler is not None:
         handler = dvk_handler
@@ -27,9 +27,9 @@ def unlinked_media(
     print("Searching for all media files.")
     missing = []
     for path in tqdm(handler.paths):
-        for f in listdir(path.absolute()):
-            file = path.joinpath(str(f))
-            if not str(file.absolute()).endswith(".dvk") and not file.is_dir():
+        for f in listdir(abspath(path)):
+            file = abspath(join(abspath(path), f))
+            if not file.endswith(".dvk") and not isdir(file):
                 missing.append(file)
     # REMOVES UNLINKED MEDIA
     print("Searching for all unlinked media.")
@@ -69,8 +69,8 @@ def main():
         type=str,
         default=str(getcwd()))
     args = parser.parse_args()
-    dir = Path(args.directory)
-    print_paths(unlinked_media([dir.absolute()]), dir)
+    dir = abspath(args.directory)
+    print_paths(unlinked_media([dir]), dir)
 
 
 if __name__ == "__main__":

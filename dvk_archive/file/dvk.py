@@ -1,6 +1,6 @@
-from os import remove, rename
+from os import remove, rename, pardir
+from os.path import abspath, basename, exists, isfile, join
 from json import dump, load
-from pathlib import Path
 from random import seed, randint
 from dvk_archive.processing.html_processing import add_escapes_to_html
 from dvk_archive.processing.list_processing import clean_list
@@ -15,7 +15,7 @@ class Dvk:
     Class for handling DVK files.
 
     Attributes:
-        dvk_file (Path): File path of the current DVK file
+        dvk_file (str): File path of the current DVK file
         id (str): DVK ID
         title (str): DVK title
         artists (list): DVK artist List
@@ -25,8 +25,8 @@ class Dvk:
         page_url (str): DVK Page URL
         direct_url (str): DVK Direct URL
         secondary_url (str): DVK Secondary URL
-        media_file (Path): DVK media file path
-        secondary_file (Path): DVK secondary media file path
+        media_file (str): DVK media file path
+        secondary_file (str): DVK secondary media file path
         previous_ids (list): Previous IDs in a DVK sequence
         next_ids (list): Next IDs in a DVK sequence
         section_first (bool): If DVK is first in a sequence section
@@ -111,10 +111,10 @@ class Dvk:
             data = self.add_to_dict(data, "web", dvk_web)
             # FILE
             dvk_fd = dict()
-            value = self.get_media_file().name
+            value = basename(self.get_media_file())
             dvk_fd = self.add_to_dict(dvk_fd, "media_file", value)
             if self.get_secondary_file() is not None:
-                value = self.get_secondary_file().name
+                value = basename(self.get_secondary_file())
                 dvk_fd = self.add_to_dict(dvk_fd, "secondary_file", value)
             value = self.get_previous_ids()
             dvk_fd = self.add_to_dict(dvk_fd, "previous_ids", value)
@@ -143,7 +143,7 @@ class Dvk:
             data = self.add_to_dict(data, "user", dvk_user)
             # WRITE
             try:
-                with open(self.get_file().absolute(), "w") as out_file:
+                with open(self.get_file(), "w") as out_file:
                     dump(data, out_file, indent=4, separators=(",", ": "))
 
             except IOError as e:
@@ -159,22 +159,22 @@ class Dvk:
                              for the DVK's time published
         """
         self.write_dvk()
-        if self.get_file().exists():
+        if exists(self.get_file()):
             # DOWNLOAD MEDIA FILE
-            mf = str(self.get_media_file().absolute())
+            mf = self.get_media_file()
             headers = download(self.get_direct_url(), mf)
-            if self.get_media_file().exists():
+            if exists(self.get_media_file()):
                 # DOWNLOAD SECONDARY FILE
                 if self.get_secondary_url() is not None:
                     download(
                         self.get_secondary_url(),
-                        self.get_secondary_file().absolute())
-                    if not self.get_secondary_file().exists():
-                        remove(str(self.get_media_file().absolute()))
-                        remove(str(self.get_file().absolute()))
+                        self.get_secondary_file())
+                    if not exists(self.get_secondary_file()):
+                        remove(self.get_media_file())
+                        remove(self.get_file())
             else:
-                remove(str(self.get_file().absolute()))
-        if get_time and self.get_file().exists():
+                remove(self.get_file())
+        if get_time and exists(self.get_file()):
             self.set_time(get_last_modified(headers))
             self.write_dvk()
 
@@ -183,9 +183,9 @@ class Dvk:
         Reads DVK data from the currently set DVK file.
         """
         self.clear_dvk()
-        if self.get_file() is not None and self.get_file().is_file():
+        if self.get_file() is not None and isfile(self.get_file()):
             try:
-                with open(self.get_file().absolute()) as in_file:
+                with open(self.get_file()) as in_file:
                     data = load(in_file)
                     if data["file_type"] == "dvk":
                         # INFO
@@ -367,44 +367,44 @@ class Dvk:
         Parameters:
             filename (str): Name to rename files. If none, use default.
         """
-        if (self.get_file() is not None and self.get_file().exists()):
+        if (self.get_file() is not None and exists(self.get_file())):
             rfile = filename
             if filename is None:
                 rfile = self.get_filename()
-            parent = Path(self.get_file().parent)
+            parent = abspath(join(self.get_file(), pardir))
             # RENAME DVK
-            remove(str(self.get_file().absolute()))
-            self.set_file(parent.joinpath(rfile + ".dvk"))
+            remove(self.get_file())
+            self.set_file(join(parent, rfile + ".dvk"))
             # RENAME MEDIA FILE
             media = self.get_media_file()
-            if media is not None and media.exists():
+            if media is not None and exists(media):
                 num = 0
-                extension = get_extension(str(media.absolute()))
+                extension = get_extension(media)
                 ifile = "xxtempXXTEMP" + self.get_id() + "_N"
-                path = parent.joinpath(ifile + str(num) + extension)
-                while path.exists():
+                path = join(parent, ifile + str(num) + extension)
+                while exists(path):
                     num = num + 1
-                    path = parent.joinpath(ifile + str(num) + extension)
-                rename(media.absolute(), path.absolute())
-                rpath = parent.joinpath(rfile + extension)
-                rename(path.absolute(), rpath.absolute())
-                self.set_media_file(parent.joinpath(rfile + extension))
+                    path = join(parent, ifile + str(num) + extension)
+                rename(media, path)
+                rpath = join(parent, rfile + extension)
+                rename(abspath(path), abspath(rpath))
+                self.set_media_file(join(parent, rfile + extension))
             else:
                 self.set_media_file("NULL-invalid-file.none")
             # RENAME SECONDARY FILE
             secondary = self.get_secondary_file()
-            if secondary is not None and secondary.exists():
+            if secondary is not None and exists(secondary):
                 num = 0
-                extension = get_extension(str(secondary.absolute()))
+                extension = get_extension(secondary)
                 ifile = "xxtempXXTEMP" + self.get_id() + "_N"
-                path = parent.joinpath(ifile + str(num) + extension)
-                while path.exists():
+                path = join(parent, ifile + str(num) + extension)
+                while exists(path):
                     num = num + 1
-                    path = parent.joinpath(ifile + str(num) + extension)
-                rename(secondary.absolute(), path.absolute())
-                rpath = parent.joinpath(rfile + extension)
-                rename(path.absolute(), rpath.absolute())
-                self.set_secondary_file(parent.joinpath(rfile + extension))
+                    path = join(parent, ifile + str(num) + extension)
+                rename(secondary, path)
+                rpath = join(parent, rfile + extension)
+                rename(path, rpath)
+                self.set_secondary_file(join(parent, rfile + extension))
             self.write_dvk()
 
     def set_file(self, file_path: str = None):
@@ -417,14 +417,14 @@ class Dvk:
         if file_path is None or file_path == "":
             self.dvk_file = None
         else:
-            self.dvk_file = Path(file_path)
+            self.dvk_file = abspath(file_path)
 
-    def get_file(self) -> Path:
+    def get_file(self) -> str:
         """
         Returns the current path of the DVK file.
 
         Returns:
-            path: DVK file path
+            str: DVK file path
         """
         return self.dvk_file
 
@@ -695,10 +695,10 @@ class Dvk:
         if file_name is None or file_name == "" or self.get_file() is None:
             self.media_file = None
         else:
-            parent = Path(self.get_file().parent)
-            self.media_file = parent.joinpath(file_name).absolute()
+            parent = join(self.get_file(), pardir)
+            self.media_file = abspath(join(parent, file_name))
 
-    def get_media_file(self) -> Path:
+    def get_media_file(self) -> str:
         """
         Returns the media file for the current DVK file.
 
@@ -718,10 +718,10 @@ class Dvk:
         if file_name is None or file_name == "" or self.get_file() is None:
             self.secondary_file = None
         else:
-            parent = Path(self.get_file().parent)
-            self.secondary_file = parent.joinpath(file_name).absolute()
+            parent = join(self.get_file(), pardir)
+            self.secondary_file = abspath(join(parent, file_name))
 
-    def get_secondary_file(self) -> Path:
+    def get_secondary_file(self) -> str:
         """
         Returns the secondary media file for the current DVK file.
 

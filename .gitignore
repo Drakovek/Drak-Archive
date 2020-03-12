@@ -13,3 +13,4 @@ build*
 dist*
 dvk_archive.egg-info*
 geckodriver.log
+*.pyc

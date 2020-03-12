@@ -1,6 +1,6 @@
-from os import listdir, stat
-from pathlib import Path
 from shutil import rmtree
+from os import listdir, stat, mkdir
+from os.path import abspath, exists, expanduser, join
 from dvk_archive.web.basic_connect import bs_connect
 from dvk_archive.web.basic_connect import json_connect
 from dvk_archive.web.basic_connect import basic_connect
@@ -24,24 +24,6 @@ def test_bs_connect():
     assert bs.find("h1").get_text() == "An Interesting Title"
 
 
-def test_json_connect():
-    """
-    Tests the json_connect function.
-    """
-    # TEST JSON
-    json = json_connect("http://echo.jsontest.com/key/test/next/blah")
-    assert json is not None
-    assert json["key"] == "test"
-    assert json["next"] == "blah"
-    # TEST NON-JSON
-    url = "http://pythonscraping.com/exercises/exercise1.html"
-    json = json_connect(url)
-    print(type(json))
-    assert json is None
-    # TEST INVALID
-    assert json_connect() is None
-
-
 def test_basic_connect():
     """
     Tests the basic_connect function.
@@ -62,37 +44,37 @@ def test_download():
     Tests the download function.
     """
     try:
-        test_dir = Path("images")
-        test_dir.mkdir(exist_ok=True)
-        file = test_dir.joinpath("image.jpg")
+        test_dir = abspath(join(expanduser("~"), "imageTests"))
+        mkdir(test_dir)
+        file = join(test_dir, "image.jpg")
         download()
-        assert listdir(test_dir.absolute()) == []
+        assert listdir(test_dir) == []
         download(url="http://www.pythonscraping.com/img/gifts/img6.jpg")
-        assert listdir(test_dir.absolute()) == []
-        download(filename=str(file.absolute()))
-        assert listdir(test_dir.absolute()) == []
+        assert listdir(test_dir) == []
+        download(filename=file)
+        assert listdir(test_dir) == []
         download(
             url="asfdwersdbsdfsd",
-            filename=str(file.absolute()))
-        assert listdir(test_dir.absolute()) == []
+            filename=file)
+        assert listdir(test_dir) == []
         url = "http://www.pythonscraping.com/img/gifts/img6.jpg"
-        headers = download(url, str(file.absolute()))
-        assert file.exists()
+        headers = download(url, file)
+        assert exists(file)
         modified = ""
         try:
             modified = headers["Last-Modified"]
         except KeyError:
             pass
         assert modified == "Mon, 04 Aug 2014 00:49:03 GMT"
-        assert stat(str(file.absolute())).st_size == 39785
+        assert stat(file).st_size == 39785
         download(
             url="http://www.pythonscraping.com/img/gifts/img6.jpg",
-            filename=str(file.absolute()))
-        file = test_dir.joinpath("image(1).jpg")
-        assert file.exists()
-        assert stat(str(file.absolute())).st_size == 39785
+            filename=file)
+        file = join(test_dir, "image(1).jpg")
+        assert exists(file)
+        assert stat(file).st_size == 39785
     finally:
-        rmtree(test_dir.absolute())
+        rmtree(test_dir)
 
 
 def test_get_last_modified():
@@ -159,4 +141,3 @@ def run_all():
     test_download()
     test_get_last_modified()
     test_remove_header_footer()
-    test_json_connect()

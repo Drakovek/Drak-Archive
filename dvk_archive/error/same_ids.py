@@ -1,6 +1,5 @@
 from os import getcwd
 from tqdm import tqdm
-from pathlib import Path
 from argparse import ArgumentParser
 from dvk_archive.file.dvk_handler import DvkHandler
 from dvk_archive.processing.printing import print_paths

@@ -1,7 +1,7 @@
 from os import walk
 from _functools import cmp_to_key
 from os import listdir
-from pathlib import Path
+from os.path import abspath, isdir
 from tqdm import tqdm
 from dvk_archive.file.dvk import Dvk
 from dvk_archive.file.dvk_directory import DvkDirectory
@@ -49,7 +49,7 @@ class DvkHandler:
         print("Loading DVK Files:")
         for path in tqdm(self.paths):
             dvk_directory = DvkDirectory()
-            dvk_directory.read_dvks(path.absolute())
+            dvk_directory.read_dvks(abspath(path))
             self.dvks.extend(dvk_directory.dvks)
         self.reset_sorted()
 
@@ -107,26 +107,26 @@ class DvkHandler:
             directory_strs (list): Directories to search within
 
         Returns:
-            list: Internal directories in the form of pathlib Path objects
+            list: Internal directories in the form of path strings
         """
         if directory_strs is None or len(directory_strs) < 1:
             return []
         paths = []
         for d in directory_strs:
             if d is not None and not d == "":
-                directory_path = Path(d)
-                for p in walk(directory_path.absolute()):
-                    dir = Path(p[0])
+                directory_path = abspath(d)
+                for p in walk(directory_path):
+                    dir = abspath(p[0])
                     add = False
-                    for file in listdir(dir.absolute()):
+                    for file in listdir(dir):
                         if str(file).endswith(".dvk"):
                             add = True
                             break
                     if add:
-                        paths.append(Path(p[0]))
-        single_path = Path(directory_strs[0])
+                        paths.append(dir)
+        single_path = abspath(directory_strs[0])
         return_list = []
-        if single_path.is_dir():
+        if isdir(single_path):
             return_list.append(single_path)
         return_list.extend(paths)
         return_list = sorted(clean_list(return_list))

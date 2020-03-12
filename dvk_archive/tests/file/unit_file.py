@@ -7,8 +7,8 @@ def test_file():
     """
     Runs all file tests.
     """
-    test_dvk_handler = TestDvkHandler()
-    test_dvk_directory = TestDvkDirectory()
     test_dvk()
-    test_dvk_handler.run_all()
+    test_dvk_directory = TestDvkDirectory()
     test_dvk_directory.run_all()
+    test_dvk_handler = TestDvkHandler()
+    test_dvk_handler.run_all()

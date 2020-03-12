@@ -12,8 +12,8 @@ def test_all():
     Runs all test cases.
     """
     try:
-        error()
         file()
+        error()
         pro()
         reformat()
         web()

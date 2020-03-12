@@ -1,6 +1,6 @@
 from os import getcwd
+from os.path import exists
 from tqdm import tqdm
-from pathlib import Path
 from argparse import ArgumentParser
 from dvk_archive.file.dvk_handler import DvkHandler
 from dvk_archive.processing.printing import print_paths
@@ -30,7 +30,7 @@ def missing_media(
     for i in tqdm(range(0, size)):
         file = handler.get_dvk_sorted(i).get_media_file()
         s_file = handler.get_dvk_sorted(i).get_secondary_file()
-        if not file.exists() or (s_file is not None and not s_file.exists()):
+        if not exists(file) or (s_file is not None and not exists(s_file)):
             missing.append(handler.get_dvk_sorted(i).get_file())
     return missing
 

@@ -1,5 +1,6 @@
-from pathlib import Path
 from shutil import rmtree
+from os import mkdir
+from os.path import abspath, basename, expanduser, join
 from dvk_archive.file.dvk import Dvk
 from dvk_archive.file.dvk_handler import DvkHandler
 from dvk_archive.error.same_ids import same_ids
@@ -9,59 +10,59 @@ class TestSameIDs():
     """
     Unit tests for the same_ids.py module.
     Attributes:
-        test_dir (Path): Directory for holding test files.
+        test_dir (str): Directory for holding test files.
     """
 
     def set_up(self):
         """
         Sets up test files before running unit tests.
         """
-        self.test_dir = Path("finding")
-        self.test_dir.mkdir(exist_ok=True)
-        self.test_dir.joinpath("file0").touch()
-        sub = Path(self.test_dir.joinpath("sub").absolute())
-        sub.mkdir(exist_ok=True)
-        sub2 = Path(self.test_dir.joinpath("sub2").absolute())
-        sub2.mkdir(exist_ok=True)
+        self.test_dir = abspath(join(expanduser("~"), "findingTest"))
+        mkdir(self.test_dir)
+        open(join(self.test_dir, "file0"), "a").close()
+        sub = join(self.test_dir, "sub")
+        mkdir(sub)
+        sub2 = join(self.test_dir, "sub2")
+        mkdir(sub2)
         # CREATE UNLINKED FILE
-        file = sub2.joinpath("noDVK.txt")
-        file.touch()
+        file = join(sub2, "noDVK.txt")
+        open(file, "a").close()
         # DVK 1
-        dvk = Dvk(self.test_dir.joinpath("dvk1.dvk").absolute())
-        file = self.test_dir.joinpath("file1.txt")
-        file.touch()
+        dvk = Dvk(join(self.test_dir, "dvk1.dvk"))
+        file = join(self.test_dir, "file1.txt")
+        open(file, "a").close()
         dvk.set_id("id1")
         dvk.set_title("title1")
         dvk.set_artist("artist")
         dvk.set_page_url("/page/url")
         dvk.set_media_file(file)
-        file = self.test_dir.joinpath("fileSecond.no")
-        file.touch()
+        file = join(self.test_dir, "fileSecond.no")
+        open(file, "a").close()
         dvk.set_secondary_file(file)
         dvk.write_dvk()
         # DVK 2
-        file = sub.joinpath("file2.png")
-        file.touch()
+        file = join(sub, "file2.png")
+        open(file, "a").close()
         dvk.set_id("id2")
         dvk.set_title("title2")
-        dvk.set_file(sub.joinpath("dvk2.dvk").absolute())
+        dvk.set_file(join(sub, "dvk2.dvk"))
         dvk.set_media_file(file)
-        file = sub.joinpath("second.dmf")
+        file = join(sub, "second.dmf")
         dvk.set_secondary_file(file)
         dvk.write_dvk()
         # DVK 3
-        sub.joinpath("file1.txt").touch()
-        file = sub.joinpath("file3.svg")
+        open(join(sub, "file1.txt"), "a").close()
+        file = join(sub, "file3.svg")
         dvk.set_id("id1")
         dvk.set_title("title3")
-        dvk.set_file(sub.joinpath("dvk3.dvk").absolute())
+        dvk.set_file(join(sub, "dvk3.dvk"))
         dvk.set_media_file(file)
         dvk.set_secondary_file(None)
         dvk.write_dvk()
         # DVK 4
-        file = self.test_dir.joinpath("file4.ogg")
+        file = join(self.test_dir, "file4.ogg")
         dvk.set_title("title4")
-        dvk.set_file(self.test_dir.joinpath("dvk4.dvk").absolute())
+        dvk.set_file(join(self.test_dir, "dvk4.dvk"))
         dvk.set_media_file(file)
         dvk.write_dvk()
 
@@ -69,7 +70,7 @@ class TestSameIDs():
         """
         Deletes test files after ErrorFinding testing.
         """
-        rmtree(self.test_dir.absolute())
+        rmtree(self.test_dir)
 
     def test_identical_ids(self):
         """
@@ -78,16 +79,16 @@ class TestSameIDs():
         try:
             self.set_up()
             handler = DvkHandler()
-            handler.load_dvks([self.test_dir.absolute()])
+            handler.load_dvks([self.test_dir])
             ids = same_ids(dvk_handler=handler)
             assert len(ids) == 3
-            assert ids[0].name == "dvk1.dvk"
-            assert ids[1].name == "dvk3.dvk"
-            assert ids[2].name == "dvk4.dvk"
-            sub = Path(self.test_dir.joinpath("sub").absolute())
-            assert same_ids([sub.absolute()]) == []
+            assert basename(ids[0]) == "dvk1.dvk"
+            assert basename(ids[1]) == "dvk3.dvk"
+            assert basename(ids[2]) == "dvk4.dvk"
+            sub = join(self.test_dir, "sub")
+            assert same_ids([sub]) == []
             assert same_ids() == []
-            assert len(same_ids([self.test_dir.absolute()])) == 3
+            assert len(same_ids([self.test_dir])) == 3
         finally:
             self.tear_down()
 

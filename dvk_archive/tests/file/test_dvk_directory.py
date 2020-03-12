@@ -1,5 +1,6 @@
-from pathlib import Path
 from shutil import rmtree
+from os import mkdir
+from os.path import abspath, join, expanduser
 from dvk_archive.file.dvk import Dvk
 from dvk_archive.file.dvk_directory import DvkDirectory
 
@@ -9,7 +10,7 @@ class TestDvkDirectory():
     Unit tests for the DvkDirectory class.
 
     Attributes:
-        test_dir (Path): Directory for holding DVK files used in testing.
+        test_dir (str): Directory for holding DVK files used in testing.
         dvk_directory (DvkDirectory):
     """
 
@@ -17,11 +18,11 @@ class TestDvkDirectory():
         """
         Initializes DvkDirectoryTest attributes for testing.
         """
-        self.test_dir = Path("dirtest")
-        self.test_dir.mkdir(exist_ok=True)
+        self.test_dir = abspath(join(expanduser("~"), "dirTest"))
+        mkdir(self.test_dir)
         # DVK 1
         dvk = Dvk()
-        dvk.set_file(self.test_dir.joinpath("dvk2.dvk").absolute())
+        dvk.set_file(join(self.test_dir, "dvk2.dvk"))
         dvk.set_id("Unimportant")
         dvk.set_title("DVK 2")
         dvk.set_artists(["Guy", "Other Guy"])
@@ -33,7 +34,7 @@ class TestDvkDirectory():
         dvk.write_dvk()
         # DVK 2
         dvk.set_time_int(2018, 11, 2, 11, 15)
-        dvk.set_file(self.test_dir.joinpath("dvk2-2.dvk").absolute())
+        dvk.set_file(join(self.test_dir, "dvk2-2.dvk"))
         dvk.set_rating(0)
         dvk.set_views(0)
         dvk.write_dvk()
@@ -41,7 +42,7 @@ class TestDvkDirectory():
         dvk.set_title("DVK 10")
         dvk.set_artist("Guy")
         dvk.set_time_int(2019, 11, 2, 11, 15)
-        dvk.set_file(self.test_dir.joinpath("dvk10.dvk").absolute())
+        dvk.set_file(join(self.test_dir, "dvk10.dvk"))
         dvk.set_rating(4)
         dvk.set_views(7)
         dvk.write_dvk()
@@ -49,22 +50,22 @@ class TestDvkDirectory():
         dvk.set_title("DVK 5.25 - Fun!")
         dvk.set_artist("Artist")
         dvk.set_time_int(2019, 5, 2, 5, 25)
-        dvk.set_file(self.test_dir.joinpath("dvk5-25.dvk").absolute())
+        dvk.set_file(join(self.test_dir, "dvk5-25.dvk"))
         dvk.write_dvk()
         # DVK 5
         dvk.set_title("DVK 5 - Fun!")
-        dvk.set_file(self.test_dir.joinpath("dvk5.dvk").absolute())
+        dvk.set_file(join(self.test_dir, "dvk5.dvk"))
         dvk.set_rating(1)
         dvk.set_views(67)
         dvk.write_dvk()
         self.dvk_directory = DvkDirectory()
-        self.dvk_directory.read_dvks(self.test_dir.absolute())
+        self.dvk_directory.read_dvks(self.test_dir)
 
     def tear_down(self):
         """
         Deletes test files after DvkDirectory testing.
         """
-        rmtree(self.test_dir.absolute())
+        rmtree(self.test_dir)
 
     def test_get_size(self):
         """

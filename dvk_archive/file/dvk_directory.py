@@ -1,4 +1,5 @@
-from pathlib import Path
+from os import listdir
+from os.path import abspath, join
 from dvk_archive.file.dvk import Dvk
 
 
@@ -7,7 +8,7 @@ class DvkDirectory:
     Class for handling all the DVK files within a given directory.
 
     Parameters:
-        directory_path (Path): Path of DVK directory
+        directory_path (str): Path of DVK directory
         group_artists (bool): Whether to group DVKs of the same artist together
         dvks (list): List of Dvk objects read from directory_path
     """
@@ -16,7 +17,7 @@ class DvkDirectory:
         """
         Initializes the DvkDirectory class.
         """
-        self.directory_path = Path()
+        self.directory_path = ""
         self.group_artists = False
         self.dvks = []
 
@@ -30,13 +31,15 @@ class DvkDirectory:
         """
         self.dvks = []
         if directory_str is not None and not directory_str == "":
-            self.directory_path = Path(directory_str)
-            dvk_files = self.directory_path.glob("*.dvk")
-            for dvk_file in dvk_files:
-                dvk = Dvk()
-                dvk.set_file(dvk_file.absolute())
-                dvk.read_dvk()
-                self.dvks.append(dvk)
+            self.directory_path = abspath(directory_str)
+            filenames = listdir(self.directory_path)
+            for filename in filenames:
+                full = abspath(join(self.directory_path, filename))
+                if full.endswith(".dvk"):
+                    dvk = Dvk()
+                    dvk.set_file(full)
+                    dvk.read_dvk()
+                    self.dvks.append(dvk)
 
     def get_size(self) -> int:
         """

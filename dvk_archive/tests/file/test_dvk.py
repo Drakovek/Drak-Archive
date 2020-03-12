@@ -1,7 +1,7 @@
 from json import dump
-from os import listdir, remove, stat
-from pathlib import Path
 from shutil import rmtree
+from os import listdir, mkdir, pardir, remove, stat
+from os.path import abspath, exists, basename, join, expanduser
 from dvk_archive.file.dvk import Dvk
 
 
@@ -34,8 +34,8 @@ def test_constructor():
     assert dvk.views == 0
     assert dvk.user_tags is None
     # GET FILENAME
-    test_dir = Path("writeTest")
-    file_path = str(test_dir.joinpath("dvk1.dvk").absolute())
+    test_dir = abspath(join(expanduser("~"), "writeTest"))
+    file_path = abspath(join(test_dir, "dvk1.dvk"))
     # SET DVK DATA
     dvk.set_id("id702")
     dvk.set_title("ConstructorTestTitle")
@@ -44,7 +44,7 @@ def test_constructor():
     dvk.set_file(file_path)
     dvk.set_media_file("media.jpg")
     try:
-        test_dir.mkdir(exist_ok=True)
+        mkdir(test_dir)
         dvk.write_dvk()
         # CHECK VALUES
         loaded_dvk = Dvk(file_path)
@@ -52,7 +52,7 @@ def test_constructor():
         assert loaded_dvk.get_title() == "ConstructorTestTitle"
         assert loaded_dvk.get_artists()[0] == "artistName"
         assert loaded_dvk.get_page_url() == "/url/"
-        assert loaded_dvk.get_media_file().name == "media.jpg"
+        assert basename(loaded_dvk.get_media_file()) == "media.jpg"
     finally:
         rmtree(test_dir)
 
@@ -62,8 +62,8 @@ def test_read_write_dvk():
     Tests the read_dvk and write_dvk functions.
     """
     # GET FILENAME
-    test_dir = Path("readWrite")
-    dvk_path = str(test_dir.joinpath("dvk1.dvk").absolute())
+    test_dir = abspath(join(expanduser("~"), "readWrite"))
+    dvk_path = abspath(join(test_dir, "dvk1.dvk"))
     # SET DVK DATA
     dvk = Dvk()
     dvk.set_file(dvk_path)
@@ -90,8 +90,10 @@ def test_read_write_dvk():
     dvk.set_user_tags(["some", "Tags"])
     # WRITE THEN READ
     try:
-        test_dir.mkdir(exist_ok=True)
+        mkdir(test_dir)
         dvk.write_dvk()
+        dvk = Dvk()
+        dvk.set_file(dvk_path)
         dvk.read_dvk()
         # CHECK VALUES
         assert dvk.get_id() == "ID1234"
@@ -105,8 +107,8 @@ def test_read_write_dvk():
         assert dvk.get_page_url() == "http://somepage.com"
         assert dvk.get_direct_url() == "http://image.png"
         assert dvk.get_secondary_url() == "https://other.png"
-        assert dvk.get_media_file().name == "media.png"
-        assert dvk.get_secondary_file().name == "2nd.jpeg"
+        assert basename(dvk.get_media_file()) == "media.png"
+        assert basename(dvk.get_secondary_file()) == "2nd.jpeg"
         assert dvk.get_previous_ids()[0] == "LAST1"
         assert dvk.get_previous_ids()[1] == "LAST2"
         assert dvk.get_next_ids()[0] == "NEXT1"
@@ -140,7 +142,7 @@ def test_read_write_dvk():
         assert dvk.get_title() is None
         # CHECK READING INVALID FILE
         data = {"test": "nope"}
-        invalid_path = str(test_dir.joinpath("inv.dvk").absolute())
+        invalid_path = abspath(join(test_dir, "inv.dvk"))
         try:
             with open(invalid_path, "w") as out_file:
                 dump(data, out_file)
@@ -150,9 +152,9 @@ def test_read_write_dvk():
         assert dvk.get_title() is None
         # CHECK WRITING INVALID FILE
         invalid_dvk = Dvk()
-        invalid_path = Path("nonExistant.dvk")
-        invalid_dvk.set_file(invalid_path.absolute())
-        assert not invalid_path.exists()
+        invalid_path = "nonExistant.dvk"
+        invalid_dvk.set_file(invalid_path)
+        assert not exists(invalid_path)
     finally:
         rmtree(test_dir)
 
@@ -161,51 +163,51 @@ def test_write_media():
     """
     Tests the write_media function.
     """
-    test_dir = Path("renameTest")
-    test_dir.mkdir(exist_ok=True)
+    test_dir = abspath(join(expanduser("~"), "renameTest"))
     try:
+        mkdir(test_dir)
         # INVALID DVK
         dvk = Dvk()
         dvk.set_id("ID123")
         dvk.set_title("Title")
         dvk.set_artist("Artist")
-        dvk.set_file(test_dir.joinpath("dvk1.dvk"))
+        dvk.set_file(abspath(join(test_dir, "dvk1.dvk")))
         dvk.set_media_file("media.jpg")
         dvk.set_direct_url("kjlmlwonluyhj")
         dvk.write_media()
-        assert listdir(str(test_dir.absolute())) == []
+        assert listdir(test_dir) == []
         # INVALID DIRECT URL
         dvk.set_page_url("/whatever")
         dvk.write_media()
-        assert listdir(str(test_dir.absolute())) == []
+        assert listdir(test_dir) == []
         # VALID MEDIA
         url = "http://www.pythonscraping.com/img/gifts/img6.jpg"
         dvk.set_direct_url(url)
         dvk.write_media()
         assert dvk.get_time() == "0000/00/00|00:00"
-        assert dvk.get_file().exists()
-        assert dvk.get_media_file().exists()
-        assert stat(str(dvk.get_media_file().absolute())).st_size == 39785
-        remove(str(dvk.get_file().absolute()))
-        remove(str(dvk.get_media_file().absolute()))
+        assert exists(dvk.get_file())
+        assert exists(dvk.get_media_file())
+        assert stat(dvk.get_media_file()).st_size == 39785
+        remove(dvk.get_file())
+        remove(dvk.get_media_file())
         # INVALID SECONDARY URL
         dvk.set_secondary_file("second.jpg")
         dvk.set_secondary_url("lksjamelkwelkmwm")
         dvk.write_media()
-        assert listdir(str(test_dir.absolute())) == []
+        assert listdir(test_dir) == []
         # VALID DIRECT AND SECONDARY URLS
         dvk.set_secondary_url(url)
         dvk.write_media(True)
         assert dvk.get_time() == "2014/08/04|00:49"
-        assert dvk.get_file().exists()
-        assert dvk.get_media_file().exists()
-        assert dvk.get_secondary_file().exists()
-        assert stat(str(dvk.get_media_file().absolute())).st_size == 39785
-        filename = str(dvk.get_secondary_file().absolute())
+        assert exists(dvk.get_file())
+        assert exists(dvk.get_media_file())
+        assert exists(dvk.get_secondary_file())
+        assert stat(dvk.get_media_file()).st_size == 39785
+        filename = dvk.get_secondary_file()
         assert stat(filename).st_size == 39785
     finally:
         # DELETE TEST FILES
-        rmtree(test_dir.absolute())
+        rmtree(test_dir)
 
 
 def test_add_to_dict():
@@ -300,35 +302,35 @@ def test_rename_files():
     """
     Tests the rename_files function.
     """
-    test_dir = Path("renameTest")
+    test_dir = abspath(join(expanduser("~"), "renameFilesTest"))
     try:
-        test_dir.mkdir(exist_ok=True)
+        mkdir(test_dir)
         dvk = Dvk()
-        dvk.set_file(test_dir.joinpath("dvk1.dvk").absolute())
+        dvk.set_file(join(test_dir, "dvk1.dvk"))
         dvk.set_id("DVK1234")
         dvk.set_title("Yay DVK!")
         dvk.set_artist("Me")
         dvk.set_page_url("/test")
         dvk.set_media_file("file.txt")
         dvk.set_secondary_file("second.png")
-        dvk.get_media_file().touch()
-        dvk.get_secondary_file().touch()
+        open(dvk.get_media_file(), "a").close()
+        open(dvk.get_secondary_file(), "a").close()
         dvk.write_dvk()
         dvk.rename_files()
-        assert dvk.get_file().name == "Yay DVK_DVK1234.dvk"
-        assert dvk.get_file().exists()
-        assert dvk.get_media_file().name == "Yay DVK_DVK1234.txt"
-        assert dvk.get_media_file().exists()
-        assert dvk.get_secondary_file().name == "Yay DVK_DVK1234.png"
-        assert dvk.get_secondary_file().exists()
+        assert basename(dvk.get_file()) == "Yay DVK_DVK1234.dvk"
+        assert exists(dvk.get_file())
+        assert basename(dvk.get_media_file()) == "Yay DVK_DVK1234.txt"
+        assert exists(dvk.get_media_file())
+        assert basename(dvk.get_secondary_file()) == "Yay DVK_DVK1234.png"
+        assert exists(dvk.get_secondary_file())
         # CHECK SPECIFIC NAME
         dvk.rename_files("different")
-        assert dvk.get_file().name == "different.dvk"
-        assert dvk.get_file().exists()
-        assert dvk.get_media_file().name == "different.txt"
-        assert dvk.get_media_file().exists()
-        assert dvk.get_secondary_file().name == "different.png"
-        assert dvk.get_secondary_file().exists()
+        assert basename(dvk.get_file()) == "different.dvk"
+        assert exists(dvk.get_file())
+        assert basename(dvk.get_media_file()) == "different.txt"
+        assert exists(dvk.get_media_file())
+        assert basename(dvk.get_secondary_file()) == "different.png"
+        assert exists(dvk.get_secondary_file())
         # CHECK NO SECONDARY
         dvk.set_title("No Sec")
         dvk.set_secondary_file("Bleh")
@@ -337,10 +339,10 @@ def test_rename_files():
         dvk.set_secondary_file(None)
         dvk.write_dvk()
         dvk.rename_files()
-        assert dvk.get_file().name == "No Sec_DVK1234.dvk"
-        assert dvk.get_file().exists()
-        assert dvk.get_media_file().name == "No Sec_DVK1234.txt"
-        assert dvk.get_media_file().exists()
+        assert basename(dvk.get_file()) == "No Sec_DVK1234.dvk"
+        assert exists(dvk.get_file())
+        assert basename(dvk.get_media_file()) == "No Sec_DVK1234.txt"
+        assert exists(dvk.get_media_file())
         # CHECK NO MEDIA
         dvk.set_title("No Med")
         dvk.set_media_file("nonexistant.png")
@@ -348,11 +350,11 @@ def test_rename_files():
         dvk.rename_files()
         dvk.set_media_file(None)
         dvk.rename_files()
-        assert dvk.get_file().name == "No Med_DVK1234.dvk"
-        assert dvk.get_file().exists()
+        assert basename(dvk.get_file()) == "No Med_DVK1234.dvk"
+        assert exists(dvk.get_file())
     finally:
         # DELETE TEST FILES
-        rmtree(test_dir.absolute())
+        rmtree(test_dir)
 
 
 def test_get_set_file():
@@ -367,7 +369,7 @@ def test_get_set_file():
     dvk.set_file("")
     assert dvk.get_file() is None
     dvk.set_file("test_path.dvk")
-    assert dvk.get_file().name == "test_path.dvk"
+    assert basename(dvk.get_file()) == "test_path.dvk"
 
 
 def test_generate_id():
@@ -589,19 +591,27 @@ def test_get_set_media_file():
     """
     Tests the get_media_file and set_media_file functions.
     """
+
     dvk = Dvk()
     dvk.set_media_file("bleh.png")
     assert dvk.get_media_file() is None
-    dvk.set_file(Path("media.dvk").absolute())
-    dvk.set_media_file("media.png")
-    assert dvk.get_media_file().name == "media.png"
-    assert dvk.get_file().parent == dvk.get_media_file().parent
-    dvk.set_media_file()
-    assert dvk.get_media_file() is None
-    dvk.set_media_file(None)
-    assert dvk.get_media_file() is None
-    dvk.set_media_file("")
-    assert dvk.get_media_file() is None
+    test_dir = abspath(join(expanduser("~"), "medfiles"))
+    try:
+        mkdir(test_dir)
+        dvk.set_file(join(test_dir, "media.dvk"))
+        dvk.set_media_file("media.png")
+        assert basename(dvk.get_media_file()) == "media.png"
+        value1 = abspath(join(dvk.get_file(), pardir))
+        value2 = abspath(join(dvk.get_media_file(), pardir))
+        assert value1 == value2
+        dvk.set_media_file()
+        assert dvk.get_media_file() is None
+        dvk.set_media_file(None)
+        assert dvk.get_media_file() is None
+        dvk.set_media_file("")
+        assert dvk.get_media_file() is None
+    finally:
+        rmtree(test_dir)
 
 
 def test_get_set_secondary_file():
@@ -611,17 +621,23 @@ def test_get_set_secondary_file():
     dvk = Dvk()
     dvk.set_secondary_file("other.png")
     assert dvk.get_media_file() is None
-    dvk.set_file(Path("mine.dvk").absolute())
-    dvk.set_secondary_file("second.png")
-    assert dvk.get_secondary_file().name == "second.png"
-    value = dvk.get_secondary_file().parent
-    assert dvk.get_file().parent == value
-    dvk.set_secondary_file()
-    assert dvk.get_secondary_file() is None
-    dvk.set_secondary_file("")
-    assert dvk.get_secondary_file() is None
-    dvk.set_secondary_file(None)
-    assert dvk.get_secondary_file() is None
+    test_dir = abspath(join(expanduser("~"), "secmedfiles"))
+    try:
+        mkdir(test_dir)
+        dvk.set_file(join(test_dir, "mine.dvk"))
+        dvk.set_secondary_file("second.png")
+        assert basename(dvk.get_secondary_file()) == "second.png"
+        value = abspath(join(dvk.get_secondary_file(), pardir))
+        value2 = abspath(join(dvk.get_file(), pardir))
+        assert value2 == value
+        dvk.set_secondary_file()
+        assert dvk.get_secondary_file() is None
+        dvk.set_secondary_file("")
+        assert dvk.get_secondary_file() is None
+        dvk.set_secondary_file(None)
+        assert dvk.get_secondary_file() is None
+    finally:
+        rmtree(test_dir)
 
 
 def test_get_set_previous_ids():

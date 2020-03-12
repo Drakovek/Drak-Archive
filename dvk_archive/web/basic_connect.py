@@ -4,9 +4,9 @@ from io import BytesIO
 from bs4 import BeautifulSoup
 from requests import exceptions
 from requests import Session
-from pathlib import Path
 from shutil import copyfileobj
 from urllib.error import HTTPError
+from os.path import abspath, exists
 from dvk_archive.processing.string_processing import extend_int
 
 from dvk_archive.processing.string_processing import get_extension
@@ -118,13 +118,13 @@ def download(url: str = None, filename: str = None) -> dict:
             and not url == ""
             and filename is not None
             and not filename == ""):
-        file = Path(filename)
-        if file.exists():
+        file = abspath(filename)
+        if exists(file):
             extension = get_extension(filename)
             base = filename[0:len(filename) - len(extension)]
             num = 1
-            while file.exists():
-                file = Path(base + "(" + str(num) + ")" + extension)
+            while exists(file):
+                file = base + "(" + str(num) + ")" + extension
                 num = num + 1
         # SAVE FILE
         try:
@@ -133,7 +133,7 @@ def download(url: str = None, filename: str = None) -> dict:
             response = session.get(url, headers=headers)
             byte_obj = BytesIO(response.content)
             byte_obj.seek(0)
-            with open(str(file.absolute()), "wb") as f:
+            with open(file, "wb") as f:
                 copyfileobj(byte_obj, f)
             return response.headers
         except (HTTPError,
