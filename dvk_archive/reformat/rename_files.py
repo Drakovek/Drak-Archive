@@ -33,7 +33,7 @@ def main():
         default=str(getcwd()))
     args = parser.parse_args()
     dir = abspath(args.directory)
-    rename_files(str(dir.absolute()))
+    rename_files(dir)
 
 
 if __name__ == "__main__":

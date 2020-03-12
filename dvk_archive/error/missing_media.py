@@ -48,7 +48,7 @@ def main():
         default=str(getcwd()))
     args = parser.parse_args()
     dir = abspath(args.directory)
-    print_paths(missing_media([dir.absolute()]), dir)
+    print_paths(missing_media([dir]), dir)
 
 
 if __name__ == "__main__":

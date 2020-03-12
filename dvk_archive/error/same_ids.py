@@ -59,7 +59,7 @@ def main():
         default=str(getcwd()))
     args = parser.parse_args()
     dir = abspath(args.directory)
-    print_paths(same_ids([dir.absolute()]), dir)
+    print_paths(same_ids([dir]), dir)
 
 
 if __name__ == "__main__":
