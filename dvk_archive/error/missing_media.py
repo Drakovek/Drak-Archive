@@ -1,5 +1,5 @@
 from os import getcwd
-from os.path import exists
+from os.path import abspath, exists
 from tqdm import tqdm
 from argparse import ArgumentParser
 from dvk_archive.file.dvk_handler import DvkHandler
@@ -47,7 +47,7 @@ def main():
         type=str,
         default=str(getcwd()))
     args = parser.parse_args()
-    dir = Path(args.directory)
+    dir = abspath(args.directory)
     print_paths(missing_media([dir.absolute()]), dir)
 
 
