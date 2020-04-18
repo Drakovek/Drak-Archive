@@ -29,6 +29,8 @@ def test_get_extension():
     assert get_extension("/dot.folder/file.py") == ".py"
     assert get_extension("file.txt") == ".txt"
     assert get_extension("http://url.com/linksNstuff/file.png") == ".png"
+    assert get_extension("http://url.kstuff/file.png?tokens'nstuff") == ".png"
+    assert get_extension("http:/file?.jpeg?bleh") == ".jpeg"
 
 
 def test_get_filename():

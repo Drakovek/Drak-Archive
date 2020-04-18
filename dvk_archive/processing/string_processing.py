@@ -34,7 +34,11 @@ def get_extension(filename: str = None) -> str:
         str: Extension of filename ("" if there is no extension)
     """
     if filename is not None and "." in filename:
-        extension = filename[filename.rfind("."):]
+        start = filename.rfind(".")
+        end = filename.rfind("?")
+        if end == -1 or end < start:
+            end = len(filename)
+        extension = filename[filename.rfind("."):end]
         if len(extension) < 7:
             return extension
     return ""
