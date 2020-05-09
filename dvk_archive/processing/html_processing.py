@@ -1,6 +1,9 @@
+"""Functions for processing HTML formatted text."""
+
+
 def add_escapes(input_str: str = None) -> str:
     """
-    Replaces uncommon characters in a given string with HTML escape characters.
+    Replace uncommon characters in a given string with HTML escape characters.
 
     Parameters:
         input_str (str): String in which to replace uncommon characters.
@@ -27,8 +30,9 @@ def add_escapes(input_str: str = None) -> str:
 
 def add_escapes_to_html(input_str: str = None) -> str:
     """
-    Replaces uncommon characters in a HTML string with HTML escape characters.
-    while maintaining HTML formatting and tags.
+    Replace uncommon characters in a HTML string with HTML escape characters.
+
+    Maintainins HTML formatting and tags.
 
     Parameters:
         input_str (str): Given HTML formatted string
@@ -60,7 +64,7 @@ def add_escapes_to_html(input_str: str = None) -> str:
 
 def escape_to_char(escape: str = None) -> str:
     """
-    Returns a single character string from a given HTML escape character.
+    Return a single character string from a given HTML escape character.
 
     Parameters:
         escape (str): Given HTML escape character
@@ -97,7 +101,7 @@ def escape_to_char(escape: str = None) -> str:
 
 def replace_escapes(input_str: str = None) -> str:
     """
-    Replaces HTML escape characters in a given string with unicode characters.
+    Replace HTML escape characters in a given string with unicode characters.
 
     Parameters:
         input_str (str): String from which to remove escape characters

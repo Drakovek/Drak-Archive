@@ -1,6 +1,11 @@
+"""Functions for comparing strings."""
+
+
 def compare_strings(str1: str = None, str2: str = None) -> int:
     """
-    Compares two strings alphabetically. (Not case sensitive)
+    Compare two strings alphabetically.
+
+    Not case sensitive.
 
     Parameters:
         str1 (str): 1st String to compare
@@ -22,7 +27,9 @@ def compare_strings(str1: str = None, str2: str = None) -> int:
 
 def compare_alphanum(str1: str = None, str2: str = None):
     """
-    Compares two strings alphabetically and numerically. (Not case sensitive)
+    Compare two strings alphabetically and numerically.
+
+    Not case sensitive.
 
     Parameters:
         str1 (str): 1st String to compare
@@ -48,7 +55,8 @@ def compare_alphanum(str1: str = None, str2: str = None):
 
 def get_section(input_str: str = None) -> str:
     """
-    Returns the first section from a given string.
+    Return the first section from a given string.
+
     Section will contain either only string data or only numerical data.
 
     Parameters:
@@ -70,7 +78,7 @@ def get_section(input_str: str = None) -> str:
 
 def is_digit(char_str: str = None) -> bool:
     """
-    Returns whether a single character string is a digit (0-9)
+    Return whether a single character string is a digit (0-9).
 
     Parameters:
         char_str (str): String of a single character
@@ -88,7 +96,8 @@ def is_digit(char_str: str = None) -> bool:
 
 def is_number_string(input_str: str = None) -> bool:
     """
-    Returns whether a given string starts with numerical information.
+    Return whether a given string starts with numerical information.
+
     Returns True if first character is a digit or a decimal point/comma.
 
     Parameters:
@@ -108,7 +117,8 @@ def is_number_string(input_str: str = None) -> bool:
 
 def compare_sections(str1: str = None, str2: str = None) -> int:
     """
-    Compares two string sections.
+    Compare two string sections.
+
     Sections should contain either only string data or only numerical data.
 
     Parameters:

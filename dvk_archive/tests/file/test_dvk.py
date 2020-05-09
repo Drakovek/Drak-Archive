@@ -1,3 +1,5 @@
+"""Unit tests for the Dvk class."""
+
 from json import dump
 from shutil import rmtree
 from os import listdir, mkdir, pardir, remove, stat
@@ -6,9 +8,7 @@ from dvk_archive.file.dvk import Dvk
 
 
 def test_constructor():
-    """
-    Tests the Dvk class constructor.
-    """
+    """Test the Dvk class constructor."""
     # CHECK EMPTY
     dvk = Dvk()
     assert dvk.get_title() is None
@@ -23,16 +23,6 @@ def test_constructor():
     assert dvk.get_secondary_url() is None
     assert dvk.get_media_file() is None
     assert dvk.get_secondary_file() is None
-    assert dvk.get_previous_ids() is None
-    assert dvk.get_next_ids() is None
-    assert not dvk.get_section_first()
-    assert not dvk.get_section_last()
-    assert dvk.get_sequence_title() is None
-    assert dvk.get_section_title() is None
-    assert dvk.get_branch_titles() is None
-    assert dvk.rating == 0
-    assert dvk.views == 0
-    assert dvk.user_tags is None
     # GET FILENAME
     test_dir = abspath(join(expanduser("~"), "writeTest"))
     file_path = abspath(join(test_dir, "dvk1.dvk"))
@@ -58,9 +48,7 @@ def test_constructor():
 
 
 def test_read_write_dvk():
-    """
-    Tests the read_dvk and write_dvk functions.
-    """
+    """Test the read_dvk and write_dvk functions."""
     # GET FILENAME
     test_dir = abspath(join(expanduser("~"), "readWrite"))
     dvk_path = abspath(join(test_dir, "dvk1.dvk"))
@@ -78,16 +66,6 @@ def test_read_write_dvk():
     dvk.set_secondary_url("https://other.png")
     dvk.set_media_file("media.png")
     dvk.set_secondary_file("2nd.jpeg")
-    dvk.set_previous_ids(["Last1", "last2"])
-    dvk.set_next_ids(["next1", "Next2"])
-    dvk.set_section_first(True)
-    dvk.set_section_last(True)
-    dvk.set_sequence_title("Seq Title")
-    dvk.set_section_title("Section")
-    dvk.set_branch_titles(["branch 1", "Branch 2"])
-    dvk.set_rating(4)
-    dvk.set_views(15)
-    dvk.set_user_tags(["some", "Tags"])
     # WRITE THEN READ
     try:
         mkdir(test_dir)
@@ -109,33 +87,6 @@ def test_read_write_dvk():
         assert dvk.get_secondary_url() == "https://other.png"
         assert basename(dvk.get_media_file()) == "media.png"
         assert basename(dvk.get_secondary_file()) == "2nd.jpeg"
-        assert dvk.get_previous_ids()[0] == "LAST1"
-        assert dvk.get_previous_ids()[1] == "LAST2"
-        assert dvk.get_next_ids()[0] == "NEXT1"
-        assert dvk.get_next_ids()[1] == "NEXT2"
-        assert dvk.get_section_first()
-        assert dvk.get_section_last()
-        assert dvk.get_sequence_title() == "Seq Title"
-        assert dvk.get_section_title() == "Section"
-        assert dvk.get_branch_titles()[0] == "branch 1"
-        assert dvk.get_branch_titles()[1] == "Branch 2"
-        assert dvk.get_rating() == 4
-        assert dvk.get_views() == 15
-        assert dvk.get_user_tags()[0] == "some"
-        assert dvk.get_user_tags()[1] == "Tags"
-        # CHECK SEQUENCE WRITING
-        dvk.set_previous_ids(None)
-        dvk.set_next_ids(None)
-        dvk.write_dvk()
-        dvk.read_dvk()
-        assert dvk.get_previous_ids() is None
-        assert dvk.get_next_ids() is None
-        dvk.set_previous_ids([])
-        dvk.set_next_ids([])
-        dvk.write_dvk()
-        dvk.read_dvk()
-        assert dvk.get_previous_ids() == []
-        assert dvk.get_next_ids() == []
         # CHECK READING NON-EXISTANT FILE
         dvk.set_file(None)
         dvk.read_dvk()
@@ -160,9 +111,7 @@ def test_read_write_dvk():
 
 
 def test_write_media():
-    """
-    Tests the write_media function.
-    """
+    """Test the write_media function."""
     test_dir = abspath(join(expanduser("~"), "renameTest"))
     try:
         mkdir(test_dir)
@@ -211,9 +160,7 @@ def test_write_media():
 
 
 def test_add_to_dict():
-    """
-    Tests the add_to_dict function.
-    """
+    """Test the add_to_dict function."""
     start_dict = dict()
     dvk = Dvk()
     end_dict = dvk.add_to_dict()
@@ -231,9 +178,7 @@ def test_add_to_dict():
 
 
 def test_get_from_dict():
-    """
-    Tests the get_from_dict function.
-    """
+    """Test the get_from_dict function."""
     int_dict = dict()
     int_dict["thing"] = "blah"
     dictionary = dict()
@@ -251,9 +196,7 @@ def test_get_from_dict():
 
 
 def test_can_write():
-    """
-    Tests the can_write function.
-    """
+    """Test the can_write function."""
     dvk = Dvk()
     dvk.set_file("not_real.dvk")
     dvk.set_id("id")
@@ -282,9 +225,7 @@ def test_can_write():
 
 
 def test_get_filename():
-    """
-    Tests the get_filename function.
-    """
+    """Test the get_filename function."""
     dvk = Dvk()
     assert dvk.get_filename() == ""
     dvk.set_title("Title")
@@ -299,9 +240,7 @@ def test_get_filename():
 
 
 def test_rename_files():
-    """
-    Tests the rename_files function.
-    """
+    """Test the rename_files function."""
     test_dir = abspath(join(expanduser("~"), "renameFilesTest"))
     try:
         mkdir(test_dir)
@@ -358,9 +297,7 @@ def test_rename_files():
 
 
 def test_get_set_file():
-    """
-    Tests the get_file and set_file functions.
-    """
+    """Test the get_file and set_file functions."""
     dvk = Dvk()
     dvk.set_file()
     assert dvk.get_file() is None
@@ -373,9 +310,7 @@ def test_get_set_file():
 
 
 def test_generate_id():
-    """
-    Tests the generate_id function.
-    """
+    """Test the generate_id function."""
     dvk = Dvk()
     dvk.generate_id("DVK")
     assert dvk.get_id() == ""
@@ -396,9 +331,7 @@ def test_generate_id():
 
 
 def test_get_set_id():
-    """
-    Tests the get_id and set_id functions.
-    """
+    """Test the get_id and set_id functions."""
     dvk = Dvk()
     dvk.set_id()
     assert dvk.get_id() == ""
@@ -409,9 +342,7 @@ def test_get_set_id():
 
 
 def test_get_set_title():
-    """
-    Tests the get_title and set_title functions.
-    """
+    """Test the get_title and set_title functions."""
     dvk = Dvk()
     dvk.set_title()
     assert dvk.get_title() is None
@@ -424,9 +355,7 @@ def test_get_set_title():
 
 
 def test_get_set_artists():
-    """
-    Tests the get_artists, set_artists, and set_artist functions.
-    """
+    """Test the get_artists, set_artists, and set_artist functions."""
     dvk = Dvk()
     dvk.set_artist()
     assert dvk.get_artists() == []
@@ -456,9 +385,7 @@ def test_get_set_artists():
 
 
 def test_set_time_int():
-    """
-    Tests the set_time_int function.
-    """
+    """Test the set_time_int function."""
     dvk = Dvk()
     dvk.set_time_int()
     assert dvk.get_time() == "0000/00/00|00:00"
@@ -493,9 +420,7 @@ def test_set_time_int():
 
 
 def test_get_set_time():
-    """
-    Tests the get_time and set_time functions.
-    """
+    """Test the get_time and set_time functions."""
     dvk = Dvk()
     dvk.set_time()
     assert dvk.get_time() == "0000/00/00|00:00"
@@ -510,9 +435,7 @@ def test_get_set_time():
 
 
 def test_get_set_web_tags():
-    """
-    Tests the get_web_tags and set_web_tags functions.
-    """
+    """Test the get_web_tags and set_web_tags functions."""
     dvk = Dvk()
     dvk.set_web_tags()
     assert dvk.get_web_tags() is None
@@ -528,9 +451,7 @@ def test_get_set_web_tags():
 
 
 def test_get_set_description():
-    """
-    Tests the get_description and set_description functions.
-    """
+    """Test the get_description and set_description functions."""
     dvk = Dvk()
     dvk.set_description()
     assert dvk.get_description() is None
@@ -543,9 +464,7 @@ def test_get_set_description():
 
 
 def test_get_set_page_url():
-    """
-    Tests the get_page_url and set_page_url functions.
-    """
+    """Test the get_page_url and set_page_url functions."""
     dvk = Dvk()
     dvk.set_page_url()
     assert dvk.get_page_url() is None
@@ -558,9 +477,7 @@ def test_get_set_page_url():
 
 
 def test_get_set_direct_url():
-    """
-    Tests the get_direct_url and set_direct_url functions.
-    """
+    """Test the get_direct_url and set_direct_url functions."""
     dvk = Dvk()
     dvk.set_direct_url()
     assert dvk.get_direct_url() is None
@@ -573,9 +490,7 @@ def test_get_set_direct_url():
 
 
 def test_get_set_secondary_url():
-    """
-    Tests the get_secondary_url and set_secondary_url functions.
-    """
+    """Test the get_secondary_url and set_secondary_url functions."""
     dvk = Dvk()
     dvk.set_secondary_url()
     assert dvk.get_secondary_url() is None
@@ -588,10 +503,7 @@ def test_get_set_secondary_url():
 
 
 def test_get_set_media_file():
-    """
-    Tests the get_media_file and set_media_file functions.
-    """
-
+    """Test the get_media_file and set_media_file functions."""
     dvk = Dvk()
     dvk.set_media_file("bleh.png")
     assert dvk.get_media_file() is None
@@ -615,9 +527,7 @@ def test_get_set_media_file():
 
 
 def test_get_set_secondary_file():
-    """
-    Tests the get_secondary_file and set_secondary_file functions.
-    """
+    """Test the get_secondary_file and set_secondary_file functions."""
     dvk = Dvk()
     dvk.set_secondary_file("other.png")
     assert dvk.get_media_file() is None
@@ -640,315 +550,8 @@ def test_get_set_secondary_file():
         rmtree(test_dir)
 
 
-def test_get_set_previous_ids():
-    """
-    Tests the get_previous_ids and set_previous_ids functions.
-    """
-    dvk = Dvk()
-    dvk.set_previous_ids()
-    assert dvk.get_previous_ids() is None
-    dvk.set_previous_ids(None)
-    assert dvk.get_previous_ids() is None
-    dvk.set_previous_ids([])
-    assert dvk.get_previous_ids() == []
-    dvk.set_previous_ids(["id1", "", "id2"])
-    assert dvk.get_previous_ids() == []
-    dvk.set_previous_ids(["id1", "id2", None])
-    assert dvk.get_previous_ids() == []
-    dvk.set_previous_ids(["id1", "Id2"])
-    assert len(dvk.get_previous_ids()) == 2
-    assert dvk.get_previous_ids()[0] == "ID1"
-    assert dvk.get_previous_ids()[1] == "ID2"
-
-
-def test_get_set_next_ids():
-    """
-    Tests the get_next_ids and set_next_ids functions.
-    """
-    dvk = Dvk()
-    dvk.set_next_ids()
-    assert dvk.get_next_ids() is None
-    dvk.set_next_ids(None)
-    assert dvk.get_next_ids() is None
-    dvk.set_next_ids([])
-    assert dvk.get_next_ids() == []
-    dvk.set_next_ids(["", "one", "two"])
-    assert dvk.get_next_ids() == []
-    dvk.set_next_ids(["one", "two", None])
-    assert dvk.get_next_ids() == []
-    dvk.set_next_ids(["One", "two"])
-    assert len(dvk.get_next_ids()) == 2
-    assert dvk.get_next_ids()[0] == "ONE"
-    assert dvk.get_next_ids()[1] == "TWO"
-
-
-def test_get_set_section_first():
-    """
-    Tests the get_section_first and set_section_first functions.
-    """
-    dvk = Dvk()
-    dvk.set_section_first(True)
-    assert not dvk.get_section_first()
-    # MISSING SEQUENCE DATA
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_section_first(True)
-    assert not dvk.get_section_first()
-    dvk.set_previous_ids()
-    dvk.set_next_ids(["ID2"])
-    dvk.set_section_first(True)
-    assert not dvk.get_section_first()
-    # FULL SEQUENCE DATA
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_section_first(True)
-    assert dvk.get_section_first()
-    # LAST/FIRST IN SEQUENCE
-    dvk.set_previous_ids([])
-    dvk.set_section_first(True)
-    assert dvk.get_section_first()
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_next_ids([])
-    dvk.set_section_first(True)
-    assert dvk.get_section_first()
-    # SINGLE
-    dvk.set_previous_ids([])
-    dvk.set_section_first(True)
-    assert not dvk.get_section_first()
-    # INVALID AFTER SETTING
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_section_first(True)
-    assert dvk.get_section_first()
-    dvk.set_previous_ids([])
-    assert not dvk.get_section_first()
-    dvk.set_previous_ids("ID1")
-    dvk.set_next_ids("ID2")
-    dvk.set_section_first(True)
-    assert dvk.get_section_first()
-    dvk.set_previous_ids()
-    assert not dvk.get_section_first()
-
-
-def test_get_set_section_last():
-    """
-    Tests the get_section_last and set_section_last functions.
-    """
-    dvk = Dvk()
-    dvk.set_section_last(True)
-    assert not dvk.get_section_last()
-    # MISSING SEQUENCE DATA
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_section_last(True)
-    assert not dvk.get_section_last()
-    dvk.set_previous_ids()
-    dvk.set_next_ids(["ID2"])
-    dvk.set_section_last(True)
-    assert not dvk.get_section_last()
-    # FULL SEQUENCE DATA
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_section_last(True)
-    assert dvk.get_section_last()
-    # LAST/FIRST IN SEQUENCE
-    dvk.set_previous_ids([])
-    dvk.set_section_last(True)
-    assert dvk.get_section_last()
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_next_ids([])
-    dvk.set_section_last(True)
-    assert dvk.get_section_last()
-    # SINGLE
-    dvk.set_previous_ids([])
-    dvk.set_section_last(True)
-    assert not dvk.get_section_last()
-    # INVALID AFTER SETTING
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_section_last(True)
-    assert dvk.get_section_last()
-    dvk.set_previous_ids([])
-    assert not dvk.get_section_last()
-    dvk.set_previous_ids("ID1")
-    dvk.set_next_ids("ID2")
-    dvk.set_section_last(True)
-    assert dvk.get_section_last()
-    dvk.set_previous_ids()
-    assert not dvk.get_section_last()
-
-
-def test_get_set_sequence_title():
-    """
-    Tests the get_sequence_title and set_sequence_title functions.
-    """
-    # NO SEQUENCE DATA
-    dvk = Dvk()
-    dvk.set_sequence_title("invalid")
-    assert dvk.get_sequence_title() is None
-    # MISSING SEQUENCE DATA
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_sequence_title("still invalid")
-    assert dvk.get_sequence_title() is None
-    dvk.set_previous_ids()
-    dvk.set_next_ids(["ID2"])
-    dvk.set_sequence_title("nope")
-    assert dvk.get_sequence_title() is None
-    # FULL SEQUENCE DATA
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_sequence_title("finally")
-    assert dvk.get_sequence_title() == "finally"
-    # LAST/FIRST IN SEQUENCE
-    dvk.set_previous_ids([])
-    dvk.set_sequence_title("different")
-    assert dvk.get_sequence_title() == "different"
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_next_ids([])
-    dvk.set_sequence_title("other")
-    assert dvk.get_sequence_title() == "other"
-    dvk.set_sequence_title("")
-    assert dvk.get_sequence_title() is None
-    # SINGLE
-    dvk.set_previous_ids([])
-    dvk.set_sequence_title("invalid again")
-    assert dvk.get_sequence_title() is None
-    # INVALID AFTER SETTING
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_sequence_title("yep")
-    assert dvk.get_sequence_title() == "yep"
-    dvk.set_previous_ids([])
-    assert dvk.get_sequence_title() is None
-    dvk.set_previous_ids("ID1")
-    dvk.set_next_ids("ID2")
-    dvk.set_sequence_title("yes")
-    assert dvk.get_sequence_title() == "yes"
-    dvk.set_previous_ids()
-    assert dvk.get_sequence_title() is None
-
-
-def test_get_set_section_title():
-    """
-    Tests the get_section_title and set_section_title functions.
-    """
-    dvk = Dvk()
-    dvk.set_section_title("invalid")
-    assert dvk.get_section_title() is None
-    # MISSING SEQUENCE DATA
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_section_title("still invalid")
-    assert dvk.get_section_title() is None
-    dvk.set_previous_ids()
-    dvk.set_next_ids(["ID2"])
-    dvk.set_section_title("nope")
-    assert dvk.get_section_title() is None
-    # FULL SEQUENCE DATA
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_section_title("finally")
-    assert dvk.get_section_title() == "finally"
-    dvk.set_section_title("")
-    assert dvk.get_section_title() is None
-    # LAST/FIRST IN SEQUENCE
-    dvk.set_previous_ids([])
-    dvk.set_section_title("different")
-    assert dvk.get_section_title() == "different"
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_next_ids([])
-    dvk.set_section_title("other")
-    assert dvk.get_section_title() == "other"
-    # SINGLE
-    dvk.set_previous_ids([])
-    dvk.set_section_title("invalid again")
-    assert dvk.get_section_title() is None
-    # INVALID AFTER SETTING
-    dvk.set_previous_ids(["ID1"])
-    dvk.set_section_title("yep")
-    assert dvk.get_section_title() == "yep"
-    dvk.set_previous_ids([])
-    assert dvk.get_section_title() is None
-    dvk.set_previous_ids("ID1")
-    dvk.set_next_ids("ID2")
-    dvk.set_section_title("yes")
-    assert dvk.get_section_title() == "yes"
-    dvk.set_previous_ids()
-    assert dvk.get_section_title() is None
-
-
-def test_get_set_branch_titles():
-    """
-    Tests the get_branch_titles and set_branch_titles functions.
-    """
-    dvk = Dvk()
-    dvk.set_branch_titles(["invalid1", "invalid2"])
-    assert dvk.get_branch_titles() is None
-    dvk.set_next_ids(["ID1"])
-    dvk.set_branch_titles(["not enough"])
-    assert dvk.get_branch_titles() is None
-    dvk.set_next_ids(["ID1", "ID2", "ID3"])
-    dvk.set_branch_titles(["still", "not enough"])
-    assert dvk.get_branch_titles() is None
-    dvk.set_branch_titles(["This", "should", "work"])
-    assert len(dvk.get_branch_titles()) == 3
-    assert dvk.get_branch_titles()[0] == "This"
-    assert dvk.get_branch_titles()[1] == "should"
-    assert dvk.get_branch_titles()[2] == "work"
-    dvk.set_branch_titles([])
-    assert dvk.get_branch_titles() is None
-
-
-def test_get_set_rating():
-    """
-    Tests the get_rating and set_rating the Dvk class.
-    """
-    dvk = Dvk()
-    dvk.set_rating()
-    assert dvk.get_rating() == 0
-    dvk.set_rating(None)
-    assert dvk.get_rating() == 0
-    dvk.set_rating(-1)
-    assert dvk.get_rating() == 0
-    dvk.set_rating(6)
-    assert dvk.get_rating() == 0
-    dvk.set_rating(1)
-    assert dvk.get_rating() == 1
-    dvk.set_rating(5)
-    assert dvk.get_rating() == 5
-    dvk.set_rating(3)
-    assert dvk.get_rating() == 3
-
-
-def test_get_set_views():
-    """
-    Tests the get_views and set_views functions.
-    """
-    dvk = Dvk()
-    dvk.set_views()
-    assert dvk.get_views() == 0
-    dvk.set_views(None)
-    assert dvk.get_views() == 0
-    dvk.set_views(-1)
-    assert dvk.get_views() == 0
-    dvk.set_views(128)
-    assert dvk.get_views() == 128
-    dvk.set_views(1)
-    assert dvk.get_views() == 1
-
-
-def test_get_set_user_tags():
-    """
-    Tests the get_user_tags and set_user_tags functions.
-    """
-    dvk = Dvk()
-    dvk.set_user_tags()
-    assert dvk.get_user_tags() is None
-    dvk.set_user_tags(None)
-    assert dvk.get_user_tags() is None
-    dvk.set_user_tags([])
-    assert dvk.get_user_tags() is None
-    dvk.set_user_tags(["tag1", "Tag2", "other tag", "tag1", None, ""])
-    assert len(dvk.get_user_tags()) == 3
-    assert dvk.get_user_tags()[0] == "tag1"
-    assert dvk.get_user_tags()[1] == "Tag2"
-    assert dvk.get_user_tags()[2] == "other tag"
-
-
 def run_all():
-    """
-    Tests all functions in the Dvk class.
-    """
+    """Test all functions in the Dvk class."""
     test_constructor()
     test_read_write_dvk()
     test_write_media()
@@ -971,13 +574,3 @@ def run_all():
     test_get_set_secondary_url()
     test_get_set_media_file()
     test_get_set_secondary_file()
-    test_get_set_next_ids()
-    test_get_set_previous_ids()
-    test_get_set_section_first()
-    test_get_set_section_last()
-    test_get_set_sequence_title()
-    test_get_set_section_title()
-    test_get_set_branch_titles()
-    test_get_set_rating()
-    test_get_set_views()
-    test_get_set_user_tags()

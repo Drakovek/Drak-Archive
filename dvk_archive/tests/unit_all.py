@@ -1,3 +1,5 @@
+"""Combined unit tests for the dvk_archive package."""
+
 from traceback import print_exc
 from argparse import ArgumentParser
 from dvk_archive.tests.error.unit_error import test_error as error
@@ -8,9 +10,7 @@ from dvk_archive.tests.web.unit_web import test_web as web
 
 
 def test_all():
-    """
-    Runs all test cases.
-    """
+    """Run all test cases."""
     try:
         file()
         error()
@@ -24,9 +24,7 @@ def test_all():
 
 
 def test_error():
-    """
-    Runs error tests.
-    """
+    """Run error tests."""
     try:
         error()
         print("\033[32mAll dvk_archive tests passed.\033[0m")
@@ -36,9 +34,7 @@ def test_error():
 
 
 def test_file():
-    """
-    Runs file tests.
-    """
+    """Run file tests."""
     try:
         file()
         print("\033[32mAll dvk_archive tests passed.\033[0m")
@@ -48,9 +44,7 @@ def test_file():
 
 
 def test_processing():
-    """
-    Runs processing tests.
-    """
+    """Run processing tests."""
     try:
         pro()
         print("\033[32mAll dvk_archive tests passed.\033[0m")
@@ -60,9 +54,7 @@ def test_processing():
 
 
 def test_reformat():
-    """
-    Runs reformatting tests.
-    """
+    """Run reformatting tests."""
     try:
         reformat()
         print("\033[32mAll dvk_archive tests passed.\033[0m")
@@ -72,9 +64,7 @@ def test_reformat():
 
 
 def test_web():
-    """
-    Runs web tests.
-    """
+    """Run web tests."""
     try:
         web()
         print("\033[32mAll dvk_archive tests passed.\033[0m")
@@ -85,7 +75,8 @@ def test_web():
 
 def main():
     """
-    Runs tests specified by command line argument.
+    Run tests specified by command line argument.
+
     By default, runs all dvk_archive tests.
     """
     parser = ArgumentParser()

@@ -1,3 +1,5 @@
+"""Unit tests for the html_processing.py module."""
+
 from dvk_archive.processing.html_processing import add_escapes
 from dvk_archive.processing.html_processing import add_escapes_to_html
 from dvk_archive.processing.html_processing import escape_to_char
@@ -5,9 +7,7 @@ from dvk_archive.processing.html_processing import replace_escapes
 
 
 def test_add_escapes():
-    """
-    Tests the add_escapes function.
-    """
+    """Test the add_escapes function."""
     assert add_escapes() == ""
     assert add_escapes(None) == ""
     output = "&#60;b&#62;Not real html tags&#46;&#60;&#47;b&#62;"
@@ -15,9 +15,7 @@ def test_add_escapes():
 
 
 def test_add_escapes_to_html():
-    """
-    Tests the add_escapes_to_html function.
-    """
+    """Test the add_escapes_to_html function."""
     assert add_escapes_to_html() == ""
     assert add_escapes_to_html(None) == ""
     input = "<a href=\"Sommarfågel\">Sommarfågel</a>"
@@ -32,9 +30,7 @@ def test_add_escapes_to_html():
 
 
 def test_escape_to_char():
-    """
-    Tests the escape_to_char function.
-    """
+    """Test the escape_to_char function."""
     assert escape_to_char() == ""
     assert escape_to_char(None) == ""
     assert escape_to_char("&;") == ""
@@ -51,9 +47,7 @@ def test_escape_to_char():
 
 
 def test_replace_escapes():
-    """
-    Tests the replace_escapes function.
-    """
+    """Test the replace_escapes function."""
     assert replace_escapes() == ""
     assert replace_escapes(None) == ""
     input = "&lt;i&gt;Test HTML&#60;&#47;i&#62;"
@@ -65,9 +59,7 @@ def test_replace_escapes():
 
 
 def run_all():
-    """
-    Tests all functions of the html_processing.py module.
-    """
+    """Test all functions of the html_processing.py module."""
     test_add_escapes()
     test_add_escapes_to_html()
     test_escape_to_char()

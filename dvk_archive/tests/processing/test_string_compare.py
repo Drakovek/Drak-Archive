@@ -1,3 +1,5 @@
+"""Unit tests for the string_compare.py module."""
+
 from dvk_archive.processing.string_compare import compare_alphanum
 from dvk_archive.processing.string_compare import compare_sections
 from dvk_archive.processing.string_compare import compare_strings
@@ -7,9 +9,7 @@ from dvk_archive.processing.string_compare import is_number_string
 
 
 def test_compare_strings():
-    """
-    Tests the compare_strings function.
-    """
+    """Test the compare_strings function."""
     assert compare_strings() == 0
     assert compare_strings(None, "a") == 0
     assert compare_strings("b", None) == 0
@@ -21,9 +21,7 @@ def test_compare_strings():
 
 
 def test_compare_alphanum():
-    """
-    Tests the compare_alphanum function.
-    """
+    """Test the compare_alphanum function."""
     assert compare_alphanum() == 0
     assert compare_alphanum(None, "a") == 0
     assert compare_alphanum("b", None) == 0
@@ -39,9 +37,7 @@ def test_compare_alphanum():
 
 
 def test_get_section():
-    """
-    Tests the get_section function.
-    """
+    """Test the get_section function."""
     assert get_section() == ""
     assert get_section("") == ""
     assert get_section(None) == ""
@@ -58,9 +54,7 @@ def test_get_section():
 
 
 def test_is_digit():
-    """
-    Tests the is_digit function.
-    """
+    """Test the is_digit function."""
     assert not is_digit()
     assert not is_digit("")
     assert not is_digit(None)
@@ -74,9 +68,7 @@ def test_is_digit():
 
 
 def test_is_number_string():
-    """
-    Tests the is_number_string function.
-    """
+    """Test the is_number_string function."""
     assert not is_number_string()
     assert not is_number_string("")
     assert not is_number_string(None)
@@ -89,9 +81,7 @@ def test_is_number_string():
 
 
 def test_compare_sections():
-    """
-    Tests the compare_sections function.
-    """
+    """Test the compare_sections function."""
     assert compare_sections() == 0
     assert compare_sections("", "a") == -1
     assert compare_sections("word", "") == 1
@@ -114,9 +104,7 @@ def test_compare_sections():
 
 
 def run_all():
-    """
-    Tests all functions in the string_compare.py module.
-    """
+    """Test all functions in the string_compare.py module."""
     test_compare_strings()
     test_compare_alphanum()
     test_get_section()

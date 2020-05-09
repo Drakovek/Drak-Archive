@@ -1,3 +1,5 @@
+"""Unit tests for the DvkDirectory class."""
+
 from shutil import rmtree
 from os import mkdir
 from os.path import abspath, join, expanduser
@@ -15,9 +17,7 @@ class TestDvkDirectory():
     """
 
     def set_up(self):
-        """
-        Initializes DvkDirectoryTest attributes for testing.
-        """
+        """Initialize DvkDirectoryTest attributes for testing."""
         self.test_dir = abspath(join(expanduser("~"), "dirTest"))
         mkdir(self.test_dir)
         # DVK 1
@@ -29,22 +29,16 @@ class TestDvkDirectory():
         dvk.set_time_int(2019, 11, 2, 12, 0)
         dvk.set_page_url("/unimportant")
         dvk.set_media_file("unimportant")
-        dvk.set_rating(5)
-        dvk.set_views(128)
         dvk.write_dvk()
         # DVK 2
         dvk.set_time_int(2018, 11, 2, 11, 15)
         dvk.set_file(join(self.test_dir, "dvk2-2.dvk"))
-        dvk.set_rating(0)
-        dvk.set_views(0)
         dvk.write_dvk()
         # DVK 3
         dvk.set_title("DVK 10")
         dvk.set_artist("Guy")
         dvk.set_time_int(2019, 11, 2, 11, 15)
         dvk.set_file(join(self.test_dir, "dvk10.dvk"))
-        dvk.set_rating(4)
-        dvk.set_views(7)
         dvk.write_dvk()
         # DVK 4
         dvk.set_title("DVK 5.25 - Fun!")
@@ -55,22 +49,16 @@ class TestDvkDirectory():
         # DVK 5
         dvk.set_title("DVK 5 - Fun!")
         dvk.set_file(join(self.test_dir, "dvk5.dvk"))
-        dvk.set_rating(1)
-        dvk.set_views(67)
         dvk.write_dvk()
         self.dvk_directory = DvkDirectory()
         self.dvk_directory.read_dvks(self.test_dir)
 
     def tear_down(self):
-        """
-        Deletes test files after DvkDirectory testing.
-        """
+        """Delete test files after DvkDirectory testing."""
         rmtree(self.test_dir)
 
     def test_get_size(self):
-        """
-        Tests the get_size function.
-        """
+        """Test the get_size function."""
         try:
             self.set_up()
             assert self.dvk_directory.get_size() == 5
@@ -80,7 +68,5 @@ class TestDvkDirectory():
             self.tear_down()
 
     def run_all(self):
-        """
-        Tests all functions of the DvkDirectory class.
-        """
+        """Test all functions of the DvkDirectory class."""
         self.test_get_size()

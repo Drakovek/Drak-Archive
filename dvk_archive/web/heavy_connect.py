@@ -1,3 +1,5 @@
+"""Functions for making an online connection using Selenium."""
+
 from time import sleep
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -11,9 +13,7 @@ from selenium.common.exceptions import WebDriverException
 
 
 def print_driver_instructions():
-    """
-    Prints instructions for installing Selenium drivers.
-    """
+    """Print instructions for installing Selenium drivers."""
     print("This program uses Selenium to process JavaScript.")
     print("To run, you must install Selenium web drivers.")
     print("Download the drivers for your preferred browser:")
@@ -35,14 +35,12 @@ class HeavyConnect:
     """
 
     def __init__(self, headless: bool = True):
-        """
-        Initializes the HeavyConnect class.
-        """
+        """Initialize the HeavyConnect class."""
         self.initialize_driver(headless)
 
     def initialize_driver(self, driver: str = "f", headless: bool = True):
         """
-        Starts the selenium driver.
+        Start the selenium driver.
 
         Parameters:
             driver (str): Driver to use ("f" for firefox, "c" for chrome)
@@ -52,15 +50,15 @@ class HeavyConnect:
             # TRY FIREFOX DRIVER
             options = FO()
             options.headless = headless
+            options.page_load_strategy = "none"
             self.driver = webdriver.Firefox(options=options)
         except WebDriverException:
             self.driver = None
             print_driver_instructions()
 
-
     def get_driver(self) -> webdriver:
         """
-        Returns the current Selenium webdriver.
+        Return the current Selenium webdriver.
 
         Returns:
             webdriver: Selenium Web Driver
@@ -72,7 +70,8 @@ class HeavyConnect:
             wait: int = 0,
             element: str = None) -> BeautifulSoup:
         """
-        Connects to a URL and returns a BeautifulSoup object.
+        Connect to a URL and returns a BeautifulSoup object.
+
         Capable of loading JavaScript, AJAX, etc.
 
         Parameters:
@@ -99,8 +98,6 @@ class HeavyConnect:
         return None
 
     def close_driver(self):
-        """
-        Closes the selenium driver, if possible.
-        """
+        """Close the selenium driver, if possible."""
         if self.driver is not None:
             self.driver.close()

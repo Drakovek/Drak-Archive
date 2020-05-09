@@ -1,10 +1,12 @@
+"""Funtions for processing list data."""
+
 from _functools import cmp_to_key
 from dvk_archive.processing.string_compare import compare_alphanum
 
 
 def clean_list(input_list: list = None) -> list:
     """
-    Cleans a given list to contain no duplicates or entries with no value.
+    Clean a given list to contain no duplicates or entries with no value.
 
     Parameters:
         input_list (list): List to clean
@@ -37,7 +39,7 @@ def clean_list(input_list: list = None) -> list:
 
 def list_to_string(input_list: list = None) -> str:
     """
-    Converts a list to a string with entries separated by commas.
+    Convert a list to a string with entries separated by commas.
 
     Parameters:
         input_list (list): List to convert to string
@@ -59,7 +61,7 @@ def list_to_string(input_list: list = None) -> str:
 
 def sort_alphanum(input_list: list = None) -> list:
     """
-    Sorts a given string list alpha-numeriacally.
+    Sort a given string list alpha-numeriacally.
 
     Parameters:
         input_list (list): Given string list

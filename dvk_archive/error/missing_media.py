@@ -1,3 +1,5 @@
+"""Functions for checking Dvk objects with missing media."""
+
 from os import getcwd
 from os.path import abspath, exists
 from tqdm import tqdm
@@ -10,11 +12,13 @@ def missing_media(
         dvk_directories: list = None,
         dvk_handler: DvkHandler = None) -> list:
     """
-    Checks for Dvk objects which have missing media files.
+    Check for Dvk objects which have missing media files.
+
     Parameters:
         dvk_directory (str): Directory from which to search for DVK files.
             Used if dvk_handler is None
         dvk_handler (list): DvkHandler with loaded DVK files.
+
     Returns:
         list: List of Paths for DVK files with missing linked media files
     """
@@ -36,9 +40,7 @@ def missing_media(
 
 
 def main():
-    """
-    Runs the missing_media function from the command line.
-    """
+    """Run the missing_media function from the command line."""
     parser = ArgumentParser()
     parser.add_argument(
         "directory",

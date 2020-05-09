@@ -1,3 +1,5 @@
+"""Functions for checking media files with no linked Dvk."""
+
 from tqdm import tqdm
 from os import getcwd, listdir
 from os.path import abspath, join, isdir
@@ -10,11 +12,13 @@ def unlinked_media(
         dvk_directories: list = None,
         dvk_handler: DvkHandler = None) -> list:
     """
-    Checks for files without corresponding DVK files.
+    Check for files without corresponding DVK files.
+
     Parameters:
         dvk_directory (str): Directory from which to search for DVK files.
             Used if dvk_handler is None
         dvk_handler (list): DvkHandler with loaded DVK files.
+
     Returns:
         list: List of paths for files with no corresponding DVK file
     """
@@ -58,9 +62,7 @@ def unlinked_media(
 
 
 def main():
-    """
-    Runs the unlinked_media function from the command line.
-    """
+    """Run the unlinked_media function from the command line."""
     parser = ArgumentParser()
     parser.add_argument(
         "directory",

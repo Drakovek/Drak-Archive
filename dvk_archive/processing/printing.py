@@ -1,10 +1,14 @@
+"""Functions for printing info to terminal."""
+
 from os.path import abspath
 
 
 def truncate_path(path: str = None, base_path: str = None) -> str:
     """
-    Returns a shortened version of a given path string.
+    Return a shortened version of a given path string.
+
     Removes the base path string from the path to be truncated.
+
     Parameters:
         path (str): Path to truncate
         base_path (str): Base path to omit from the main path
@@ -24,7 +28,8 @@ def truncate_path(path: str = None, base_path: str = None) -> str:
 
 def print_paths(paths: list = None, base_path: str = None):
     """
-    Prints a list of paths.
+    Print a list of paths.
+
     Parameters:
         paths (list): Paths to print
         base_path (str): Base path used for truncating path strings

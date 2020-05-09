@@ -1,3 +1,5 @@
+"""Handles DVK files."""
+
 from os import remove, rename, pardir
 from os.path import abspath, basename, exists, isfile, join
 from json import dump, load
@@ -27,22 +29,10 @@ class Dvk:
         secondary_url (str): DVK Secondary URL
         media_file (str): DVK media file path
         secondary_file (str): DVK secondary media file path
-        previous_ids (list): Previous IDs in a DVK sequence
-        next_ids (list): Next IDs in a DVK sequence
-        section_first (bool): If DVK is first in a sequence section
-        section_last (bool): If DVK is last in a sequence section
-        sequence_title (str): DVK sequence title
-        section_title (str): DVK section title
-        branch_titles (list): DVK sequence branch titles
-        rating (int): DVK rating
-        views (int): DVK views
-        user_tags (list): DVK user tags
     """
 
     def __init__(self, file_path: str = None):
-        """
-        Initializes all DVK values, reading from a DVK file, if given.
-        """
+        """Initialize all DVK values, reading from a DVK file, if given."""
         # CLEAR DVK VALUES
         self.dvk_file = ""
         self.set_file(file_path)
@@ -52,9 +42,7 @@ class Dvk:
             self.read_dvk()
 
     def clear_dvk(self):
-        """
-        Sets all DVK data to their default values.
-        """
+        """Set all DVK data to their default values."""
         self.set_id()
         self.set_title()
         self.set_artist()
@@ -68,22 +56,9 @@ class Dvk:
         # FILE
         self.set_media_file()
         self.set_secondary_file()
-        self.set_previous_ids()
-        self.set_next_ids()
-        self.set_section_first()
-        self.set_section_last()
-        # USER
-        self.set_sequence_title()
-        self.set_section_title()
-        self.set_branch_titles()
-        self.set_rating()
-        self.set_views()
-        self.set_user_tags()
 
     def write_dvk(self):
-        """
-        Writes DVK data to the currently set DVK file.
-        """
+        """Write DVK data to the currently set DVK file."""
         if self.can_write():
             data = dict()
             data["file_type"] = "dvk"
@@ -116,31 +91,7 @@ class Dvk:
             if self.get_secondary_file() is not None:
                 value = basename(self.get_secondary_file())
                 dvk_fd = self.add_to_dict(dvk_fd, "secondary_file", value)
-            value = self.get_previous_ids()
-            dvk_fd = self.add_to_dict(dvk_fd, "previous_ids", value)
-            value = self.get_next_ids()
-            dvk_fd = self.add_to_dict(dvk_fd, "next_ids", value)
-            value = self.get_section_first()
-            dvk_fd = self.add_to_dict(dvk_fd, "section_first", value)
-            value = self.get_section_last()
-            dvk_fd = self.add_to_dict(dvk_fd, "section_last", value)
             data = self.add_to_dict(data, "file", dvk_fd)
-            # USER
-            dvk_user = dict()
-            value = self.get_sequence_title()
-            dvk_user = self.add_to_dict(dvk_user, "sequence_title", value)
-            value = self.get_section_title()
-            dvk_user = self.add_to_dict(dvk_user, "section_title", value)
-            value = self.get_branch_titles()
-            dvk_user = self.add_to_dict(dvk_user, "branch_titles", value)
-            if not self.get_rating() == 0:
-                value = self.get_rating()
-                dvk_user = self.add_to_dict(dvk_user, "rating", value)
-            value = self.get_views()
-            dvk_user = self.add_to_dict(dvk_user, "views", value)
-            value = self.get_user_tags()
-            dvk_user = self.add_to_dict(dvk_user, "user_tags", value)
-            data = self.add_to_dict(data, "user", dvk_user)
             # WRITE
             try:
                 with open(self.get_file(), "w") as out_file:
@@ -151,7 +102,8 @@ class Dvk:
 
     def write_media(self, get_time: bool = False):
         """
-        Writes the DVK file and downloads associated media, if available.
+        Write the DVK file and downloads associated media, if available.
+
         Nothing is writen if DVK or media URLs are invalid.
 
         Parameters:
@@ -179,9 +131,7 @@ class Dvk:
             self.write_dvk()
 
     def read_dvk(self):
-        """
-        Reads DVK data from the currently set DVK file.
-        """
+        """Read DVK data from the currently set DVK file."""
         self.clear_dvk()
         if self.get_file() is not None and isfile(self.get_file()):
             try:
@@ -237,48 +187,6 @@ class Dvk:
                         org = self.get_secondary_file()
                         value = self.get_from_dict(data, keys, org)
                         self.set_secondary_file(value)
-                        keys = ["file", "previous_ids"]
-                        org = self.get_previous_ids()
-                        value = self.get_from_dict(data, keys, org)
-                        self.set_previous_ids(value)
-                        keys = ["file", "next_ids"]
-                        org = self.get_next_ids()
-                        value = self.get_from_dict(data, keys, org)
-                        self.set_next_ids(value)
-                        keys = ["file", "section_first"]
-                        org = self.get_section_first()
-                        value = self.get_from_dict(data, keys, org)
-                        self.set_section_first(value)
-                        keys = ["file", "section_last"]
-                        org = self.get_section_last()
-                        value = self.get_from_dict(data, keys, org)
-                        self.set_section_last(value)
-
-                        # USER
-                        keys = ["user", "sequence_title"]
-                        org = self.get_sequence_title()
-                        value = self.get_from_dict(data, keys, org)
-                        self.set_sequence_title(value)
-                        keys = ["user", "section_title"]
-                        org = self.get_section_title()
-                        value = self.get_from_dict(data, keys, org)
-                        self.set_section_title(value)
-                        keys = ["user", "branch_titles"]
-                        org = self.get_branch_titles()
-                        value = self.get_from_dict(data, keys, org)
-                        self.set_branch_titles(value)
-                        keys = ["user", "rating"]
-                        org = self.get_rating()
-                        value = self.get_from_dict(data, keys, org)
-                        self.set_rating(value)
-                        keys = ["user", "views"]
-                        org = self.get_views()
-                        value = self.get_from_dict(data, keys, org)
-                        self.set_views(value)
-                        keys = ["user", "user_tags"]
-                        org = self.get_user_tags()
-                        value = self.get_from_dict(data, keys, org)
-                        self.set_user_tags(value)
             except IOError:
                 print("Error reading DVK")
                 self.clear_dvk()
@@ -289,7 +197,7 @@ class Dvk:
             key: str = None,
             value=None) -> dict:
         """
-        Adds a key-value pair to dictionary unless values are invalid.
+        Add a key-value pair to dictionary unless values are invalid.
 
         Parameters:
             dictionary (dict): Dictionary of which to add values
@@ -310,7 +218,7 @@ class Dvk:
             keys: list = None,
             original=None):
         """
-        Returns the value of a dictionary from given keys.
+        Return the value of a dictionary from given keys.
 
         Parameters:
             dictionary (dict): Dictionary to read from
@@ -333,7 +241,8 @@ class Dvk:
 
     def can_write(self) -> bool:
         """
-        Returns whether the current DVK file is valid for writing.
+        Return whether the current DVK file is valid for writing.
+
         Returns false if DVK does not have enough information
         (No title, artists, etc.)
 
@@ -351,7 +260,7 @@ class Dvk:
 
     def get_filename(self) -> str:
         """
-        Returns a filename for the DVK based on its title and ID.
+        Return a filename for the DVK based on its title and ID.
 
         Returns:
             str: Filename
@@ -362,7 +271,7 @@ class Dvk:
 
     def rename_files(self, filename: str = None):
         """
-        Renames the current Dvk file and any linked media files.
+        Rename the current Dvk file and any linked media files.
 
         Parameters:
             filename (str): Name to rename files. If none, use default.
@@ -409,7 +318,7 @@ class Dvk:
 
     def set_file(self, file_path: str = None):
         """
-        Sets the current path for the DVK file.
+        Set the current path for the DVK file.
 
         Parameters:
             file_path (str): Path for the DVK file
@@ -421,7 +330,7 @@ class Dvk:
 
     def get_file(self) -> str:
         """
-        Returns the current path of the DVK file.
+        Return the current path of the DVK file.
 
         Returns:
             str: DVK file path
@@ -430,7 +339,8 @@ class Dvk:
 
     def generate_id(self, prefix: str = "", extra: str = ""):
         """
-        Generates a psudorandom deterministic ID.
+        Generate a psudorandom deterministic ID.
+
         Based on title, artists, and page URL.
 
         Parameters:
@@ -447,7 +357,7 @@ class Dvk:
 
     def set_id(self, id_str: str = None):
         """
-        Sets the ID for the current DVK file.
+        Set the ID for the current DVK file.
 
         Parameters:
             id_str (str): DVK ID
@@ -459,7 +369,7 @@ class Dvk:
 
     def get_id(self) -> str:
         """
-        Returns the ID for the current DVK file.
+        Return the ID for the current DVK file.
 
         Returns:
             str: DVK ID
@@ -468,7 +378,7 @@ class Dvk:
 
     def set_title(self, title_str: str = None):
         """
-        Sets the title for the current DVK file.
+        Set the title for the current DVK file.
 
         Parameters:
             title_str (str): DVK title
@@ -477,7 +387,7 @@ class Dvk:
 
     def get_title(self) -> str:
         """
-        Returns the title for the current DVK file.
+        Return the title for the current DVK file.
 
         Returns:
             str: DVK title
@@ -486,7 +396,7 @@ class Dvk:
 
     def set_artist(self, artist_str: str = None):
         """
-        Sets the artists for the current DVK file for just a single artist.
+        Set the artists for the current DVK file for just a single artist.
 
         Parameters:
             artist_str (str): DVK Artist
@@ -496,7 +406,7 @@ class Dvk:
 
     def set_artists(self, artist_list: list = None):
         """
-        Sets the artists for the current DVK file.
+        Set the artists for the current DVK file.
 
         Parameters:
             artist_list (list): DVK artists
@@ -508,7 +418,7 @@ class Dvk:
 
     def get_artists(self) -> list:
         """
-        Returns a list of artists for the current DVK file.
+        Return a list of artists for the current DVK file.
 
         Returns:
             list: DVK artists
@@ -523,7 +433,8 @@ class Dvk:
             hour_int: int = 0,
             minute_int: int = 0):
         """
-        Sets the Dvk's time published.
+        Set the Dvk's time published.
+
         Uses int values representing individual time units.
 
         Parameters:
@@ -550,7 +461,8 @@ class Dvk:
 
     def set_time(self, time_str: str = None):
         """
-        Sets the current Dvk's time published using a formatted time string.
+        Set the current Dvk's time published using a formatted time string.
+
         If time string is invalid, sets the date to 0000/00/00|00:00
 
         Parameters:
@@ -572,7 +484,7 @@ class Dvk:
 
     def get_time(self) -> str:
         """
-        Returns the time published for the current DVK file.
+        Return the time published for the current DVK file.
 
         Returns:
             str: Time string of the time published for the DVK file
@@ -581,7 +493,7 @@ class Dvk:
 
     def set_web_tags(self, web_tag_list: list = None):
         """
-        Sets the web tags for the current DVK file.
+        Set the web tags for the current DVK file.
 
         Parameters:
             web_tag_list (list): DVK web tags
@@ -593,7 +505,7 @@ class Dvk:
 
     def get_web_tags(self) -> list:
         """
-        Returns the web tags for the current DVK file.
+        Return the web tags for the current DVK file.
 
         Returns:
             list: DVK web tags
@@ -602,7 +514,7 @@ class Dvk:
 
     def set_description(self, description_str: str = None):
         """
-        Sets the description for the current DVK file.
+        Set the description for the current DVK file.
 
         Parameters:
             description_str (str): DVK description
@@ -614,7 +526,7 @@ class Dvk:
 
     def get_description(self) -> str:
         """
-        Returns the description for the current DVK file.
+        Return the description for the current DVK file.
 
         Returns:
             str: DVK description
@@ -623,7 +535,7 @@ class Dvk:
 
     def set_page_url(self, page_url_str: str = None):
         """
-        Sets the page URL for the current DVK file.
+        Set the page URL for the current DVK file.
 
         Parameters:
             page_url_str (str): Page URL
@@ -635,7 +547,7 @@ class Dvk:
 
     def get_page_url(self) -> str:
         """
-        Returns the page URL for the current DVK file.
+        Return the page URL for the current DVK file.
 
         Returns:
             str: Page URL
@@ -644,7 +556,7 @@ class Dvk:
 
     def set_direct_url(self, direct_url_str: str = None):
         """
-        Sets the direct media URL for the current DVK file.
+        Set the direct media URL for the current DVK file.
 
         Parameters:
             direct_url_str (str): Direct media URL
@@ -656,7 +568,7 @@ class Dvk:
 
     def get_direct_url(self) -> str:
         """
-        Returns the direct media URL for the current DVK file.
+        Return the direct media URL for the current DVK file.
 
         Returns:
             str: Direct media URL
@@ -665,7 +577,7 @@ class Dvk:
 
     def set_secondary_url(self, secondary_url_str: str = None):
         """
-        Sets the secondary media URL for the current DVK file.
+        Set the secondary media URL for the current DVK file.
 
         Parameters:
             secondary_url_str (str): Secondary media URL
@@ -677,7 +589,7 @@ class Dvk:
 
     def get_secondary_url(self) -> str:
         """
-        Returns the secondary media URL for the current DVK file.
+        Return the secondary media URL for the current DVK file.
 
         Returns:
             str: Secondary media URL
@@ -686,7 +598,8 @@ class Dvk:
 
     def set_media_file(self, file_name: str = None):
         """
-        Sets the media file for the current DVK file based on a given filename.
+        Set the media file for the current DVK file based on a given filename.
+
         Sets file in the same directory as the DVK file.
 
         Parameters:
@@ -700,7 +613,7 @@ class Dvk:
 
     def get_media_file(self) -> str:
         """
-        Returns the media file for the current DVK file.
+        Return the media file for the current DVK file.
 
         Returns:
             path: DVK media file
@@ -709,7 +622,8 @@ class Dvk:
 
     def set_secondary_file(self, file_name: str = None):
         """
-        Sets the secondary media file for the current DVK file.
+        Set the secondary media file for the current DVK file.
+
         Sets file in the same directory as the DVK file.
 
         Parameters:
@@ -723,257 +637,9 @@ class Dvk:
 
     def get_secondary_file(self) -> str:
         """
-        Returns the secondary media file for the current DVK file.
+        Return the secondary media file for the current DVK file.
 
         Returns:
             path: DVK secondary media file
         """
         return self.secondary_file
-
-    def set_previous_ids(self, id_list: list = None):
-        """
-        Sets the IDs of the previous DVK files in a DVK sequence.
-
-        Parameters:
-            id_list (list): List of IDs for previous DVK files
-        """
-        if id_list is None:
-            self.previous_ids = None
-        else:
-            count = 0
-            self.previous_ids = []
-            while count < len(id_list):
-                if id_list[count] is None or id_list[count] == "":
-                    self.previous_ids = []
-                    break
-                else:
-                    self.previous_ids.append(id_list[count].upper())
-                count = count + 1
-
-    def get_previous_ids(self) -> list:
-        """
-        Returns a list of IDs for the previous DVK files in a DVK sequence.
-
-        Returns:
-            list: IDs of previous DVK files
-        """
-        return self.previous_ids
-
-    def set_next_ids(self, id_list: list = None):
-        """
-        Sets the IDs of the next DVK files in a DVK sequence.
-
-        Parameters:
-            id_list (list): List of IDs for next DVK files
-        """
-        if id_list is None:
-            self.next_ids = None
-        else:
-            count = 0
-            self.next_ids = []
-            while count < len(id_list):
-                if id_list[count] is None or id_list[count] == "":
-                    self.next_ids = []
-                    break
-                else:
-                    self.next_ids.append(id_list[count].upper())
-                count = count + 1
-
-    def get_next_ids(self) -> list:
-        """
-        Returns a list of IDs for the next DVK files in a DVK sequence.
-
-        Returns:
-            list: IDs of next DVK files
-        """
-        return self.next_ids
-
-    def set_section_first(self, first_bool: bool = False):
-        """
-        Sets whether current DVK is the first in a sequence section.
-
-        Parameters:
-            first_bool (bool): Whether DVK is first in a section
-        """
-        self.section_first = first_bool
-        self.section_first = self.get_section_first()
-
-    def get_section_first(self) -> bool:
-        """
-        Returns whether current DVK is the first in a sequence section.
-
-        Returns:
-            bool: Whether DVK is first in a section
-        """
-        if (self.section_first
-                and self.get_previous_ids() is not None
-                and self.get_next_ids() is not None):
-            if (not self.get_previous_ids() == []
-                    or not self.get_next_ids() == []):
-                return True
-        return False
-
-    def set_section_last(self, last_bool: bool = False):
-        """
-        Sets whether current DVK is the last in a sequence section.
-
-        Parameters:
-            first_bool (bool): Whether DVK is last in a section
-        """
-        self.section_last = last_bool
-        self.section_last = self.get_section_last()
-
-    def get_section_last(self) -> bool:
-        """
-        Returns whether current DVK is the last in a sequence section.
-
-        Returns:
-            bool: Whether DVK is last in a section
-        """
-        if (self.section_last
-                and self.get_previous_ids() is not None
-                and self.get_next_ids() is not None):
-            if (not self.get_previous_ids() == []
-                    or not self.get_next_ids() == []):
-                return True
-        return False
-
-    def set_sequence_title(self, sequence_title_str: str = None):
-        """
-        Sets the sequence title for the current DVK file.
-
-        Parameters:
-            sequence_title (str): DVK sequence title
-        """
-        self.sequence_title = sequence_title_str
-        self.sequence_title = self.get_sequence_title()
-
-    def get_sequence_title(self) -> str:
-        """
-        Returns the sequence title for the current DVK file.
-
-        Returns:
-            str: DVK sequence title
-        """
-        if (not self.sequence_title == ""
-                and self.get_previous_ids() is not None
-                and self.get_next_ids() is not None):
-            if (not self.get_previous_ids() == []
-                    or not self.get_next_ids() == []):
-                return self.sequence_title
-        return None
-
-    def set_section_title(self, section_title_str: str = None):
-        """
-        Sets the sequence section title for the current DVK file.
-
-        Parameters:
-            section_title (str): DVK sequence section title
-        """
-        self.section_title = section_title_str
-        self.section_title = self.get_section_title()
-
-    def get_section_title(self) -> str:
-        """
-        Return the sequence section title for the current DVK file.
-
-        Returns:
-            str: DVK sequence section title
-        """
-        if (not self.section_title == ""
-                and self.get_previous_ids() is not None
-                and self.get_next_ids() is not None):
-            if (not self.get_previous_ids() == []
-                    or not self.get_next_ids() == []):
-                return self.section_title
-        return None
-
-    def set_branch_titles(self, branch_title_list: list = None):
-        """
-        Sets sequence branch titles for the current DVK file.
-
-        Parameters:
-            branch_title_list (list): List of DVK sequence branch titles
-        """
-        if (branch_title_list is None
-                or branch_title_list == []
-                or self.get_next_ids() is None
-                or len(branch_title_list) < 2
-                or not len(branch_title_list) == len(self.get_next_ids())):
-            self.branch_titles = None
-        else:
-            self.branch_titles = branch_title_list
-
-    def get_branch_titles(self) -> list:
-        """
-        Returns sequence branch titles for the current DVK file.
-
-        Returns:
-            list: DVK sequence branch titles
-        """
-        return self.branch_titles
-
-    def set_rating(self, rating_int: int = 0):
-        """
-        Sets the rating for the current DVK file, from 1 to 5.
-
-        Parameters:
-            rating_int (int): DVK rating
-        """
-        if (rating_int is None
-                or rating_int < 0
-                or rating_int > 5):
-            self.rating = 0
-        else:
-            self.rating = rating_int
-
-    def get_rating(self) -> int:
-        """
-        Returns the rating for the current DVK file.
-
-        Returns:
-            int: DVK rating
-        """
-        return self.rating
-
-    def set_views(self, view_int: int = 0):
-        """
-        Sets the number of views for the current DVK file.
-
-        Parameters:
-            view_int (int): DVK views
-        """
-        if view_int is None or view_int < 0:
-            self.views = 0
-        else:
-            self.views = view_int
-
-    def get_views(self) -> int:
-        """
-        Returns the number of views for the current DVK file.
-
-        Returns:
-            int: DVK views
-        """
-        return self.views
-
-    def set_user_tags(self, user_tag_list: list = None):
-        """
-        Sets the user tags for the current DVK file.
-
-        Parameters:
-            user_tag_list (list): DVK web tags
-        """
-        if user_tag_list is None or user_tag_list == []:
-            self.user_tags = None
-        else:
-            self.user_tags = clean_list(user_tag_list)
-
-    def get_user_tags(self) -> list:
-        """
-        Returns the user tags for the current DVK file.
-
-        Returns:
-            list: DVK user tags
-        """
-        return self.user_tags

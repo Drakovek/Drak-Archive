@@ -1,3 +1,5 @@
+"""Unit tests for the rename_files.py module."""
+
 from os import mkdir
 from os.path import abspath, basename, exists, expanduser, join
 from shutil import rmtree
@@ -9,14 +11,13 @@ from dvk_archive.reformat.rename_files import rename_files
 class TestRenameFiles():
     """
     Unit tests for the rename_files.py module.
+
     Attributes:
         test_dir (str): Directory for holding test files.
     """
 
     def set_up(self):
-        """
-        Sets up test files before running unit tests.
-        """
+        """Set up test files before running unit tests."""
         self.test_dir = abspath(join(expanduser("~"), "renameFilesTest"))
         mkdir(self.test_dir)
         # DVK 1
@@ -40,15 +41,11 @@ class TestRenameFiles():
         dvk.write_dvk()
 
     def tear_down(self):
-        """
-        Deletes test files after ErrorFinding testing.
-        """
+        """Delete test files after ErrorFinding testing."""
         rmtree(self.test_dir)
 
     def test_rename_files(self):
-        """
-        Tests the rename_files function.
-        """
+        """Test the rename_files function."""
         try:
             self.set_up()
             rename_files(self.test_dir)
@@ -80,7 +77,5 @@ class TestRenameFiles():
             self.tear_down()
 
     def run_all(self):
-        """
-        Tests all functions of the rename_files.py module.
-        """
+        """Test all functions of the rename_files.py module."""
         self.test_rename_files()

@@ -1,3 +1,5 @@
+"""Unit tests for the same_ids.py module."""
+
 from shutil import rmtree
 from os import mkdir
 from os.path import abspath, basename, expanduser, join
@@ -9,14 +11,13 @@ from dvk_archive.error.same_ids import same_ids
 class TestSameIDs():
     """
     Unit tests for the same_ids.py module.
+
     Attributes:
         test_dir (str): Directory for holding test files.
     """
 
     def set_up(self):
-        """
-        Sets up test files before running unit tests.
-        """
+        """Set up test files before running unit tests."""
         self.test_dir = abspath(join(expanduser("~"), "findingTest"))
         mkdir(self.test_dir)
         open(join(self.test_dir, "file0"), "a").close()
@@ -67,15 +68,11 @@ class TestSameIDs():
         dvk.write_dvk()
 
     def tear_down(self):
-        """
-        Deletes test files after ErrorFinding testing.
-        """
+        """Delete test files after ErrorFinding testing."""
         rmtree(self.test_dir)
 
     def test_identical_ids(self):
-        """
-        Tests the identical_ids function.
-        """
+        """Test the identical_ids function."""
         try:
             self.set_up()
             handler = DvkHandler()
@@ -93,7 +90,5 @@ class TestSameIDs():
             self.tear_down()
 
     def run_all(self):
-        """
-        Tests all functions of the same_ids.py module.
-        """
+        """Test all functions of the same_ids.py module."""
         self.test_identical_ids()

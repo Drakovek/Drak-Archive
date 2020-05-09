@@ -1,6 +1,10 @@
+"""Functions for processing plain text."""
+
+
 def extend_int(input_int: int = 0, input_length: int = 0) -> str:
     """
-    Returns a string representation of a given int with a given length.
+    Return a string representation of a given int with a given length.
+
     If the lenght of int is to small, adds leading 0s.
     If values are invalid, returns a string of zeros of the specified length.
 
@@ -25,7 +29,7 @@ def extend_int(input_int: int = 0, input_length: int = 0) -> str:
 
 def get_extension(filename: str = None) -> str:
     """
-    Returns the extension of a given filename.
+    Return the extension of a given filename.
 
     Parameters:
         filename (str): Given filename
@@ -46,7 +50,7 @@ def get_extension(filename: str = None) -> str:
 
 def get_filename(filename: str = None) -> str:
     """
-    Converts a given string to a string safe to use as a filename.
+    Convert a given string to a string safe to use as a filename.
 
     Parameters:
         filename (str): Given string to convert

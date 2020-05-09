@@ -1,3 +1,5 @@
+"""Unit tests for the basic_conect.py module."""
+
 from shutil import rmtree
 from os import listdir, stat, mkdir
 from os.path import abspath, exists, expanduser, join
@@ -10,9 +12,7 @@ from dvk_archive.web.basic_connect import remove_header_footer
 
 
 def test_bs_connect():
-    """
-    Tests the bs_connect function.
-    """
+    """Test the bs_connect function."""
     assert bs_connect() is None
     assert bs_connect(None) is None
     assert bs_connect("") is None
@@ -25,9 +25,7 @@ def test_bs_connect():
 
 
 def test_basic_connect():
-    """
-    Tests the basic_connect function.
-    """
+    """Test the basic_connect function."""
     assert basic_connect() is None
     assert basic_connect(None) is None
     assert basic_connect("") is None
@@ -40,9 +38,7 @@ def test_basic_connect():
 
 
 def test_download():
-    """
-    Tests the download function.
-    """
+    """Test the download function."""
     try:
         test_dir = abspath(join(expanduser("~"), "imageTests"))
         mkdir(test_dir)
@@ -78,9 +74,7 @@ def test_download():
 
 
 def test_get_last_modified():
-    """
-    Tests the get_last_modified function.
-    """
+    """Test the get_last_modified function."""
     assert get_last_modified() == ""
     assert get_last_modified(dict()) == ""
     # TEST INVALID
@@ -118,9 +112,7 @@ def test_get_last_modified():
 
 
 def test_remove_header_footer():
-    """
-    Tests the remove_header_footer function.
-    """
+    """Test the remove_header_footer function."""
     assert remove_header_footer() == ""
     assert remove_header_footer("") == ""
     assert remove_header_footer("   ") == ""
@@ -133,9 +125,7 @@ def test_remove_header_footer():
 
 
 def run_all():
-    """
-    Tests all functions of the basic_connect.py module.
-    """
+    """Test all functions of the basic_connect.py module."""
     test_bs_connect()
     test_basic_connect()
     test_download()

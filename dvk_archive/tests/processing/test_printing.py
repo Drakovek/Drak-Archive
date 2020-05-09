@@ -1,11 +1,11 @@
+"""Unit tests for the printing.py module."""
+
 from os.path import abspath, expanduser, join
 from dvk_archive.processing.printing import truncate_path
 
 
 def test_truncate_path():
-    """
-    Tests the truncate_path function
-    """
+    """Test the truncate_path function."""
     assert truncate_path() == ""
     base_path = abspath(join(expanduser("~"), "printingTest"))
     sub = join(base_path, "sub")
@@ -16,7 +16,5 @@ def test_truncate_path():
 
 
 def run_all():
-    """
-    Tests all functions of the printing.py module
-    """
+    """Test all functions of the printing.py module."""
     test_truncate_path()

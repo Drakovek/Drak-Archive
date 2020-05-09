@@ -1,3 +1,5 @@
+"""Functions for renaming DVK files and linked media."""
+
 from os import getcwd
 from os.path import abspath
 from tqdm import tqdm
@@ -7,7 +9,7 @@ from dvk_archive.file.dvk_handler import DvkHandler
 
 def rename_files(directory_str: str = None):
     """
-    Renames all the DVK files and associated media files in a given directory.
+    Rename all the DVK files and associated media files in a given directory.
 
     Parameters:
         directory_str (str): Directory in which to rename files.
@@ -21,9 +23,7 @@ def rename_files(directory_str: str = None):
 
 
 def main():
-    """
-    Runs the rename_files function from the command line.
-    """
+    """Run the rename_files function from the command line."""
     parser = ArgumentParser()
     parser.add_argument(
         "directory",

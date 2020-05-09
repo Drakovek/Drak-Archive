@@ -1,3 +1,5 @@
+"""Unit tests for the missing_media.py module."""
+
 from shutil import rmtree
 from os import mkdir
 from os.path import abspath, basename, expanduser, join
@@ -9,14 +11,13 @@ from dvk_archive.error.missing_media import missing_media
 class TestMissingMedia():
     """
     Unit tests for the missing_media.py module.
+
     Attributes:
         test_dir (str): Directory for holding test files.
     """
 
     def set_up(self):
-        """
-        Sets up test files before running unit tests.
-        """
+        """Set up test files before running unit tests."""
         self.test_dir = abspath(join(expanduser("~"), "findingTest"))
         mkdir(self.test_dir)
         open(join(self.test_dir, "file0"), "a").close()
@@ -67,15 +68,11 @@ class TestMissingMedia():
         dvk.write_dvk()
 
     def tear_down(self):
-        """
-        Deletes test files after ErrorFinding testing.
-        """
+        """Delete test files after ErrorFinding testing."""
         rmtree(self.test_dir)
 
     def test_missing_media(self):
-        """
-        Tests the missing_media function.
-        """
+        """Test the missing_media function."""
         try:
             self.set_up()
             handler = DvkHandler()
@@ -95,7 +92,5 @@ class TestMissingMedia():
             self.tear_down()
 
     def run_all(self):
-        """
-        Tests all functions of the missing_media.py module.
-        """
+        """Test all functions of the missing_media.py module."""
         self.test_missing_media()

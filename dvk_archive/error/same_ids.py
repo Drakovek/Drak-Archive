@@ -1,3 +1,5 @@
+"""Functions for checking Dvk objects with identical IDs."""
+
 from os import getcwd
 from os.path import abspath
 from tqdm import tqdm
@@ -10,11 +12,13 @@ def same_ids(
         dvk_directories: list = None,
         dvk_handler: DvkHandler = None) -> list:
     """
-    Checks for Dvk objects with identical IDs.
+    Check for Dvk objects with identical IDs.
+
     Parameters:
         dvk_directory (str): Directory from which to search for DVK files.
             Used if dvk_handler is None
         dvk_handler (list): DvkHandler with loaded DVK files.
+
     Returns:
         list: List of Paths for DVK files with identical IDs
     """
@@ -47,9 +51,7 @@ def same_ids(
 
 
 def main():
-    """
-    Runs the same_ids function from the command line.
-    """
+    """Run the same_ids function from the command line."""
     parser = ArgumentParser()
     parser.add_argument(
         "directory",

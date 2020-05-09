@@ -1,10 +1,10 @@
+"""Unit tests for the heavy_connect.py module."""
+
 from dvk_archive.web.heavy_connect import HeavyConnect
 
 
 def test_get_page():
-    """
-    Tests the get_page function.
-    """
+    """Test the get_page function."""
     connect = HeavyConnect()
     try:
         assert connect.get_page() is None
@@ -37,4 +37,5 @@ def test_get_page():
 
 
 def run_all():
+    """Test all functions in the heavy_connect.py module."""
     test_get_page()

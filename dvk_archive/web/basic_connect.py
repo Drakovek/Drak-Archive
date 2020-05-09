@@ -1,3 +1,5 @@
+"""Connects online using standard urllib libraries."""
+
 from json import loads
 from json.decoder import JSONDecodeError
 from io import BytesIO
@@ -8,11 +10,11 @@ from shutil import copyfileobj
 from urllib.error import HTTPError
 from os.path import abspath, exists
 from dvk_archive.processing.string_processing import extend_int
-
 from dvk_archive.processing.string_processing import get_extension
 
 
 def get_headers() -> dict:
+    """Return headers to use when making a URL connection."""
     headers = {
         "User-Agent":
         "Mozilla/5.0 (X11; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0",
@@ -26,7 +28,8 @@ def bs_connect(
         encoding: str = "utf-8",
         data: dict = None) -> BeautifulSoup:
     """
-    Connects to a URL and returns a BeautifulSoup object.
+    Connect to a URL and returns a BeautifulSoup object.
+
     Incapable of working with JavaScript.
 
     Parameters:
@@ -48,7 +51,8 @@ def json_connect(
         encoding: str = "utf-8",
         data: dict = None) -> dict:
     """
-    Connects to a URL and returns a dictionary based on JSON data.
+    Connect to a URL and returns a dictionary based on JSON data.
+
     Incapable of working with JavaScript.
 
     Parameters:
@@ -74,7 +78,8 @@ def basic_connect(
         encoding: str = "utf-8",
         data: dict = None) -> str:
     """
-    Connects to a URL and returns a the HTML source.
+    Connect to a URL and returns a the HTML source.
+
     Incapable of working with JavaScript.
 
     Parameters:
@@ -108,7 +113,7 @@ def basic_connect(
 
 def download(url: str = None, filename: str = None) -> dict:
     """
-    Downloads a file from a given url to a given file path.
+    Download a file from a given url to a given file path.
 
     Parameters:
         url (str): URL from which to download
@@ -146,7 +151,7 @@ def download(url: str = None, filename: str = None) -> dict:
 
 def get_last_modified(headers: dict = None) -> str:
     """
-    Returns the time a webpage was last formatted from its request headers.
+    Return the time a webpage was last formatted from its request headers.
 
     Parameters:
         headers (dict): HTML request headers
@@ -188,7 +193,7 @@ def get_last_modified(headers: dict = None) -> str:
 
 def remove_header_footer(input_str: str = None) -> str:
     """
-    Returns html string with header and footer removed.
+    Return html string with header and footer removed.
 
     Parameters:
         input_str (str): Given HTML string

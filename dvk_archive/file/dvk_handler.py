@@ -1,3 +1,5 @@
+"""Handles Dvk objects within given directory and sub-directories."""
+
 from os import walk
 from _functools import cmp_to_key
 from os import listdir
@@ -13,7 +15,7 @@ from dvk_archive.processing.string_compare import compare_alphanum
 
 class DvkHandler:
     """
-    Handles Dvk objects for given directories and their sub-directories.
+    Handle Dvk objects for given directories and their sub-directories.
 
     Attributes:
         dvk_directories (list): Loaded Dvk objects
@@ -21,16 +23,14 @@ class DvkHandler:
     """
 
     def __init__(self):
-        """
-        Initializes DvkHandler attributes.
-        """
+        """Initialize DvkHandler attributes."""
         self.dvks = []
         self.sorted = []
         self.paths = []
 
     def get_paths(self) -> list:
         """
-        Returns list of paths loaded in the DvkHandler.
+        Return list of paths loaded in the DvkHandler.
 
         Returns:
             list: List of pathlib paths
@@ -39,7 +39,7 @@ class DvkHandler:
 
     def load_dvks(self, directory_strs: list = None):
         """
-        Loads DVK files from a given directory and sub-directories.
+        Load DVK files from a given directory and sub-directories.
 
         Parameters:
             directory_strs (list): Directories from which to load DVK files
@@ -54,9 +54,7 @@ class DvkHandler:
         self.reset_sorted()
 
     def reset_sorted(self):
-        """
-        Resets the sorted list to the default order.
-        """
+        """Reset the sorted list to the default order."""
         self.sorted = []
         size = len(self.dvks)
         for i in range(0, size):
@@ -64,7 +62,7 @@ class DvkHandler:
 
     def get_size(self) -> int:
         """
-        Returns the number of DVK files loaded / size of sorted list.
+        Return the number of DVK files loaded / size of sorted list.
 
         Returns:
             int: Number of DVK files loaded
@@ -73,7 +71,7 @@ class DvkHandler:
 
     def get_dvk_sorted(self, index_int: int = -1) -> Dvk:
         """
-        Returns the Dvk object for a given index in the sorted index list.
+        Return the Dvk object for a given index in the sorted index list.
 
         Parameters:
             index_int (int): Sorted index
@@ -87,7 +85,7 @@ class DvkHandler:
 
     def get_dvk_direct(self, index_int: int = -1) -> Dvk:
         """
-        Returns the Dvk object for a given direct index.
+        Return the Dvk object for a given direct index.
 
         Parameters:
             index_int (int): Direct index
@@ -101,7 +99,7 @@ class DvkHandler:
 
     def get_directories(self, directory_strs: list = None) -> list:
         """
-        Returns a list of directories and sub-directories in a given file path.
+        Return a list of directories and sub-directories in a given file path.
 
         Parameters:
             directory_strs (list): Directories to search within
@@ -134,7 +132,7 @@ class DvkHandler:
 
     def contains_page_url(self, url: str = None) -> bool:
         """
-        Returns whether dvk list contains a given page URL.
+        Return whether dvk list contains a given page URL.
 
         Parameters:
             url (str): Page URL to search for
@@ -151,7 +149,7 @@ class DvkHandler:
 
     def contains_direct_url(self, url: str = None) -> bool:
         """
-        Returns whether dvk list contains a given direce URL.
+        Return whether dvk list contains a given direce URL.
 
         Parameters:
             url (str): Direct URL to search for
@@ -168,7 +166,7 @@ class DvkHandler:
 
     def contains_id(self, id: str = None) -> bool:
         """
-        Returns whether dvk list contains a given ID.
+        Return whether dvk list contains a given ID.
 
         Parameters:
             id (str):ID to search for
@@ -184,9 +182,7 @@ class DvkHandler:
         return False
 
     def add_dvk(self, dvk: Dvk = None):
-        """
-        Adds a Dvk object to the handler's list of Dvk objects.
-        """
+        """Add a Dvk object to the handler's list of Dvk objects."""
         if dvk is not None:
             self.dvks.append(dvk)
 
@@ -195,7 +191,7 @@ class DvkHandler:
             sort_type: str = None,
             group_artists_bool: bool = False):
         """
-        Sorts all currently loaded DVK objects in dvks list.
+        Sort all currently loaded DVK objects in dvks list.
 
         Parameters:
             sort_type (str): Sort type
@@ -207,17 +203,13 @@ class DvkHandler:
         if sort_type is not None and self.get_size() > 0:
             if sort_type == "t":
                 comparator = cmp_to_key(self.compare_time)
-            elif sort_type == "r":
-                comparator = cmp_to_key(self.compare_ratings)
-            elif sort_type == "v":
-                comparator = cmp_to_key(self.compare_views)
             else:
                 comparator = cmp_to_key(self.compare_alpha)
             self.dvks = sorted(self.dvks, key=comparator)
 
     def compare_alpha(self, x: Dvk = None, y: Dvk = None) -> int:
         """
-        Compares two DVK objects alpha-numerically by their titles.
+        Compare two DVK objects alpha-numerically by their titles.
 
         Parameters:
             x (Dvk): 1st Dvk object to compare
@@ -240,7 +232,7 @@ class DvkHandler:
 
     def compare_time(self, x: Dvk = None, y: Dvk = None) -> int:
         """
-        Compares two DVK objects by their publication time.
+        Compare two DVK objects by their publication time.
 
         Parameters:
             x (Dvk): 1st Dvk object to compare
@@ -261,59 +253,9 @@ class DvkHandler:
             return compare_alphanum(x.get_title(), y.get_title())
         return result
 
-    def compare_ratings(self, x: Dvk = None, y: Dvk = None) -> int:
-        """
-        Compares two DVK objects by their ratings.
-
-        Parameters:
-            x (Dvk): 1st Dvk object to compare
-            y (Dvk): 2nd Dvk object to compare
-
-        Returns:
-            int: Which Dvk should come first.
-                -1 for x, 1 for y, 0 for indeterminate
-        """
-        if x is None or y is None:
-            return 0
-        result = 0
-        if self.group_artists:
-            result = self.compare_artists(x, y)
-        if result == 0:
-            if x.get_rating() < y.get_rating():
-                return -1
-            elif x.get_rating() > y.get_rating():
-                return 1
-            return self.compare_alpha(x, y)
-        return result
-
-    def compare_views(self, x: Dvk = None, y: Dvk = None) -> int:
-        """
-        Compares two DVK objects by their view counts.
-
-        Parameters:
-            x (Dvk): 1st Dvk object to compare
-            y (Dvk): 2nd Dvk object to compare
-
-        Returns:
-            int: Which Dvk should come first.
-                -1 for x, 1 for y, 0 for indeterminate
-        """
-        if x is None or y is None:
-            return 0
-        result = 0
-        if self.group_artists:
-            result = self.compare_artists(x, y)
-        if result == 0:
-            if x.get_views() < y.get_views():
-                return -1
-            if x.get_views() > y.get_views():
-                return 1
-            return self.compare_alpha(x, y)
-        return result
-
     def compare_artists(self, x: Dvk = None, y: Dvk = None) -> int:
         """
-        Compares two DVK objects by their artists.
+        Compare two DVK objects by their artists.
 
         Parameters:
             x (Dvk): 1st Dvk object to compare

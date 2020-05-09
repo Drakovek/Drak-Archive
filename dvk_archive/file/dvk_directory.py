@@ -1,3 +1,5 @@
+"""Handles DVK files within given directory."""
+
 from os import listdir
 from os.path import abspath, join
 from dvk_archive.file.dvk import Dvk
@@ -14,16 +16,15 @@ class DvkDirectory:
     """
 
     def __init__(self):
-        """
-        Initializes the DvkDirectory class.
-        """
+        """Initialize the DvkDirectory class."""
         self.directory_path = ""
         self.group_artists = False
         self.dvks = []
 
     def read_dvks(self, directory_str: str = None):
         """
-        Reads all of the DVK files in a given directory.
+        Read all of the DVK files in a given directory.
+
         Add DVKs to dvk list.
 
         Parameters:
@@ -43,7 +44,7 @@ class DvkDirectory:
 
     def get_size(self) -> int:
         """
-        Returns the size of the dvks list.
+        Return the size of the dvks list.
 
         Returns:
             int: Size of the dvks list.
@@ -55,7 +56,8 @@ class DvkDirectory:
 
     def get_dvk(self, index_int: int = 0) -> Dvk:
         """
-        Returns the Dvk object from the dvks list of the given index.
+        Return the Dvk object from the dvks list of the given index.
+
         If index is out of range, returns a default DVK.
 
         Returns:

@@ -1,12 +1,12 @@
+"""Unit tests for the list_processing.py module."""
+
 from dvk_archive.processing.list_processing import clean_list
 from dvk_archive.processing.list_processing import list_to_string
 from dvk_archive.processing.list_processing import sort_alphanum
 
 
 def test_clean_list():
-    """
-    Tests the clean_list function.
-    """
+    """Test the clean_list function."""
     assert len(clean_list()) == 0
     assert len(clean_list(None)) == 0
     cleaned = clean_list(["these", "are", "things", "", None, "are"])
@@ -17,9 +17,7 @@ def test_clean_list():
 
 
 def test_list_to_string():
-    """
-    Tests the list_to_string function.
-    """
+    """Test the list_to_string function."""
     assert list_to_string() == ""
     assert list_to_string(None) == ""
     assert list_to_string([""]) == ""
@@ -30,9 +28,7 @@ def test_list_to_string():
 
 
 def test_sort_alphanum():
-    """
-    Tests the sort_alphanum function.
-    """
+    """Test the sort_alphanum function."""
     list = ["10,05", "010,5", "5"]
     list = sort_alphanum(list)
     assert list == ["5", "10,05", "010,5"]
@@ -41,9 +37,7 @@ def test_sort_alphanum():
 
 
 def run_all():
-    """
-    Tests all functions of the list_processing.py module.
-    """
+    """Test all functions of the list_processing.py module."""
     test_clean_list()
     test_list_to_string()
     test_list_to_string()

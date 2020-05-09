@@ -1,3 +1,5 @@
+"""Unit tests for the string_processing.py module."""
+
 from dvk_archive.processing.string_processing import extend_int
 from dvk_archive.processing.string_processing import get_extension
 from dvk_archive.processing.string_processing import get_filename
@@ -5,9 +7,7 @@ from dvk_archive.processing.string_processing import truncate_string
 
 
 def test_extend_int():
-    """
-    Tests the extend_int function.
-    """
+    """Test the extend_int function."""
     assert extend_int() == "0"
     assert extend_int(None, 5) == "00000"
     assert extend_int(15, None) == "0"
@@ -18,9 +18,7 @@ def test_extend_int():
 
 
 def test_get_extension():
-    """
-    Tests the get_extension function.
-    """
+    """Test the get_extension function."""
     assert get_extension() == ""
     assert get_extension(None) == ""
     assert get_extension("") == ""
@@ -34,9 +32,7 @@ def test_get_extension():
 
 
 def test_get_filename():
-    """
-    Tests the get_filename function.
-    """
+    """Test the get_filename function."""
     assert get_filename() == "0"
     assert get_filename(None) == "0"
     assert get_filename("") == "0"
@@ -48,9 +44,7 @@ def test_get_filename():
 
 
 def test_truncate_string():
-    """
-    Tests the truncate_string function.
-    """
+    """Test the truncate_string function."""
     assert truncate_string() == ""
     assert truncate_string("blah") == ""
     assert truncate_string("bleh", -1) == ""
@@ -79,6 +73,7 @@ def test_truncate_string():
 
 
 def run_all():
+    """Test all functions in the string_processing.py module."""
     test_extend_int()
     test_get_extension()
     test_get_filename()
