@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Unit tests for the html_processing.py module."""
 
 from dvk_archive.processing.html_processing import add_escapes

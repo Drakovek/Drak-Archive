@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Unit tests for the DvkDirectory class."""
 
 from shutil import rmtree

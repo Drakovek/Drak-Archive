@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Unit tests for the rename_files.py module."""
 
 from os import mkdir

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Functions for making an online connection using Selenium."""
 
 from time import sleep

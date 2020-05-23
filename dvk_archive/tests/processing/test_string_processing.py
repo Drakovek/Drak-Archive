@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Unit tests for the string_processing.py module."""
 
 from dvk_archive.processing.string_processing import extend_int

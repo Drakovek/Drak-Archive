@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Functions for checking Dvk objects with missing media."""
 
 from os import getcwd

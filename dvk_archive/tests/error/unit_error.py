@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Combined unit tests for the error package."""
 
 from dvk_archive.tests.error.test_missing_media import TestMissingMedia

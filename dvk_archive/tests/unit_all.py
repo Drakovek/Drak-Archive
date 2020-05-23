@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Combined unit tests for the dvk_archive package."""
 
 from traceback import print_exc

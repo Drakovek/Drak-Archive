@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Funtions for processing list data."""
 
 from _functools import cmp_to_key

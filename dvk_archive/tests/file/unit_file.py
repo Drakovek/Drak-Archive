@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Combined unit tests for the file package."""
 
 from dvk_archive.tests.file.test_dvk_handler import TestDvkHandler

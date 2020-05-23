@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Unit tests for the list_processing.py module."""
 
 from dvk_archive.processing.list_processing import clean_list

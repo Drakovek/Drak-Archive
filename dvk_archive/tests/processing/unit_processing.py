@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Combined unit tests of the processing package."""
 
 from dvk_archive.tests.processing.test_html_processing import run_all as ht_p

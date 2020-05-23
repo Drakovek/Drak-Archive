@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Unit tests for the heavy_connect.py module."""
 
 from dvk_archive.web.heavy_connect import HeavyConnect

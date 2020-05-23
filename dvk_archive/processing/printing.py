@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Functions for printing info to terminal."""
 
 from os.path import abspath

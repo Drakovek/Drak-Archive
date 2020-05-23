@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Unit tests for the string_compare.py module."""
 
 from dvk_archive.processing.string_compare import compare_alphanum

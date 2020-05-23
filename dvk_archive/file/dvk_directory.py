@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Handles DVK files within given directory."""
 
 from os import listdir

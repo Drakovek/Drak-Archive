@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Handles DVK files."""
 
 from os import remove, rename, pardir

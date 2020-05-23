@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Combined unit tests for the reformat package."""
 
 from dvk_archive.tests.reformat.test_rename_files import TestRenameFiles

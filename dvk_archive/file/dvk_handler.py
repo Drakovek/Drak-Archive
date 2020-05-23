@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Handles Dvk objects within given directory and sub-directories."""
 
 from os import walk

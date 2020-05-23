@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Connects online using standard urllib libraries."""
 
 from json import loads

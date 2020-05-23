@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Functions for checking Dvk objects with identical IDs."""
 
 from os import getcwd

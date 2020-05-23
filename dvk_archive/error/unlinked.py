@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Functions for checking media files with no linked Dvk."""
 
 from tqdm import tqdm

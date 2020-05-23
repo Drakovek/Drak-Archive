@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """Functions for renaming DVK files and linked media."""
 
 from os import getcwd
