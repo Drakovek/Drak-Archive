@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 
-"""Setuptools setup file."""
+"""
+Setuptools setup file.
+"""
 
 import setuptools
 
-console_scripts = [
-    "dvk-archive-test = dvk_archive.tests.unit_all:main",
-    "dvk-same-ids = dvk_archive.error.same_ids:main",
-    "dvk-unlinked = dvk_archive.error.unlinked:main",
-    "dvk-missing-media = dvk_archive.error.missing_media:main",
-    "dvk-rename = dvk_archive.reformat.rename_files:main"]
+console_scripts = ["dvk-archive-test = dvk_archive.test.all_tests:main"]
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -18,7 +15,7 @@ desc = "Utility for loading and handling media files in the DVK file format."
 
 setuptools.setup(
     name="dvk-archive",
-    version="0.5.3",
+    version="0.6.0",
     author="Drakovek",
     author_email="DrakovekMail@gmail.com",
     description=desc,

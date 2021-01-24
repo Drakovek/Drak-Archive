@@ -2,7 +2,7 @@
 
 """Runs all unit tests."""
 
-from dvk_archive.tests.unit_all import main
+from dvk_archive.test.all_tests import main
 
 if __name__ == "__main__":
     main()
