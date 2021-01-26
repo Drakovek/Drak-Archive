@@ -6,6 +6,7 @@ from dvk_archive.test.temp_dir import get_test_dir
 from dvk_archive.main.web.bs_connect import bs_connect
 from dvk_archive.main.web.bs_connect import basic_connect
 from dvk_archive.main.web.bs_connect import download
+from dvk_archive.main.web.bs_connect import get_last_modified
 from dvk_archive.main.web.bs_connect import json_connect
 
 def test_basic_connect():
@@ -72,6 +73,45 @@ def test_download():
     download(url, None)
     assert not exists(file)
 
+def test_get_last_modified():
+    """
+    Tests the get_last_modified function.
+    """
+    d = {"Last-Modified": "Udf, 10 Jan 2010 12:05:55 GMT"}
+    assert get_last_modified(d) == "2010/01/10|12:05"
+    d = {"Last-Modified": "Udf, 23 Feb 2015 20:23:55 GMT"}
+    assert get_last_modified(d) == "2015/02/23|20:23"
+    d = {"Last-Modified": "Udf, 01 Mar 2019 12:00:55 GMT"}
+    assert get_last_modified(d) == "2019/03/01|12:00"
+    d = {"Last-Modified": "Udf, 10 Apr 2010 12:05:55 GMT"}
+    assert get_last_modified(d) == "2010/04/10|12:05"
+    d = {"Last-Modified": "Udf, 23 May 2015 20:23:55 GMT"}
+    assert get_last_modified(d) == "2015/05/23|20:23"
+    d = {"Last-Modified": "Udf, 01 Jun 2019 12:00:55 GMT"}
+    assert get_last_modified(d) == "2019/06/01|12:00"
+    d = {"Last-Modified": "Udf, 10 Jul 2010 12:05:55 GMT"}
+    assert get_last_modified(d) == "2010/07/10|12:05"
+    d = {"Last-Modified": "Udf, 23 Aug 2015 20:23:55 GMT"}
+    assert get_last_modified(d) == "2015/08/23|20:23"
+    d = {"Last-Modified": "Udf, 01 Sep 2019 12:00:55 GMT"}
+    assert get_last_modified(d) == "2019/09/01|12:00"
+    d = {"Last-Modified": "Udf, 10 Oct 2010 12:05:55 GMT"}
+    assert get_last_modified(d) == "2010/10/10|12:05"
+    d = {"Last-Modified": "Udf, 23 Nov 2015 20:23:55 GMT"}
+    assert get_last_modified(d) == "2015/11/23|20:23"
+    d = {"Last-Modified": "Udf, 01 Dec 2019 12:00:55 GMT"}
+    assert get_last_modified(d) == "2019/12/01|12:00"
+    ## TEST INVALID TIMES
+    d = {"Last-Modified": "Udf, 10 Nop 2010 12:05:55 GMT"}
+    assert get_last_modified(d) == ""
+    d = {"Last-Modified": "Mon, BB Aug FFFF GG:TT:PP GMT"}
+    assert get_last_modified(d) == ""
+    d = {"Last-Modified": ""}
+    assert get_last_modified(d) == ""
+    assert get_last_modified() == ""
+    assert get_last_modified(dict()) == ""
+    assert get_last_modified(None) == ""
+
 def all_tests():
     """
     Runs all tests for the bs_connect module.
@@ -80,4 +120,4 @@ def all_tests():
     test_bs_connect()
     test_json_connect()
     test_download()
-
+    test_get_last_modified()

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from dvk_archive.main.web.bs_connect import download
+from dvk_archive.main.web.bs_connect import get_last_modified
 from dvk_archive.main.processing.list_processing import clean_list
 from dvk_archive.main.processing.string_processing import get_filename
 from dvk_archive.main.processing.string_processing import get_extension
@@ -99,15 +100,19 @@ class Dvk:
             except IOError as e:
                 print("File error: " + str(e))
 
-    def write_media(self):
+    def write_media(self, get_time:bool=False):
         """
         Writes the Dvk object, as well as downloading associated media.
         Downloads from direct_url and secondary_url.
         Writes to media_file and secondary_file.
+
+        :param get_time: Whether to get time from the media page, defaults to False
+        :type get_time: bool, optional
         """
+        headers = ""
         self.write_dvk()
         if exists(self.get_dvk_file()):
-            download(self.get_direct_url(), self.get_media_file())
+            headers = download(self.get_direct_url(), self.get_media_file())
             ## CHECK IF MEDIA DOWNLOADED
             if exists(self.get_media_file()):
                 ## DOWNLOAD SECONDARY FILE, IF AVAILABLE
@@ -120,6 +125,10 @@ class Dvk:
             else:
                 ## IF DOWNLOAD FAILED, DELETE DVK
                 remove(self.get_dvk_file())
+        ## GETS THE MODIFIED DATE FROM THE DOWNLOADED FILE
+        if get_time and exists(self.get_media_file()):
+            self.set_time(get_last_modified(headers))
+            self.write_dvk()
 
     def read_dvk(self):
         """

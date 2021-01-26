@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
+from dvk_archive.main.processing.string_processing import pad_num
 from io import BytesIO
 from json import loads
 from os.path import abspath, exists
@@ -100,7 +101,7 @@ def json_connect(url:str=None, encoding:str="utf-8", data:dict=None) -> dict:
     except:
         return None
 
-def download(url:str=None, file_path:str=None):
+def download(url:str=None, file_path:str=None) -> dict:
     """
     Downloads a file from given URL to given file.
 
@@ -108,6 +109,8 @@ def download(url:str=None, file_path:str=None):
     :type url: str, optional
     :param file_path: Given file path, defaults to None
     :type file_path: str, optional
+    :return: Headers retrieved from the given media URL
+    :rtype: dict
     """
     if (url is not None and file_path is not None):
         file = abspath(file_path)
@@ -120,8 +123,53 @@ def download(url:str=None, file_path:str=None):
             byte_obj.seek(0)
             with open(file, "wb") as f:
                 copyfileobj(byte_obj, f)
+            return response.headers
         except (HTTPError,
                 exceptions.ConnectionError,
                 exceptions.MissingSchema,
                 ConnectionResetError):
             print("Failed to download:" + url)
+        return dict()
+
+def get_last_modified(headers:dict=None) -> str:
+    """
+    Returns the time a webpage was last modified from its request headers.
+
+    :param headers: HTML request headers, defaults to None
+    :type headers: dict, optional
+    :return: Last modified date and time in DVK time format
+    :rtype: str
+    """
+    ## RETURNS EMPTY STRING IF GIVEN HEADERS ARE INVALID
+    if headers is None:
+        return ""
+    try:
+        modified = headers["Last-Modified"]
+    except KeyError:
+        return ""
+    ## GET PUBLICATION TIME
+    try:
+        day = int(modified[5:7])
+        month_str = modified[8:11].lower()
+        year = int(modified[12:16])
+        hour = int(modified[17:19])
+        minute = int(modified[20:22])
+        # GET MONTH
+        months = [
+            "jan", "feb", "mar", "apr", "may", "jun",
+            "jul", "aug", "sep", "oct", "nov", "dec"]
+        month = 0
+        while month < 12:
+            if month_str == months[month]:
+                break
+            month += 1
+        month += 1
+        if month > 12:
+            return ""
+        time = pad_num(str(year), 4) + "/" + pad_num(str(month), 2) + "/"
+        time = time + pad_num(str(day), 2) + "|" + pad_num(str(hour), 2)
+        time = time + ":" + pad_num(str(minute), 2)
+        return time
+    except ValueError:
+        ## RETURNS EMPTY STRING IF GETTING TIME FAILS
+        return ""

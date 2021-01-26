@@ -655,9 +655,10 @@ def test_write_media():
     ## TEST WRITE MEDIA WHEN DVK CAN BE WRITTEN, BUT URL IS INVALID
     media_dvk.set_title("Title")
     media_dvk.set_direct_url("!@#$%^")
-    media_dvk.write_media()
+    media_dvk.write_media(True)
     assert not exists(media_dvk.get_dvk_file())
     assert not exists(media_dvk.get_media_file())
+    assert media_dvk.get_time() == "0000/00/00|00:00"
     ## TEST VALID DIRECT MEDIA URL
     media_dvk.set_direct_url("http://www.pythonscraping.com/img/gifts/img6.jpg")
     media_dvk.write_media();
@@ -665,6 +666,7 @@ def test_write_media():
     assert exists(media_dvk.get_media_file())
     assert basename(media_dvk.get_media_file()) == "media.jpg"
     assert stat(media_dvk.get_media_file()).st_size == 39785
+    assert media_dvk.get_time() == "0000/00/00|00:00"
     ## CREATE DVK WITH INVALID SECONDARY URL
     secondary_dvk = Dvk()
     secondary_dvk.set_dvk_file(join(test_dir, "inv2.dvk"))
@@ -683,13 +685,14 @@ def test_write_media():
     assert not exists(secondary_dvk.get_secondary_file())
     ## TEST WRITING MEDIA WITH VALID PRIMARY AND SECONDARY MEDIA URLS
     secondary_dvk.set_secondary_url("http://www.pythonscraping.com/img/gifts/img4.jpg")
-    secondary_dvk.write_media()
+    secondary_dvk.write_media(True)
     assert exists(secondary_dvk.get_dvk_file())
     assert exists(secondary_dvk.get_media_file())
     assert exists(secondary_dvk.get_secondary_file())
     assert stat(secondary_dvk.get_media_file()).st_size == 39785
     assert stat(secondary_dvk.get_secondary_file()).st_size == 85007
     assert basename(secondary_dvk.get_secondary_file()) == "secondary.jpg"
+    assert secondary_dvk.get_time() == "2014/08/04|00:49"
 
 def all_tests():
     """
