@@ -187,10 +187,11 @@ def test_get_directories():
     assert dirs[4] == main_sub
     ## TEST ONLY GETTING DIRECTORIES WITH DVK FILES
     dirs = get_directories(test_dir, True)
+    dirs = sorted(dirs)
     assert len(dirs) == 3
     assert dirs[0] == test_dir
-    assert dirs[1] == main_sub
-    assert dirs[2] == sub_empty		
+    assert dirs[1] == sub_empty
+    assert dirs[2] == main_sub
     ## TEST GETTING DIRECTORIES FROM DIRECTORY WITH NO DVK FILES
     dirs = get_directories(empty_2)
     assert len(dirs) == 0

@@ -1,9 +1,5 @@
 #!/usr/bin/env python3
 
-from os import pardir, rename, remove
-from os.path import abspath, basename, exists, join
-from json import dump, load
-from typing import List
 from dvk_archive.main.web.bs_connect import download
 from dvk_archive.main.processing.list_processing import clean_list
 from dvk_archive.main.processing.string_processing import get_filename
@@ -11,6 +7,11 @@ from dvk_archive.main.processing.string_processing import get_extension
 from dvk_archive.main.processing.string_processing import pad_num
 from dvk_archive.main.processing.string_processing import remove_whitespace
 from dvk_archive.main.processing.html_processing import add_escapes_to_html
+from json import dump, load
+from os import pardir, rename, remove
+from os.path import abspath, basename, exists, join
+from random import seed, randint
+from typing import List
 
 class Dvk:
 
@@ -492,19 +493,28 @@ class Dvk:
         except:
             return None
 
-    def get_filename(self, secondary:bool=False) -> str:
+    def get_filename(self, secondary:bool=False, prefix:str="DVK") -> str:
         """
         Returns a filename for the Dvk based on title and id.
         Doesn't include extension.
 
         :param secondary: Whether this is for a secondary file, defaults to False
         :type secondary: bool, optional
+        :param prefix: Prefix ID to use if actual ID is too long, defaults to "DVK"
+        :type prefix: str, optional
         :return: Dvk filename
         :rtype: str
         """
         if self.get_dvk_id() is None or self.get_title() is None:
             return ""
-        filename = get_filename(self.get_title()) + "_" + self.get_dvk_id()
+        ## GET UNIQUE ID
+        file_id = self.get_dvk_id()
+        ## IF ACTUAL DVK ID IS TOO LONG, USE A GENERATED ID FOR THE FILENAME
+        if len(file_id) > 13:
+            seed(file_id)
+            file_id = prefix.upper() + str(randint(1, 9999999999))
+        ## SET FILENAME
+        filename = get_filename(self.get_title()) + "_" + file_id
         if secondary is True:
             filename = filename + "_S"
         return filename

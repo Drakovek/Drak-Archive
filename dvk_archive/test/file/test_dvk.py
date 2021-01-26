@@ -545,8 +545,17 @@ def test_get_filename():
     dvk.set_title("a   B-cd!")
     assert dvk.get_filename() == "a B-cd_ID123"
     assert dvk.get_filename(True) == "a B-cd_ID123_S"
+    ## TEST WITH ID THAT IS TOO LONG
+    dvk.set_title("Title")
+    dvk.set_dvk_id("VERYLONG1234567890987654321")
+    assert dvk.get_filename() == "Title_DVK8698180574"
+    assert dvk.get_filename(True) == "Title_DVK8698180574_S"
+    assert dvk.get_filename(False, "AAA") == "Title_AAA8698180574"
+    assert dvk.get_filename(True, "abc") == "Title_ABC8698180574_S"
+    assert dvk.get_dvk_id() == "VERYLONG1234567890987654321"
     ## TEST WITH EMPTY TITLE
     dvk.set_title("")
+    dvk.set_dvk_id("id123")
     assert dvk.get_filename() == "0_ID123"
     assert dvk.get_filename(True) == "0_ID123_S"
 
