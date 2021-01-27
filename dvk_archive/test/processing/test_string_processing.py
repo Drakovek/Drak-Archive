@@ -5,6 +5,7 @@ from dvk_archive.main.processing.string_processing import remove_whitespace
 from dvk_archive.main.processing.string_processing import get_filename
 from dvk_archive.main.processing.string_processing import truncate_string
 from dvk_archive.main.processing.string_processing import get_extension
+from dvk_archive.main.processing.string_processing import get_url_directory
 
 def test_pad_num():
     """
@@ -104,6 +105,21 @@ def test_get_extension():
     ## TEST GETTING EXTENSION IF GIVEN STRING IS NULL
     assert get_extension(None) == ""
 
+def test_get_url_directory():
+    """
+    Tests the get_url_directory function.
+    """
+    # TEST GETTING LAST DIRECTORY
+    assert get_url_directory("a/b/c/url.txt") == "url.txt"
+    assert get_url_directory("/url//test") == "test"
+    # TEST GETTING DIRECTORY WITH ENDING SLASH
+    assert get_url_directory("test/") == "test"
+    assert get_url_directory("/other/thing//") == "thing"
+    assert get_url_directory("///") == ""
+    # TEST GETTING DIRECTORY FROM INVALID URL
+    assert get_url_directory("") == ""
+    assert get_url_directory(None) == ""
+
 def all_tests():
     """
     Runs all test for the string_processing module.
@@ -113,3 +129,4 @@ def all_tests():
     test_get_filename()
     test_truncate_string()
     test_get_extension()
+    test_get_url_directory()

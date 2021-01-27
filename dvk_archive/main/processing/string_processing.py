@@ -188,3 +188,23 @@ def get_extension(filename:str=None) -> str:
         return ""
     ## RETURN EXTENSION
     return filename[start:end]
+
+def get_url_directory(url:str=None) -> str:
+    """
+    Returns the last sub-directory for a given URL.
+
+    :param url: Given URL, defaults to None
+    :type url: str, optional
+    :return: Last sub-directory of the given URL
+    :rtype: str
+    """
+    # RETURN EMPTY STRING IF URL IS INVALID
+    if url is None:
+        return ""
+    # REMOVE LAST FORWARD SLASH FROM THE URL
+    sub = url
+    while len(sub) > 0 and sub[len(sub) - 1] == "/":
+        sub = sub[:-1]
+    # GET LAST SUB-DIRECTORY
+    last = sub.rfind("/") + 1
+    return sub[last:]
