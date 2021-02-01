@@ -13,12 +13,12 @@ def test_basic_connect():
     """
     Tests the basic_connect function
     """
-    ## TEST GETTING HTML PAGE
+    # TEST GETTING HTML PAGE
     url = "http://pythonscraping.com/exercises/exercise1.html"
     html = basic_connect(url)
     assert html is not None
     assert html.startswith("<html>\n<head>\n<title>A Useful Page</title>")
-    ## TEST GETTING INVALID HTML PAGE
+    # TEST GETTING INVALID HTML PAGE
     assert basic_connect() is None
     assert basic_connect(None) is None
     assert basic_connect("") is None
@@ -28,24 +28,24 @@ def test_bs_connect():
     """
     Tests the bs_connect function.
     """
-    ## TEST GETTING BEAUTIFULSOUP FROM PAGE
+    # TEST GETTING BEAUTIFULSOUP FROM PAGE
     url = "http://pythonscraping.com/exercises/exercise1.html"
     bs = bs_connect(url)
     assert bs is not None
     assert bs.find("h1").get_text() == "An Interesting Title"
     assert bs.find("title").get_text() == "A Useful Page"
-    ## TEST GETTING INVALID PAGE
+    # TEST GETTING INVALID PAGE
     assert bs_connect() is None
     assert bs_connect(None) is None
     assert bs_connect("") is None
     assert bs_connect("qwertyuiop") is None
 
 def test_json_connect():
-    ## TEST LOADING PAGE AS A JSON OBJECT
+    # TEST LOADING PAGE AS A JSON OBJECT
     json = json_connect("http://echo.jsontest.com/key/value/json/test")
     assert json["json"] == "test"
     assert json["key"] == "value"
-    ## TEST LOADING AN INVALID PAGE
+    # TEST LOADING AN INVALID PAGE
     json = json_connect("asdfghjkl")
     assert json is None
     json = json_connect(None)
@@ -55,14 +55,14 @@ def test_download():
     """
     Tests the download function.
     """
-    ## TEST DOWNLOADING A GIVEN FILE
+    # TEST DOWNLOADING A GIVEN FILE
     test_dir = get_test_dir()
     file = abspath(join(test_dir, "image.jpg"))
     url = "http://www.pythonscraping.com/img/gifts/img6.jpg"
     download(url, file)
     assert exists(file)
     assert stat(file).st_size == 39785
-    ## TEST DOWNLOADING WITH INVALID PARAMETERS
+    # TEST DOWNLOADING WITH INVALID PARAMETERS
     file = join(test_dir, "invalid.jpg")
     download(None, None)
     assert not exists(file)
@@ -101,7 +101,7 @@ def test_get_last_modified():
     assert get_last_modified(d) == "2015/11/23|20:23"
     d = {"Last-Modified": "Udf, 01 Dec 2019 12:00:55 GMT"}
     assert get_last_modified(d) == "2019/12/01|12:00"
-    ## TEST INVALID TIMES
+    # TEST INVALID TIMES
     d = {"Last-Modified": "Udf, 10 Nop 2010 12:05:55 GMT"}
     assert get_last_modified(d) == ""
     d = {"Last-Modified": "Mon, BB Aug FFFF GG:TT:PP GMT"}

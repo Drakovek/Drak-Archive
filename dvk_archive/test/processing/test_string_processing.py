@@ -11,10 +11,10 @@ def test_pad_num():
     """
     Tests the pad_num function.
     """
-    ## TEST PADDING OUT NUMBER STRINGS WITH ZEROS
+    # TEST PADDING OUT NUMBER STRINGS WITH ZEROS
     assert pad_num("2F", 2) == "2F"
     assert pad_num("2E", 5) == "0002E"
-    ## TEST USING INVALID VALUES
+    # TEST USING INVALID VALUES
     assert pad_num("10F", 2) == "00"
     assert pad_num("A3", 0) == ""
     assert pad_num("F3", -1) == ""
@@ -24,7 +24,7 @@ def test_remove_whitespace():
     """
     Tests the remove_whitespace function.
     """
-    ## TEST REMOVING WHITESPACE FROM THE BEGINNING AND END OF STRINGS
+    # TEST REMOVING WHITESPACE FROM THE BEGINNING AND END OF STRINGS
     assert remove_whitespace("") == ""
     assert remove_whitespace(" ") == ""
     assert remove_whitespace(" \t  ") == ""
@@ -32,31 +32,31 @@ def test_remove_whitespace():
     assert remove_whitespace("blah   ") == "blah"
     assert remove_whitespace(" \t blah  \t") == "blah"
     assert remove_whitespace("blah") == "blah"
-    ## TEST USING INVALID STRING
+    # TEST USING INVALID STRING
     assert remove_whitespace(None) == ""
 
 def test_get_filename():
     """
     Tests the get_filename function
     """
-    ## TEST GETTING FILE FRIENDLY NAMES
+    # TEST GETTING FILE FRIENDLY NAMES
     assert get_filename("This & That 2") == "This - That 2"
     assert get_filename("! !end filler!??  ") == "end filler"
     assert get_filename("thing--stuff  @*-   bleh") == "thing-stuff - bleh"
     assert get_filename("a% - !b @  ??c") == "a - b - c"
     assert get_filename("Test String", 5) == "Test"
     assert get_filename("Test String", -1) == "Test String"
-    ## TEST GETTING FILENAMES WITH NO LENGTH
+    # TEST GETTING FILENAMES WITH NO LENGTH
     assert get_filename("") == "0"
     assert get_filename("$") == "0"
-    ## TEST GETTING FILENAME WHEN GIVEN STRING IS INVALID
+    # TEST GETTING FILENAME WHEN GIVEN STRING IS INVALID
     assert get_filename(None) == "0"
 
 def test_truncate_string():
     """
     Tests the truncate_string function.
     """
-    ## TEST TRUNCATING STRINGS
+    # TEST TRUNCATING STRINGS
     assert truncate_string("blah", 0) == ""
     assert truncate_string("bleh", -1) == ""
     assert truncate_string("bleh", 4) == "bleh"
@@ -82,27 +82,27 @@ def test_truncate_string():
     in_str = "ThisLongTitleHasNoSpacesAtAllSoItHasAMiddleBreak"
     out_str = "ThisLongTitleHasAtAllSoItHasAMiddleBreak"
     assert truncate_string(in_str, 40) == out_str
-    ## TEST WHEN GIVEN STRING IS INVALID
+    # TEST WHEN GIVEN STRING IS INVALID
     assert truncate_string(None, 2) == ""
 
 def test_get_extension():
     """
     Tests the get_extension function.
     """
-    ## TEST GETTING EXTENSIONS FROM FILENAMES
+    # TEST GETTING EXTENSIONS FROM FILENAMES
     assert get_extension("test.png") == ".png"
     assert get_extension(".long") == ".long"
     assert get_extension("test.thing") == ".thing"
     assert get_extension("blah.test.png") == ".png"
-    ## TEST GETTING EXTENTIONS FROM URLS WITH TOKENS
+    # TEST GETTING EXTENTIONS FROM URLS WITH TOKENS
     assert get_extension("test.png?extra.thing") == ".png"
     assert get_extension("thing.test.thing?") == ".thing"
-    ## TEST GETTING INVALID EXTENSIONS
+    # TEST GETTING INVALID EXTENSIONS
     assert get_extension("test.tolong") == ""
     assert get_extension("test.notextension") == ""
     assert get_extension("asdfasdfasdfasdf") == ""
     assert get_extension("test.tolong?extra") == ""
-    ## TEST GETTING EXTENSION IF GIVEN STRING IS NULL
+    # TEST GETTING EXTENSION IF GIVEN STRING IS NULL
     assert get_extension(None) == ""
 
 def test_get_url_directory():

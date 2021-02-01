@@ -40,13 +40,13 @@ class HeavyConnect:
         :type headless: bool, optional
         """
         try:
-            ## TRY FIREFOX DRIVER
+            # TRY FIREFOX DRIVER
             options = FO()
             options.headless = headless
             options.page_load_strategy = "none"
             self.driver = webdriver.Firefox(options=options)
         except WebDriverException:
-            ## PRINTS INSTRUCTIONS FOR GETTING SELENIUM DRIVER
+            # PRINTS INSTRUCTIONS FOR GETTING SELENIUM DRIVER
             self.driver = None
             print_driver_instructions()
 
@@ -62,13 +62,13 @@ class HeavyConnect:
         :return: BeautifulSoup object for the web page
         :rtype: BeautifulSoup
         """
-        ## RETURN NONE IF URL OR LOADED DRIVER IS INVALID
+        # RETURN NONE IF URL OR LOADED DRIVER IS INVALID
         if url is None or url == "" or self.driver is None:
             return None
-        ## ATTEMPT LOADING WEB PAGE
+        # ATTEMPT LOADING WEB PAGE
         try:
             self.driver.get(url)
-            ## WAIT FOR ELEMENT TO LOAD, IF SPECIFIED
+            # WAIT FOR ELEMENT TO LOAD, IF SPECIFIED
             if element is not None and not element == "":
                 WebDriverWait(self.driver, 10).until(
                      EC.presence_of_all_elements_located((By.XPATH, element)))

@@ -14,13 +14,13 @@ def pad_num(num:str=None, length:int=0) -> str:
     :return: Padded string
     :rtype: str
     """
-    ## RETURNS AN EMPTY STRING IF THE GIVEN STRING OR LENGTH IS INVALID
+    # RETURNS AN EMPTY STRING IF THE GIVEN STRING OR LENGTH IS INVALID
     if num is None or length < 1:
         return ""
-    ## RETURN STRING OF ZEROS IF LENGTH IS LESS THAN LENTH OF INPUT
+    # RETURN STRING OF ZEROS IF LENGTH IS LESS THAN LENTH OF INPUT
     if length < len(num):
         return pad_num("0", length)
-    ## PAD OUT THE STRING WITH ZEROS TO REACH THE GIVEN STRING LENGTH
+    # PAD OUT THE STRING WITH ZEROS TO REACH THE GIVEN STRING LENGTH
     new_num = num
     while len(new_num) < length:
         new_num = "0" + new_num
@@ -35,10 +35,10 @@ def remove_whitespace(text:str=None) -> str:
     :return: String without whitespace
     :rtype: str
     """
-    ## RETURN AN EMPTY STRING IF THE GIVEN STRING IS INVALID
+    # RETURN AN EMPTY STRING IF THE GIVEN STRING IS INVALID
     if text is None:
         return ""
-    ## FIND WHERE TEXT BEGINS AND ENDS
+    # FIND WHERE TEXT BEGINS AND ENDS
     start = 0
     while start < len(text) and (text[start] == " " or text[start] == "\t"):
         start = start + 1
@@ -46,10 +46,10 @@ def remove_whitespace(text:str=None) -> str:
     while end > -1 and (text[end] == " " or text[end] == "\t"):
         end = end - 1
     end = end + 1
-    ## IF END < START, ASSUME THER'S NO WHITESPACE AT THE END
+    # IF END < START, ASSUME THER'S NO WHITESPACE AT THE END
     if end < start:
         return text[start:len(text)]
-    ## RETURN TEXT SUBSTRING
+    # RETURN TEXT SUBSTRING
     return text[start:end]
 
 def truncate_string(text:str=None, length:int=90) -> str:
@@ -64,21 +64,21 @@ def truncate_string(text:str=None, length:int=90) -> str:
     :return: Shortened string
     :rtype: str
     """
-    ## RETURN AN EMPTY STRING IF GIVEN STRING IS NONE OR EMPTY
+    # RETURN AN EMPTY STRING IF GIVEN STRING IS NONE OR EMPTY
     if text is None or length < 1:
         return ""
-    ## RETURN GIVEN STRING IF IT'S LENGTH IS <= THE VARIABLE LENGTH
+    # RETURN GIVEN STRING IF IT'S LENGTH IS <= THE VARIABLE LENGTH
     if len(text) <= length:
         return text
-    ## FIND INDEX TO START REMOVING CHARACTERS FROM.
-    ## ATTEMPTS TO BREAK AT A SPACE OR HYPHEN
+    # FIND INDEX TO START REMOVING CHARACTERS FROM.
+    # ATTEMPTS TO BREAK AT A SPACE OR HYPHEN
     if " " in text:
         index = text.rfind(" ")
     elif "-" in text:
         index = text.rfind("-")
     else:
         index = floor(len(text)/2)
-    ## DELETE CHARACTERS FROM THE INDEX POSITION
+    # DELETE CHARACTERS FROM THE INDEX POSITION
     out = text
     if index < len(out) - index:
         index = index + 1
@@ -94,10 +94,10 @@ def truncate_string(text:str=None, length:int=90) -> str:
                 and out[index] == out[index+1]
                 and (out[index] == " " or out[index] == "-")):
             out = out[:index] + out[index+1:]
-    ## IF STILL TOO LONG, REMOVE CHARACTERS FROM THE END OF THE STRING
+    # IF STILL TOO LONG, REMOVE CHARACTERS FROM THE END OF THE STRING
     if len(out) > length:
         out = out[:length]
-    ## REMOVE START AND END SPACERS
+    # REMOVE START AND END SPACERS
     while len(out) > 0 and (out[0] == " " or out[0] == "-"):
         out = out[1:]
     while len(out) > 0 and (out[len(out)-1] == " " or out[len(out)-1] == "-"):
@@ -115,10 +115,10 @@ def get_filename(text:str=None, length:int=90) -> str:
     :return: Filename
     :rtype: str
     """
-    ## IF GIVEN STRING IS NULL, RETURN STRING "0"
+    # IF GIVEN STRING IS NULL, RETURN STRING "0"
     if text is None:
         return "0"
-    ## REMOVE ALL NON-LETTER, NON-NUMERIC CHARACTERS
+    # REMOVE ALL NON-LETTER, NON-NUMERIC CHARACTERS
     i = 0
     out = ""
     while i < len(text):
@@ -130,22 +130,22 @@ def get_filename(text:str=None, length:int=90) -> str:
             out = out + text[i]
         else:
             out = out + "-"
-        ##INCREMENT COUNTER
+        # INCREMENT COUNTER
         i = i + 1
-    ## REMOVE START AND END SPACERS
+    # REMOVE START AND END SPACERS
     while len(out) > 0 and (out[0] == " " or out[0] == "-"):
         out = out[1:]
     while len(out) > 0 and (out[-1] == " " or out[-1] == "-"):
         out = out[:-1]
-    ## REMOVE DUPLICATE SPACERS
+    # REMOVE DUPLICATE SPACERS
     i = 1
     while i < len(out):
         if (out[i] == " " or out[i] == "-") and out[i] == out[i-1]:
             out = out[:i] + out[i+1:]
             i = i - 1
-        ## INCREMENT COUNTER
+        # INCREMENT COUNTER
         i = i + 1
-    ## REMOVE HANGING HYPHENS
+    # REMOVE HANGING HYPHENS
     i = 1
     while i < (len(out) - 1):
         if out[i] == "-":
@@ -153,14 +153,14 @@ def get_filename(text:str=None, length:int=90) -> str:
                     or (not out[i-1] == " " and out[i+1] == " ")):
                 out = out[:i] + out[i+1:]
                 i = i - 1
-        ## INCREMENT COUNTER
+        # INCREMENT COUNTER
         i = i + 1
-    ## TRUNCATE STRING
+    # TRUNCATE STRING
     if length != -1:
         out = truncate_string(out, length)
-    ## RETURN CLEANED STRING
+    # RETURN CLEANED STRING
     if len(out) == 0:
-        ## IF FINAL STRING HAS NO LENGTH, RETURN STRING "0"
+        # IF FINAL STRING HAS NO LENGTH, RETURN STRING "0"
         return "0"
     return out
 
@@ -174,19 +174,19 @@ def get_extension(filename:str=None) -> str:
     :return: Extension for the filename
     :rtype: str
     """
-    ## RETURNS AN EMPTY STRING IF THE FILENAME IS NULL
+    # RETURNS AN EMPTY STRING IF THE FILENAME IS NULL
     if filename is None:
         return ""
-    ## IF URL HAS A TOKEN MAKED BY A '?', REMOVE THE TOKEN
+    # IF URL HAS A TOKEN MAKED BY A '?', REMOVE THE TOKEN
     end = filename.rfind("?")
     if end == -1:
         end = len(filename)
-    ## GET TEXT INCLUDING AND PROCEDING THE FINAL '.'
+    # GET TEXT INCLUDING AND PROCEDING THE FINAL '.'
     start = filename.rfind(".", 0, end)
     if start == -1 or end - start > 6:
-        ## RETURNS EMPTY STRING IF TEXT IS TOO LONG/SHORT
+        # RETURNS EMPTY STRING IF TEXT IS TOO LONG/SHORT
         return ""
-    ## RETURN EXTENSION
+    # RETURN EXTENSION
     return filename[start:end]
 
 def get_url_directory(url:str=None) -> str:

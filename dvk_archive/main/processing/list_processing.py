@@ -11,19 +11,19 @@ def clean_list(lst:List[str]=None) -> List[str]:
     :return: List without duplicate or None entries
     :rtype: list[str]
     """
-    ## RETURN AN EMPTY LIST IF GIVEN LIST IS NONE
+    # RETURN AN EMPTY LIST IF GIVEN LIST IS NONE
     if lst is None:
         return []
-    ## REMOVE NONE ENTRIES
+    # REMOVE NONE ENTRIES
     out = lst
     i = 0
     while i < len(out):
         if out[i] is None:
             del out[i]
             i = i - 1
-        ## INCREMENT COUNTER
+        # INCREMENT COUNTER
         i = i + 1
-    ## REMOVE DUPLICATE ENTRIES
+    # REMOVE DUPLICATE ENTRIES
     i = 0
     while i < len(out):
         k = i + 1
@@ -31,8 +31,8 @@ def clean_list(lst:List[str]=None) -> List[str]:
             if out[i] == out[k]:
                 del out[k]
                 k = k - 1
-            ## INCREMENT K COUNTER
+            # INCREMENT K COUNTER
             k = k + 1
-        ## INCREMENT I COUNTER
+        # INCREMENT I COUNTER
         i = i + 1
     return out

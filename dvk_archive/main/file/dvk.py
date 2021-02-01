@@ -113,19 +113,19 @@ class Dvk:
         self.write_dvk()
         if exists(self.get_dvk_file()):
             headers = download(self.get_direct_url(), self.get_media_file())
-            ## CHECK IF MEDIA DOWNLOADED
+            # CHECK IF MEDIA DOWNLOADED
             if exists(self.get_media_file()):
-                ## DOWNLOAD SECONDARY FILE, IF AVAILABLE
+                # DOWNLOAD SECONDARY FILE, IF AVAILABLE
                 if self.get_secondary_url() is not None:
                     download(self.get_secondary_url(), self.get_secondary_file())
-                    ## DELETE FILES IF DOWNLOAD FAILED
+                    # DELETE FILES IF DOWNLOAD FAILED
                     if not exists(self.get_secondary_file()):
                         remove(self.get_dvk_file())
                         remove(self.get_media_file())
             else:
-                ## IF DOWNLOAD FAILED, DELETE DVK
+                # IF DOWNLOAD FAILED, DELETE DVK
                 remove(self.get_dvk_file())
-        ## GETS THE MODIFIED DATE FROM THE DOWNLOADED FILE
+        # GETS THE MODIFIED DATE FROM THE DOWNLOADED FILE
         if get_time and exists(self.get_media_file()):
             self.set_time(get_last_modified(headers))
             self.write_dvk()
@@ -367,7 +367,7 @@ class Dvk:
         if description is None:
             self.description = None
         else:
-            ## REMOVE WHITESPACE
+            # REMOVE WHITESPACE
             desc = remove_whitespace(description)
             if len(desc) == 0:
                 self.description = None
@@ -516,13 +516,13 @@ class Dvk:
         """
         if self.get_dvk_id() is None or self.get_title() is None:
             return ""
-        ## GET UNIQUE ID
+        # GET UNIQUE ID
         file_id = self.get_dvk_id()
-        ## IF ACTUAL DVK ID IS TOO LONG, USE A GENERATED ID FOR THE FILENAME
+        # IF ACTUAL DVK ID IS TOO LONG, USE A GENERATED ID FOR THE FILENAME
         if len(file_id) > 13:
             seed(file_id)
             file_id = prefix.upper() + str(randint(1, 9999999999))
-        ## SET FILENAME
+        # SET FILENAME
         filename = get_filename(self.get_title()) + "_" + file_id
         if secondary is True:
             filename = filename + "_S"
@@ -538,44 +538,44 @@ class Dvk:
         :param secondary: Filename to use for secondary media, defaults to None
         :type secondary: str, optional
         """
-        ## RENAME DVK FILE
+        # RENAME DVK FILE
         remove(self.get_dvk_file())
         parent = abspath(join(self.get_dvk_file(), pardir))
         file = join(parent, filename + ".dvk")
         self.set_dvk_file(file)
-        ## RENAME MEDIA FILE
+        # RENAME MEDIA FILE
         if not self.get_media_file() is None:
             from_file = self.get_media_file()
             to_file = filename + get_extension(basename(from_file))
             to_file = abspath(join(parent, to_file))
-            ## CHECK IF RENAME IS NEEDED
+            # CHECK IF RENAME IS NEEDED
             if not basename(from_file) == to_file:
                 try:
-                    ## RENAME TO TEMPORARY FILE
+                    # RENAME TO TEMPORARY FILE
                     self.set_media_file("xXTeMpPrImXx.tmp")
                     rename(from_file, self.get_media_file())
-                    ## RENAME TO FINAL FILENAME
+                    # RENAME TO FINAL FILENAME
                     from_file = self.get_media_file()
                     self.set_media_file(to_file)
                     rename(from_file, self.get_media_file())
                 except OSError as e:
                     self.set_media_file(to_file)
-        ## RENAME SECONDARY MEDIA FILE
+        # RENAME SECONDARY MEDIA FILE
         if not self.get_secondary_file() is None:
             from_file = self.get_secondary_file()
             to_file = secondary + get_extension(basename(from_file))
             to_file = abspath(join(parent, to_file))
-            ## CHECK IF RENAME IS NEEDED
+            # CHECK IF RENAME IS NEEDED
             if not basename(from_file) == to_file:
                 try:
-                    ## RENAME TO TEMPORARY FILE
+                    # RENAME TO TEMPORARY FILE
                     self.set_secondary_file("xXTeMpSeCoNdXx.tmp")
                     rename(from_file, self.get_secondary_file())
-                    ## RENAME TO FINAL FILENAME
+                    # RENAME TO FINAL FILENAME
                     from_file = self.get_secondary_file()
                     self.set_secondary_file(to_file)
                     rename(from_file, to_file)
                 except:
                     self.set_secondary_file(to_file)
-        ## REWRITE DVK FILE
+        # REWRITE DVK FILE
         self.write_dvk()

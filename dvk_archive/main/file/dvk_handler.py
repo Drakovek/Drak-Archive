@@ -23,18 +23,18 @@ def get_directories(directory:str=None, only_dvk:bool=True) -> List[str]:
     :return: Sub-directories of the given directory
     :rtype: list[str]
     """
-    ## RETURN EMPTY LIST IF GIVEN DIRECTORY IS INVALID
+    # RETURN EMPTY LIST IF GIVEN DIRECTORY IS INVALID
     if directory is None:
         return []
     path = abspath(directory)
     if not exists(path) or not isdir(path):
         return []
-    ## GET ALL DIRECTORIES AND SUBDIRECTORIES
+    # GET ALL DIRECTORIES AND SUBDIRECTORIES
     dirs = []
     for p in walk(path):
         dirs.append(abspath(p[0]))
-    ## IF SET TO ONLY RETURN DIRECTORIES WITH DVK FILES,
-    ## FILTER OUT DIRECTORIES WITHOUT DVK FILES
+    # IF SET TO ONLY RETURN DIRECTORIES WITH DVK FILES,
+    # FILTER OUT DIRECTORIES WITHOUT DVK FILES
     if only_dvk:
         i = 0
         while i < len(dirs):
@@ -47,7 +47,7 @@ def get_directories(directory:str=None, only_dvk:bool=True) -> List[str]:
             if delete:
                 del dirs[i]
                 i = i - 1
-            ##INCREMENT COUNTER
+            # INCREMENT COUNTER
             i = i + 1
     return dirs
 
@@ -74,9 +74,9 @@ class DvkHandler:
         """
         self.dvks = []
         if directory is not None:
-            ## GET LIST OF DIRECTORIES CONTAINING DVK FILES
+            # GET LIST OF DIRECTORIES CONTAINING DVK FILES
             dirs = get_directories(abspath(directory))
-            ## LOAD LIST OF DVK FILES
+            # LOAD LIST OF DVK FILES
             print("Reading DVK files:")
             for path in tqdm(dirs):
                 for file in listdir(path):
@@ -110,12 +110,12 @@ class DvkHandler:
         :return: Which Dvk should come first
         :rtype: int
         """
-        ## RETURN 0 IF EITHER DVK IS NONE
+        # RETURN 0 IF EITHER DVK IS NONE
         if x is None or y is None:
             return 0
-        ## COMPARE BY TIME
+        # COMPARE BY TIME
         result = compare_strings(x.get_time(), y.get_time())
-        ## IF TIMES ARE THE SAME, COMPARE BY TITLE
+        # IF TIMES ARE THE SAME, COMPARE BY TITLE
         if result == 0:
             result = compare_alphanum(x.get_title(), y.get_title())
         return result
@@ -131,12 +131,12 @@ class DvkHandler:
         :return: Which Dvk should come first
         :rtype: int
         """
-        ## RETURN 0 IF EITHER DVK IS NONE
+        # RETURN 0 IF EITHER DVK IS NONE
         if x is None or y is None:
             return 0
-        ## COMPARE BY TITLE
+        # COMPARE BY TITLE
         result = compare_alphanum(x.get_title(), y.get_title())
-        ## IF TITLES ARE THE SAME, COMPARE BY TIME
+        # IF TITLES ARE THE SAME, COMPARE BY TIME
         if result == 0:
             result = compare_strings(x.get_time(), y.get_time())
         return result

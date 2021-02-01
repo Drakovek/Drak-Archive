@@ -12,24 +12,24 @@ def escape_to_char(escape:str=None) -> str:
     :return: Unicode escape character
     :rtype: str
     """
-    ## RETURNS EMPTY STRING IF GIVEN STRING IS NOT A VALID HTML ESCAPE CHARACTER
+    # RETURNS EMPTY STRING IF GIVEN STRING IS NOT A VALID HTML ESCAPE CHARACTER
     if(escape is None
            or len(escape) < 3
            or not escape[0] == "&"
            or not escape[-1] == ";"):
         return ""
-    ## REMOVE STARTING $ AND ENDING ; FROM THE ESCAPE CHARACTER
+    # REMOVE STARTING $ AND ENDING ; FROM THE ESCAPE CHARACTER
     mid = escape[1:-1]
-    ## IF HTML ESCAPE CHRACTER REFERS TO A UNICODE INDEX
+    # IF HTML ESCAPE CHRACTER REFERS TO A UNICODE INDEX
     if mid[0] == "#":
         try:
-            ## RETURN UNICODE CHARACTER
+            # RETURN UNICODE CHARACTER
             out = chr(int(mid[1:len(mid)]))
             return out
         except ValueError:
-            ## IF UNICODE INDEX ISN'T VALID, RETURN EMPTY STRING
+            # IF UNICODE INDEX ISN'T VALID, RETURN EMPTY STRING
             return ""
-    ## RETURN CHARACTER FOR HTML SPECIFIC ESCAPE CHARACTERS
+    # RETURN CHARACTER FOR HTML SPECIFIC ESCAPE CHARACTERS
     if mid == "quot":
         return "\""
     if mid == "apos":
@@ -42,7 +42,7 @@ def escape_to_char(escape:str=None) -> str:
         return ">"
     if mid == "nbsp":
         return " "
-    ## RETURN EMPTY STRING IF NOTHING IS FOUND
+    # RETURN EMPTY STRING IF NOTHING IS FOUND
     return ""
 
 def replace_escapes(text:str=None) -> str:
@@ -54,14 +54,14 @@ def replace_escapes(text:str=None) -> str:
     :return: String with HTML escape characters replaced
     :rtype: str
     """
-    ## RETURNS EMPTY STRING IF GIVEN STRING IS NONE
+    # RETURNS EMPTY STRING IF GIVEN STRING IS NONE
     if text is None:
         return ""
-    ## RUN WHILE STRING CONTAINS HTML ESCAPE CHARACTERS
+    # RUN WHILE STRING CONTAINS HTML ESCAPE CHARACTERS
     out = text
     start = out.find("&")
     while not start == -1:
-        ## GET AND CONVERT HTML ESCAPE CHARACTER
+        # GET AND CONVERT HTML ESCAPE CHARACTER
         end = out.find(";", start)
         if not end == -1:
             end = end + 1
@@ -83,10 +83,10 @@ def add_escapes(text:str=None) -> str:
     :return: String with added HTML escape characters
     :rtype: str
     """
-    ## RETURNS AN EMPTY STRING IF THE GIVEN STRING IS NONE
+    # RETURNS AN EMPTY STRING IF THE GIVEN STRING IS NONE
     if text is None:
         return ""
-    ## RUN THROUGH EACH CHARACTER IN THE GIVEN STRING
+    # RUN THROUGH EACH CHARACTER IN THE GIVEN STRING
     i = 0
     out = ""
     while i < len(text):
@@ -95,12 +95,12 @@ def add_escapes(text:str=None) -> str:
                 or (value > 64 and value < 91)
                 or (value > 96 and value < 124)
                 or value == ord(" ")):
-            ## IF CHARACTER IS ALPHA-NUMERIC, USE THE SAME CHARACTER
+            # IF CHARACTER IS ALPHA-NUMERIC, USE THE SAME CHARACTER
             out = out + text[i]
         else:
-            ## IF CHARACTER IS NOT ALPHA-NUMERIC, USE ESCAPE CHARACTER
+            # IF CHARACTER IS NOT ALPHA-NUMERIC, USE ESCAPE CHARACTER
             out = out + "&#" + str(value) + ";"
-        ## INCREMENT COUNTER
+        # INCREMENT COUNTER
         i = i + 1
     return out
 
@@ -114,16 +114,16 @@ def add_escapes_to_html(text:str=None) -> str:
     :return: String with added HTML escape characters
     :rtype: str
     """
-    ## RETURNS EMPTY STRING IF THE GIVEN STRING IS NONE
+    # RETURNS EMPTY STRING IF THE GIVEN STRING IS NONE
     if text is None:
         return ""
-    ## RUN THROUGH EACH CHARACTER OF THE GIVEN STRING
+    # RUN THROUGH EACH CHARACTER OF THE GIVEN STRING
     i = 0
     out = ""
     while i < len(text):
         value = ord(text[i])
         if value == 34 or value == 39:
-            ## LEAVE TEXT IN QUOTES ALONE
+            # LEAVE TEXT IN QUOTES ALONE
             end = text.find("\"", i + 1) + 1
             if end == 0:
                 end = text.find("\'", i + 1) + 1
@@ -132,14 +132,14 @@ def add_escapes_to_html(text:str=None) -> str:
             out = out + text[i:end]
             i = end - 1
         elif value > 31 and value < 127:
-            ## LEAVE ALL LATIN AND HTML CHARACTERS ALONE
+            # LEAVE ALL LATIN AND HTML CHARACTERS ALONE
             out = out + text[i]
         else:
-            ## REPLACE NON-STANDARD CHARACTERS
+            # REPLACE NON-STANDARD CHARACTERS
             out = out + "&#" + str(value) + ";"
-        ## INCREMENT COUNTER
+        # INCREMENT COUNTER
         i = i + 1
-    ## RETURN MODIFIED STRING
+    # RETURN MODIFIED STRING
     return out
 
 def clean_element(html:str=None, remove_ends:str=False) -> str:
@@ -154,30 +154,30 @@ def clean_element(html:str=None, remove_ends:str=False) -> str:
     :return: Cleaned HTML element
     :rtype: str
     """
-    ## RETURNS EMPTY STRING IF GIVEN ELEMENT IS NONE
+    # RETURNS EMPTY STRING IF GIVEN ELEMENT IS NONE
     if html is None:
         return ""
-    ## REMOVE NEW LINE AND CARRIAGE RETURN CHARACTERS
+    # REMOVE NEW LINE AND CARRIAGE RETURN CHARACTERS
     text = html.replace("\n", "")
     text = text.replace("\r", "")
-    ## REMOVE WHITESPACE BETWEEN TAGS
+    # REMOVE WHITESPACE BETWEEN TAGS
     while "  <" in text:
         text = text.replace("  <", " <")
     while ">  " in text:
         text = text.replace(">  ", "> ")
-    ## REMOVE HEADER AND FOOTER, IF SPECIFIED
+    # REMOVE HEADER AND FOOTER, IF SPECIFIED
     if remove_ends:
         text = remove_whitespace(text)
-        ## REMOVE HEADER
+        # REMOVE HEADER
         if len(text) > 0 and text[0] == "<":
             start = text.find(">")
             if not start == -1:
                 text = text[start + 1:len(text)]
-        ## REMOVE FOOTER
+        # REMOVE FOOTER
         if len(text) > 0 and text[-1] == ">":
             end = text.rfind("<")
             if not end == -1:
                 text = text[0:end]
-    ## REMOVE WHITESPACE FROM THE START AND END OF STRING
+    # REMOVE WHITESPACE FROM THE START AND END OF STRING
     text = remove_whitespace(text)
     return text

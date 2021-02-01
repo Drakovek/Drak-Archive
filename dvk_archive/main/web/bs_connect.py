@@ -35,20 +35,20 @@ def basic_connect(url:str=None, encoding:str="utf-8", data:dict=None) -> str:
     :return: HTML source
     :rtype: str
     """
-    ## RETURN NONE IF URL IS INVALID
+    # RETURN NONE IF URL IS INVALID
     if url is None or url == "":
         return None
     session = Session()
     headers = get_headers()
     try:
-        ## SEND REQUEST
+        # SEND REQUEST
         if data is None:
-            ## SEND GET REQUEST IF THERE IS NO POST DATA
+            # SEND GET REQUEST IF THERE IS NO POST DATA
             request = session.get(url, headers=headers)
         else:
-            ## SEND POST REQUEST IF POST DATA IS PROVIDED
+            # SEND POST REQUEST IF POST DATA IS PROVIDED
             request = session.post(url, data=data)
-        ## SET ENCODING
+        # SET ENCODING
         if encoding is None:
             request.encoding = request.apparent_encoding
         else:
@@ -91,11 +91,11 @@ def json_connect(url:str=None, encoding:str="utf-8", data:dict=None) -> dict:
     :rtype: dict
     """
     html = basic_connect(url, encoding, data)
-    ## RETURN NONE IF RETURNED DATA IS NONE OR INVALID
+    # RETURN NONE IF RETURNED DATA IS NONE OR INVALID
     if html is None or html == "":
         return None
     try:
-        ## CONVERT TO JSON
+        # CONVERT TO JSON
         json = loads(html)
         return json
     except:
@@ -140,14 +140,14 @@ def get_last_modified(headers:dict=None) -> str:
     :return: Last modified date and time in DVK time format
     :rtype: str
     """
-    ## RETURNS EMPTY STRING IF GIVEN HEADERS ARE INVALID
+    # RETURNS EMPTY STRING IF GIVEN HEADERS ARE INVALID
     if headers is None:
         return ""
     try:
         modified = headers["Last-Modified"]
     except KeyError:
         return ""
-    ## GET PUBLICATION TIME
+    # GET PUBLICATION TIME
     try:
         day = int(modified[5:7])
         month_str = modified[8:11].lower()
@@ -171,5 +171,5 @@ def get_last_modified(headers:dict=None) -> str:
         time = time + ":" + pad_num(str(minute), 2)
         return time
     except ValueError:
-        ## RETURNS EMPTY STRING IF GETTING TIME FAILS
+        # RETURNS EMPTY STRING IF GETTING TIME FAILS
         return ""
