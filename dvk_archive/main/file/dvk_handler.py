@@ -160,3 +160,64 @@ class DvkHandler:
         :rtype: Dvk
         """
         return self.dvks[index]
+
+    def contains_id(self, dvk_id:str=None) -> bool:
+        """
+        Returns whether there are any Dvk objects with the given Dvk ID.
+
+        :param dvk_id: Given Dvk ID, defaults to None
+        :type dvk_id: str, optional
+        :return: Whether any loaded Dvk objects contains the given ID
+        :rtype: bool
+        """
+        # RETURNS FALSE IF GIVEN ID IS INVALID
+        if dvk_id is None:
+            return False
+        # SEARCH FOR GIVEN ID IN LOADED DVKS
+        upper_id = dvk_id.upper()
+        for i in range(0, self.get_size()):
+            if self.get_dvk(i).get_dvk_id().upper() == upper_id:
+                return True
+        return False
+
+    def contains_page_url(self, page_url:str=None) -> bool:
+        """
+        Returns whether there are any Dvk objects with the given page URL.
+
+        :param page_url: Given page URL, defaults to None
+        :type page_url: str, optional
+        :return: Whether any loaded Dvk objects contains the given page URL
+        :rtype: bool
+        """
+        # RETURNS FALSE IF GIVEN PAGE URL IS INVALID
+        if page_url is None:
+            return False
+        # SEARCH FOR GIVEN PAGE URL IN LOADED DVKS
+        upper_url = page_url.upper()
+        for i in range(0, self.get_size()):
+            if self.get_dvk(i).get_page_url().upper() == upper_url:
+                return True
+        return False
+
+    def contains_direct_url(self, direct_url:str=None) -> bool:
+        """
+        Returns whether there are any Dvk objects with the given direct/secondary URL.
+
+        :param direct_url: Given direct URL, defaults to None
+        :type direct_url: str, optional
+        :return: Whether any loaded Dvk objects contains the given direct URL
+        :rtype: bool
+        """
+        # RETURNS FALSE IF GIVEN DIRECT URL IS INVALID
+        if direct_url is None:
+            return False
+        # SEARCH FOR GIVEN DIRECT URL IN LOADED DVKS
+        upper_url = direct_url.upper()
+        for i in range(0, self.get_size()):
+            dvk = self.get_dvk(i)
+            if ((dvk.get_direct_url() is not None
+                    and dvk.get_direct_url().upper() == upper_url)
+                    or (dvk.get_secondary_url() is not None
+                    and dvk.get_secondary_url().upper() == upper_url)):
+                return True
+        return False

@@ -243,6 +243,86 @@ def test_sort_time():
     dvk_handler.sort_dvks("t")
     assert dvk_handler.get_size() == 0
 
+def test_contains_id():
+    """
+    Tests the contains_id method.
+    """
+    # CREATE TEST FILES
+    test_dir = get_test_dir()
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "id123.dvk"))
+    dvk.set_dvk_id("ID123")
+    dvk.set_title("Title")
+    dvk.set_artist("Artist")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("abcd")
+    dvk.write_dvk()
+    dvk.set_dvk_id("OTH234")
+    dvk.set_dvk_file(join(test_dir, "oth234.dvk"))
+    dvk.write_dvk()
+    dvk_handler = DvkHandler()
+    dvk_handler.read_dvks(test_dir)
+    # TEST WHETHER THE DVK HANDLER CONTAINS CERTAIN IDS
+    assert dvk_handler.contains_id("ID123")
+    assert dvk_handler.contains_id("oth234")
+    assert not dvk_handler.contains_id("NOT123")
+    assert not dvk_handler.contains_id(None)
+
+def test_contains_page_url():
+    """
+    Tests the contains_page_url method.
+    """
+    # CREATE TEST FILES
+    test_dir = get_test_dir()
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "url1.dvk"))
+    dvk.set_dvk_id("ID123")
+    dvk.set_title("URL")
+    dvk.set_artist("Artist")
+    dvk.set_media_file("url")
+    dvk.set_page_url("/first/URL/")
+    dvk.write_dvk()
+    dvk.set_dvk_file(join(test_dir, "url2.dvk"))
+    dvk.set_page_url("URL/other")
+    dvk.write_dvk()
+    dvk_handler = DvkHandler()
+    dvk_handler.read_dvks(test_dir)
+    # TEST WHETHER DVK HANDLER CONTAINS GIVEN PAGE URL
+    assert dvk_handler.contains_page_url("/first/URL/")
+    assert dvk_handler.contains_page_url("url/other")
+    assert not dvk_handler.contains_page_url("not/here")
+    assert not dvk_handler.contains_page_url(None)
+
+def test_contains_direct_url():
+    """
+    Tests the contains_direct_url method.
+    """
+    # CREATE TEST FILES
+    test_dir = get_test_dir()
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "no_media.dvk"))
+    dvk.set_dvk_id("id123")
+    dvk.set_title("Title")
+    dvk.set_artist("Artist")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("media.txt")
+    dvk.write_dvk()
+    dvk.set_dvk_file(join(test_dir, "only_direct.dvk"))
+    dvk.set_direct_url("direct/1/url")
+    dvk.write_dvk()
+    dvk.set_dvk_file(join(test_dir, "multi_media.dvk"))
+    dvk.set_direct_url("OTHER/direct")
+    dvk.set_secondary_url("second/DIRECT/url")
+    dvk.write_dvk()
+    dvk_handler = DvkHandler()
+    dvk_handler.read_dvks(test_dir)
+    # TESTS WHETHER DVK HANDLER CONTAINS GIVEN DIRECT URL
+    assert dvk_handler.contains_direct_url("direct/1/url")
+    assert dvk_handler.contains_direct_url("other/direct")
+    assert dvk_handler.contains_direct_url("second/direct/url")
+    assert not dvk_handler.contains_direct_url("Not contained")
+    assert not dvk_handler.contains_direct_url(None)
+
 def all_tests():
     """
     Runs all tests for the DvkHandler class.
@@ -251,3 +331,6 @@ def all_tests():
     test_get_directories()
     test_sort_title()
     test_sort_time()
+    test_contains_id()
+    test_contains_page_url()
+    test_contains_direct_url()
