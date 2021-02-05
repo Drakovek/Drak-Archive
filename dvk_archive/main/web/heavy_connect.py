@@ -78,6 +78,15 @@ class HeavyConnect:
             return None
         return None
 
+    def get_driver(self) -> webdriver:
+        """
+        Returns the current Selenium Web Driver
+
+        :return: Selenium Web Driver
+        :rtype: webdriver
+        """
+        return self.driver
+
     def close_driver(self):
         """
         Closes the Selenium driver if possible.
