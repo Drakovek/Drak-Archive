@@ -12,6 +12,7 @@ from json import dump, load
 from os import pardir, rename, remove
 from os.path import abspath, basename, exists, join
 from random import seed, randint
+from traceback import print_exc
 from typing import List
 
 class Dvk:
@@ -87,8 +88,12 @@ class Dvk:
             dvk_web["secondary_url"] = self.get_secondary_url()
             # Create dict for info about where media is stored on disk.
             dvk_file_dict = dict()
-            dvk_file_dict["media_file"] = self.get_media_file()
-            dvk_file_dict["secondary_file"] = self.get_secondary_file()
+            dvk_file_dict["media_file"] = None
+            if self.get_media_file() is not None:
+                dvk_file_dict["media_file"] = basename(self.get_media_file())
+            dvk_file_dict["secondary_file"] = None
+            if self.get_secondary_file() is not None:
+                dvk_file_dict["secondary_file"] = basename(self.get_secondary_file())
             # Create dict to combine all Dvk info.
             dvk_data["info"] = dvk_info
             dvk_data["web"] = dvk_web
@@ -147,20 +152,39 @@ class Dvk:
                     dvk_info = json["info"]
                     self.set_title(dvk_info["title"])
                     self.set_artists(dvk_info["artists"])
-                    self.set_time(dvk_info["time"])
-                    self.set_web_tags(dvk_info["web_tags"])
-                    self.set_description(dvk_info["description"])
+                    try:
+                        self.set_time(dvk_info["time"])
+                    except:
+                        self.set_time()
+                    try:
+                        self.set_web_tags(dvk_info["web_tags"])
+                    except:
+                        self.set_web_tags()
+                    try:
+                        self.set_description(dvk_info["description"])
+                    except:
+                        self.set_description()
                     # Get DVK web info.
                     dvk_web = json["web"]
                     self.set_page_url(dvk_web["page_url"])
-                    self.set_direct_url(dvk_web["direct_url"])
-                    self.set_secondary_url(dvk_web["secondary_url"])
+                    try:
+                        self.set_direct_url(dvk_web["direct_url"])
+                    except:
+                        self.set_direct_url()
+                    try:
+                        self.set_secondary_url(dvk_web["secondary_url"])
+                    except:
+                        self.set_secondary_url()
                     # Get DVK file info.
                     dvk_file_dict = json["file"]
                     self.set_media_file(dvk_file_dict["media_file"])
-                    self.set_secondary_file(dvk_file_dict["secondary_file"])
+                    try:
+                        self.set_secondary_file(dvk_file_dict["secondary_file"])
+                    except:
+                        self.set_secondary_file()
         except:
-            print("Error reading DVK file.")
+            print("Error reading DVK file: " + self.get_dvk_file())
+            print_exc()
             self.clear_dvk()
 
     def set_dvk_file(self, dvk_file:str=None):
