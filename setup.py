@@ -6,7 +6,9 @@ Setuptools setup file.
 
 import setuptools
 
-console_scripts = ["dvk-archive-test = dvk_archive.test.all_tests:main"]
+console_scripts = ["dvk-archive-test = dvk_archive.test.all_tests:main",
+                   "dvk-rename = dvk_archive.main.file.rename:main",
+                   "dvk-reformat = dvk_archive.main.file.reformat:main"]
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -15,7 +17,7 @@ desc = "Utility for loading and handling media files in the DVK file format."
 
 setuptools.setup(
     name="dvk-archive",
-    version="0.6.5",
+    version="0.7.0",
     author="Drakovek",
     author_email="DrakovekMail@gmail.com",
     description=desc,
@@ -25,6 +27,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         "beautifulsoup4",
+        "filetype",
         "lxml",
         "requests",
         "selenium",

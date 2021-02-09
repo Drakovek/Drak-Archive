@@ -8,6 +8,7 @@ from dvk_archive.main.processing.string_processing import get_extension
 from dvk_archive.main.processing.string_processing import pad_num
 from dvk_archive.main.processing.string_processing import remove_whitespace
 from dvk_archive.main.processing.html_processing import add_escapes_to_html
+from filetype import guess
 from json import dump, load
 from os import pardir, rename, remove
 from os.path import abspath, basename, exists, join
@@ -134,6 +135,8 @@ class Dvk:
         if get_time and exists(self.get_media_file()):
             self.set_time(get_last_modified(headers))
             self.write_dvk()
+        # UPDATE EXTENSTIONS
+        self.update_extensions()
 
     def read_dvk(self):
         """
@@ -603,3 +606,43 @@ class Dvk:
                     self.set_secondary_file(to_file)
         # REWRITE DVK FILE
         self.write_dvk()
+
+    def update_extensions(self):
+        """
+        Updates media file extensions to mach magic number file type.
+        """
+        if exists(self.get_dvk_file()):
+            # GET PARENT DIRECTORY
+            parent = abspath(join(self.get_dvk_file(), pardir))
+            # MAIN MEDIA FILE
+            media_file = self.get_media_file()
+            if media_file is not None and exists(media_file):
+                filename = basename(media_file)
+                ext = get_extension(filename)
+                filename = filename[: len(filename) - len(ext)]
+                # DETERMINE ACTUAL FILE TYPE
+                filetype = guess(self.get_media_file())
+                if filetype is not None:
+                    filename = filename + "." + filetype.extension
+                    media_file = abspath(join(parent, filename))
+                # RENAME FILES
+                if not self.get_media_file() == media_file:
+                    rename(self.get_media_file(), media_file)
+                    self.set_media_file(basename(media_file))
+            # MAIN SECONDARY FILE
+            secondary_file = self.get_secondary_file()
+            if secondary_file is not None and exists(secondary_file):
+                filename = basename(secondary_file)
+                ext = get_extension(filename)
+                filename = filename[: len(filename) - len(ext)]
+                # DETERMINE ACTUAL FILE TYPE
+                filetype = guess(self.get_secondary_file())
+                if filetype is not None:
+                    filename = filename + "." + filetype.extension
+                    secondary_file = abspath(join(parent, filename))
+                # RENAME FILES
+                if not self.get_secondary_file() == secondary_file:
+                    rename(self.get_secondary_file(), secondary_file)
+                    self.set_secondary_file(basename(secondary_file))
+            # WRITE DVK
+            self.write_dvk()

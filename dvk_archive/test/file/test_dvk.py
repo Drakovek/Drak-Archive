@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-from os import remove, pardir, stat
-from os.path import abspath, basename, exists, join
 from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.test.temp_dir import get_test_dir
-
+from dvk_archive.main.web.bs_connect import download
+from io import open as io_open
+from os import remove, pardir, stat
+from os.path import abspath, basename, exists, join
 
 def test_can_write():
     """
@@ -646,7 +647,7 @@ def test_write_media():
     media_dvk.set_dvk_id("id123")
     media_dvk.set_artist("artist")
     media_dvk.set_page_url("/url/")
-    media_dvk.set_media_file("media.jpg")
+    media_dvk.set_media_file("media.txt")
     media_dvk.set_direct_url("http://www.pythonscraping.com/img/gifts/img6.jpg")
     # TEST WRITE MEDIA WHEN URL IS VALID, BUT DVK CANNOT BE WRITTEN
     media_dvk.write_media()
@@ -676,7 +677,7 @@ def test_write_media():
     secondary_dvk.set_page_url("/url/")
     secondary_dvk.set_media_file("primary.jpg")
     secondary_dvk.set_direct_url("http://www.pythonscraping.com/img/gifts/img6.jpg")
-    secondary_dvk.set_secondary_file("secondary.jpg")
+    secondary_dvk.set_secondary_file("secondary.png")
     secondary_dvk.set_secondary_url("!@#$%^")
     # TEST WRITING MEDIA WITH VALID PRIMARY, BUT INVALID SECONDARY MEDIA URLS
     media_dvk.write_media();
@@ -693,6 +694,43 @@ def test_write_media():
     assert stat(secondary_dvk.get_secondary_file()).st_size == 85007
     assert basename(secondary_dvk.get_secondary_file()) == "secondary.jpg"
     assert secondary_dvk.get_time() == "2014/08/04|00:49"
+
+def test_update_extensions():
+    """
+    Tests the update_extensions method.
+    """
+    # CREATE TEST MEDIA FILES
+    test_dir = get_test_dir()
+    image_file = abspath(join(test_dir, "image.pdf"))
+    download("http://www.pythonscraping.com/img/gifts/img6.jpg", image_file)
+    text_file = abspath(join(test_dir, "text.txt"))
+    with io_open(text_file, "w", encoding="utf8") as out_file:
+        out_file.write("TEST File")
+    assert exists(image_file)
+    assert exists(text_file)
+    # CREATE DVK WITH IMPROPER EXTENSIONS FOR LINKED MEDIA FILES
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "ext.dvk"))
+    dvk.set_dvk_id("id123")
+    dvk.set_title("Title")
+    dvk.set_artist("artist")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("image.pdf")
+    dvk.set_secondary_file("text.txt")
+    dvk.write_dvk()
+    # TEST THAT FILES EXIST IN ORIGINAL FORMAT
+    assert exists(dvk.get_dvk_file())
+    assert exists(dvk.get_media_file())
+    assert exists(dvk.get_secondary_file())
+    assert basename(dvk.get_media_file()) == "image.pdf"
+    assert basename(dvk.get_secondary_file()) == "text.txt"
+    # TEST UPDATING EXTENSIONS OF LINKED MEDIA
+    dvk.update_extensions()
+    assert exists(dvk.get_dvk_file())
+    assert exists(dvk.get_media_file())
+    assert exists(dvk.get_secondary_file())
+    assert basename(dvk.get_media_file()) == "image.jpg"
+    assert basename(dvk.get_secondary_file()) == "text.txt"
 
 def all_tests():
     """
@@ -715,4 +753,5 @@ def all_tests():
     test_get_filename()
     test_rename_files()
     test_write_media()
+    test_update_extensions()
 
