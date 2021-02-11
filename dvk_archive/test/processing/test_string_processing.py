@@ -6,6 +6,7 @@ from dvk_archive.main.processing.string_processing import get_filename
 from dvk_archive.main.processing.string_processing import truncate_string
 from dvk_archive.main.processing.string_processing import get_extension
 from dvk_archive.main.processing.string_processing import get_url_directory
+from dvk_archive.main.processing.string_processing import truncate_path
 
 def test_pad_num():
     """
@@ -120,6 +121,25 @@ def test_get_url_directory():
     assert get_url_directory("") == ""
     assert get_url_directory(None) == ""
 
+def test_truncate_path():
+    """
+    Tests the truncate_path function.
+    """
+    # TEST TRUNCATING PATHS
+    assert truncate_path("/path/", "/path/file.txt") == ".../file.txt"
+    assert truncate_path("main", "main/path.png") == ".../path.png"
+    assert truncate_path("/a/b/c/", "/a/b/c/thing.jpg") == ".../thing.jpg"
+    # TEST TRUNCATING PATH IF FILE NOT IN GIVEN DIRECTORY
+    assert truncate_path("/a/b/c/", "/unrelated/f.txt") == "/unrelated/f.txt"
+    assert truncate_path("/a/", "/A/file.png") == "/A/file.png"
+    # TEST IF FILE AND PARENT PATH ARE EXACTLY THE SAME
+    assert truncate_path("/a/b/c", "/a/b/c") == "/a/b/c"
+    # TEST WHEN THE PARENT PATH IS INVALID
+    assert truncate_path(None, "/other/file.txt") == "/other/file.txt"
+    # TEST WHEN THE FILE IS INVALID
+    assert truncate_path("/path/", None) == ""
+    assert truncate_path(None, None) == ""
+
 def all_tests():
     """
     Runs all test for the string_processing module.
@@ -130,3 +150,4 @@ def all_tests():
     test_truncate_string()
     test_get_extension()
     test_get_url_directory()
+    test_truncate_path()

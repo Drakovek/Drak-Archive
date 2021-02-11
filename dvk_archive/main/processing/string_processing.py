@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from math import floor
+from os.path import abspath
 
 def pad_num(num:str=None, length:int=0) -> str:
     """
@@ -208,3 +209,20 @@ def get_url_directory(url:str=None) -> str:
     # GET LAST SUB-DIRECTORY
     last = sub.rfind("/") + 1
     return sub[last:]
+
+def truncate_path(parent:str=None, file:str=None) -> str:
+    # RETURN EMPTY STRING IF FILE IS INVALID
+    if file is None:
+        return ""
+    # RETURN FILE IF PARENT PATH IS INVALID
+    if parent is None:
+        return file
+    # RETURN FILE IF PARENT IS NOT ACTUALLY A PARENT DIRECTORY
+    full_parent = abspath(parent)
+    full_file = abspath(file)
+    if (full_parent == full_file
+            or not full_file.startswith(full_parent)):
+        return full_file
+    # TRUNCATE THE FILE PATH OF THE GIVEN FILE
+    truncated = full_file[len(full_parent):]
+    return "..." + truncated

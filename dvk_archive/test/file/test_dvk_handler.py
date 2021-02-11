@@ -323,6 +323,38 @@ def test_contains_direct_url():
     assert not dvk_handler.contains_direct_url("Not contained")
     assert not dvk_handler.contains_direct_url(None)
 
+def test_contains_media_file():
+    """
+    Tests the contains_media_file method.
+    """
+    # CREATE TEST FILES
+    test_dir = get_test_dir()
+    other_dir = abspath(join(test_dir, "other_dir"))
+    mkdir(other_dir)
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "no_second.dvk"))
+    dvk.set_dvk_id("id123")
+    dvk.set_title("Title")
+    dvk.set_artist("Artist")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("no_second.jpg")
+    dvk.write_dvk()
+    dvk.set_dvk_file(join(test_dir, "other.dvk"))
+    dvk.set_media_file("other.txt")
+    dvk.set_secondary_file("other.png")
+    dvk.write_dvk()
+    dvk_handler = DvkHandler()
+    dvk_handler.read_dvks(test_dir)
+    # TEST WHETHER ANY DVKS CONTAIN MEDIA FILES
+    assert dvk_handler.contains_media_file(join(test_dir, "no_second.jpg"))
+    assert dvk_handler.contains_media_file(join(test_dir, "other.txt"))
+    assert dvk_handler.contains_media_file(join(test_dir, "other.png"))
+    assert not dvk_handler.contains_media_file(join(test_dir, "random"))
+    assert not dvk_handler.contains_media_file(join(test_dir, "OTHER.txt"))
+    assert not dvk_handler.contains_media_file(join(other_dir, "other.txt"))
+    assert not dvk_handler.contains_media_file("/non/existant/file.txt")
+    assert not dvk_handler.contains_media_file(None)
+
 def all_tests():
     """
     Runs all tests for the DvkHandler class.
@@ -334,3 +366,4 @@ def all_tests():
     test_contains_id()
     test_contains_page_url()
     test_contains_direct_url()
+    test_contains_media_file()

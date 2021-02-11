@@ -221,3 +221,27 @@ class DvkHandler:
                     and dvk.get_secondary_url().upper() == upper_url)):
                 return True
         return False
+
+    def contains_media_file(self, media_file:str=None) -> bool:
+        """
+        Returns whether there are any Dvk objects that link a given media file.
+        Can be primary or secondary media file.
+
+        :param media_file: Given media file, defaults to None
+        :type media_file: str, optional
+        :return: Whether any loaded Dvk objects link to the given file
+        :rtype: bool
+        """
+        # RETURNS FALSE IF GIVEN MEDIA FILE IS INVALID
+        if media_file is None:
+            return False
+        # SEARCH FOR GIVEN MEDIA FILE IN LOADED DVKS
+        path = abspath(media_file)
+        for i in range(0, self.get_size()):
+            dvk = self.get_dvk(i)
+            media = dvk.get_media_file()
+            secondary = dvk.get_secondary_file()
+            if ((media is not None and media == path)
+                    or (secondary is not None and secondary == path)):
+                return True
+        return False
