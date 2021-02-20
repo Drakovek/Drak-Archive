@@ -11,5 +11,5 @@ def test_all():
     """
     Run all web tests.
     """
-    test_bs()
     test_heavy()
+    test_bs()

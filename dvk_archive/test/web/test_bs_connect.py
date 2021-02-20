@@ -41,6 +41,9 @@ def test_bs_connect():
     assert bs_connect("qwertyuiop") is None
 
 def test_json_connect():
+    """
+    Tests the json_connect function.
+    """
     # TEST LOADING PAGE AS A JSON OBJECT
     json = json_connect("http://echo.jsontest.com/key/value/json/test")
     assert json["json"] == "test"

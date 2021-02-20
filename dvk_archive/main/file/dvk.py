@@ -47,6 +47,8 @@ class Dvk:
         self.set_secondary_url();
         self.set_media_file()
         self.set_secondary_file()
+        self.set_favorites()
+        self.set_single()
 
     def can_write(self) -> bool:
         """
@@ -95,10 +97,15 @@ class Dvk:
             dvk_file_dict["secondary_file"] = None
             if self.get_secondary_file() is not None:
                 dvk_file_dict["secondary_file"] = basename(self.get_secondary_file())
+            # Create dict for info aboout how the Dvk was downloaded
+            dvk_download = dict()
+            dvk_download["favorites"] = self.get_favorites()
+            dvk_download["is_single"] = self.is_single()
             # Create dict to combine all Dvk info.
             dvk_data["info"] = dvk_info
             dvk_data["web"] = dvk_web
             dvk_data["file"] = dvk_file_dict
+            dvk_data["download"] = dvk_download
             # Write dvk_data dict to a DVK(JSON) file.
             try:
                 with open(self.get_dvk_file(), "w") as out_file:
@@ -185,6 +192,16 @@ class Dvk:
                         self.set_secondary_file(dvk_file_dict["secondary_file"])
                     except:
                         self.set_secondary_file()
+                    # Get DVK download info.
+                    dvk_download = json["download"]
+                    try:
+                        self.set_favorites(dvk_download["favorites"])
+                    except:
+                        self.set_favorites()
+                    try:
+                        self.set_single(dvk_download["is_single"])
+                    except:
+                        self.set_single()
         except:
             print("Error reading DVK file: " + self.get_dvk_file())
             print_exc()
@@ -371,7 +388,7 @@ class Dvk:
         """
         tags = clean_list(web_tags)
         if tags is None or tags == []:
-            self.web_tags = None
+            self.web_tags = []
         else:
             self.web_tags = tags
 
@@ -528,6 +545,74 @@ class Dvk:
             return abspath(join(parent, self.secondary_file))
         except:
             return None
+
+    def set_favorites(self, favorites:List[str]=None):
+        """
+        Sets a list of artists that favorited this media online.
+
+        :param favorites: List of favorites artists, defaults to None
+        :type favorites: list[str], optional
+        """
+        # GET LEGACY FAVORITES FROM WEB TAGS
+        index = 0
+        array = []
+        tags = self.get_web_tags()
+        while index < len(tags):
+            lower = tags[index].lower()
+            if lower.startswith("favorite:"):
+                array.append(tags[index][9:])
+                del tags[index]
+                index -= 1
+            # INCREMENT INDEX
+            index += 1
+        self.set_web_tags(tags)
+        # ADD GIVEN FAVORITES
+        if favorites is not None:
+            array.extend(favorites)
+        # SORTS FAVORITES AND REMOVES DUPLICATES
+        array = sorted(clean_list(array), key=str.casefold)
+        self.favorites = array
+
+    def get_favorites(self) -> List[str]:
+        """
+        Returns list of artists that favorited this media online.
+
+        :return: List of fovorites artists
+        :rtype: list[str]
+        """
+        return self.favorites
+
+    def set_single(self, single:bool=False):
+        """
+        Sets whether the Dvk's media was downloaded as a single file.
+
+        :param single: Whether the Dvk is a single file, defaults to False
+        :type single: bool, optional
+        """
+        # GET LEGACY SINGLE TAG FROM WEB TAGS
+        index = 0
+        r_single = False
+        tags = self.get_web_tags()
+        while index < len(tags):
+            lower = tags[index].lower()
+            if lower == "dvk:single":
+                r_single = True
+                del tags[index]
+                index -= 1
+            index += 1
+        # USE GIVEN SINGLE VALUE IF NOT OVERWRITTEN BY LEGACY TAG
+        if not r_single:
+            r_single = single
+        self.single = r_single
+
+    def is_single(self) -> bool:
+        """
+        Returns whether the Dvk's media was downloaded as a single file.
+
+        :return: Whetehr Dvk is a single file
+        :rtype: bool
+        """
+        return self.single
 
     def get_filename(self, secondary:bool=False, prefix:str="DVK") -> str:
         """

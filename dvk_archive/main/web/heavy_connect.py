@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
+from json import loads
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.by import By
@@ -44,7 +45,8 @@ class HeavyConnect:
             options = FO()
             options.headless = headless
             options.page_load_strategy = "none"
-            self.driver = webdriver.Firefox(options=options)
+            profile = webdriver.FirefoxProfile()
+            self.driver = webdriver.Firefox(options=options, firefox_profile=profile)
         except WebDriverException:
             # PRINTS INSTRUCTIONS FOR GETTING SELENIUM DRIVER
             self.driver = None
@@ -77,6 +79,17 @@ class HeavyConnect:
         except:
             return None
         return None
+
+    def get_json(self, url:str=None) -> dict:
+        bs = self.get_page(url, "//div[@id='json']")
+        try:
+            element = bs.find("div", {"id": "json"})
+            html = element.get_text()
+            # CONVERT TO JSON
+            json = loads(html)
+            return json
+        except:
+            return None
 
     def get_driver(self) -> webdriver:
         """

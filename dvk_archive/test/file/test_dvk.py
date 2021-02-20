@@ -283,7 +283,7 @@ def test_get_set_web_tags():
     """
     # TEST EMPTY WEB TAGS FROM CONSTRUCTOR
     dvk = Dvk()
-    assert dvk.get_web_tags() is None
+    assert dvk.get_web_tags() == []
     # TEST GETTING AND SETTING WEB TAGS
     tags = ["tag2", "Tag1", "tag2", None]
     dvk.set_web_tags(tags)
@@ -292,12 +292,12 @@ def test_get_set_web_tags():
     assert dvk.get_web_tags()[1] == "Tag1"
     # TEST INVALID TAGS
     dvk.set_web_tags(None)
-    assert dvk.get_web_tags() is None
+    assert dvk.get_web_tags() == []
     dvk.set_web_tags([])
-    assert dvk.get_web_tags() is None
+    assert dvk.get_web_tags() == []
     tags = [None]
     dvk.set_web_tags(tags)
-    assert dvk.get_web_tags() is None
+    assert dvk.get_web_tags() == []
     # WRITE DVK
     test_dir = get_test_dir()
     dvk.set_dvk_file(join(test_dir, "tags.txt"))
@@ -528,6 +528,130 @@ def test_get_set_secondary_file():
     assert abspath(join(read_dvk.get_secondary_file(), pardir)) == test_dir
     assert basename(read_dvk.get_secondary_file()) == "media.png"
 
+def test_get_set_favorites():
+    """
+    Tests the get_favorites and set_favorites methods.
+    """
+    # TEST GETTING EMPTY FAVORITES LIST FROM CONSTRUCTOR
+    dvk = Dvk()
+    assert dvk.get_favorites() == []
+    # TEST GETTING AND SETTING FAVORITES
+    favorites = ["Test", "artist", None, "artist"]
+    dvk.set_favorites(favorites)
+    assert len(dvk.get_favorites()) == 2
+    assert dvk.get_favorites()[0] == "artist"
+    assert dvk.get_favorites()[1] == "Test"
+    # TEST GETTING FAVORITES FROM WEB TAGS IN OLD FORMAT
+    tags = ["favorite:Other", "tag1", "tag2", "Favorite:thing", "Favorite:Test"]
+    dvk.set_web_tags(tags)
+    dvk.set_favorites(favorites)
+    assert len(dvk.get_web_tags()) == 2
+    assert dvk.get_web_tags()[0] == "tag1"
+    assert dvk.get_web_tags()[1] == "tag2"
+    assert len(dvk.get_favorites()) == 4
+    assert dvk.get_favorites()[0] == "artist"
+    assert dvk.get_favorites()[1] == "Other"
+    assert dvk.get_favorites()[2] == "Test"
+    assert dvk.get_favorites()[3] == "thing"
+    tags = ["favorite:Other", "tag1", "tag2", "Favorite:thing", "Favorite:Test"]
+    dvk.set_web_tags(tags)
+    dvk.set_favorites(None)
+    assert len(dvk.get_web_tags()) == 2
+    assert dvk.get_web_tags()[0] == "tag1"
+    assert dvk.get_web_tags()[1] == "tag2"
+    assert len(dvk.get_favorites()) == 3
+    assert dvk.get_favorites()[0] == "Other"
+    assert dvk.get_favorites()[1] == "Test"
+    assert dvk.get_favorites()[2] == "thing"
+    # TEST SETTING INVALID FAVORITES
+    dvk = Dvk()
+    dvk.set_favorites("TEST")
+    dvk.set_favorites(None)
+    assert dvk.get_favorites() == []
+    # WRITE DVK
+    test_dir = get_test_dir()
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "fav.dvk"))
+    dvk.set_dvk_id("id123")
+    dvk.set_title("Title")
+    dvk.set_artist("Artist")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("media.png")
+    dvk.set_web_tags(["Thing", "Favorite:Person"])
+    dvk.set_favorites(["person2", "Other Artist"])
+    dvk.write_dvk()
+    # TEST READING FAVORITES FROM A DVK FILE
+    read_dvk = Dvk(dvk.get_dvk_file())
+    dvk = None
+    assert read_dvk.get_web_tags() == ["Thing"]
+    assert len(read_dvk.get_favorites()) == 3
+    assert read_dvk.get_favorites()[0] == "Other Artist"
+    assert read_dvk.get_favorites()[1] == "Person"
+    assert read_dvk.get_favorites()[2] == "person2"
+
+def test_get_set_is_single():
+    """
+    Tests the is_single and set_single methods.
+    """
+    # TEST GETTING DEFAULT SINGLE VALUE FROM CONSTRUCTOR
+    dvk = Dvk()
+    assert not dvk.is_single()
+    # TEST GETTING AND SETTING IS SINGLE
+    dvk.set_single(True)
+    assert dvk.is_single()
+    dvk.set_single(False)
+    assert not dvk.is_single()
+    # TEST GETTING SINGLE FROM LEGACY
+    dvk.set_web_tags(["DVK:Single", "tag", "tag2", "dvk:single"])
+    dvk.set_single(False)
+    assert dvk.is_single()
+    assert dvk.get_web_tags() == ["tag", "tag2"]
+    # TEST GIVING EMPTY VALUE WHEN SETTING SINGLE
+    dvk = Dvk()
+    dvk.set_single(True)
+    dvk.set_single()
+    assert not dvk.is_single()
+    # WRITE DVKS
+    test_dir = get_test_dir()
+    dvk_single = Dvk()
+    dvk_single.set_dvk_file(join(test_dir, "single.dvk"))
+    dvk_single.set_dvk_id("id123")
+    dvk_single.set_title("Title")
+    dvk_single.set_artist("Artist")
+    dvk_single.set_page_url("/url/")
+    dvk_single.set_media_file("media.png")
+    dvk_single.set_single(True)
+    dvk_single.write_dvk()
+    dvk_tag = Dvk()
+    dvk_tag.set_dvk_file(join(test_dir, "tag.dvk"))
+    dvk_tag.set_dvk_id("id123")
+    dvk_tag.set_title("Title")
+    dvk_tag.set_artist("Artist")
+    dvk_tag.set_page_url("/url/")
+    dvk_tag.set_media_file("media.png")
+    dvk_tag.set_web_tags(["tag1", "Dvk:Single"])
+    dvk_tag.write_dvk()
+    dvk_none = Dvk()
+    dvk_none.set_dvk_file(join(test_dir, "none.dvk"))
+    dvk_none.set_dvk_id("id123")
+    dvk_none.set_title("Title")
+    dvk_none.set_artist("Artist")
+    dvk_none.set_page_url("/url/")
+    dvk_none.set_media_file("media.png")
+    dvk_none.set_web_tags("Same")
+    dvk_none.write_dvk()
+    # TEST READING SINGLE VALUE FROM DVK FILES
+    read_dvk = Dvk(dvk_single.get_dvk_file())
+    dvk_single = None
+    assert read_dvk.is_single()
+    read_dvk = Dvk(dvk_tag.get_dvk_file())
+    dvk_tag = None
+    assert read_dvk.get_web_tags() == ["tag1"]
+    assert read_dvk.is_single()
+    read_dvk = Dvk(dvk_none.get_dvk_file())
+    dvk_none = None
+    assert not read_dvk.is_single()
+
 def test_get_filename():
     """
     Tests the get_filename method.
@@ -750,6 +874,8 @@ def all_tests():
     test_get_set_secondary_url()
     test_get_set_media_file()
     test_get_set_secondary_file()
+    test_get_set_favorites()
+    test_get_set_is_single()
     test_get_filename()
     test_rename_files()
     test_write_media()

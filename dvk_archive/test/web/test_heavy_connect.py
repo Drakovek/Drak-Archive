@@ -2,6 +2,9 @@
 
 from bs4 import BeautifulSoup
 from dvk_archive.main.web.heavy_connect import HeavyConnect
+from dvk_archive.test.temp_dir import get_test_dir
+from os import stat
+from os.path import abspath, join
 
 def test_get_page():
     """
@@ -35,8 +38,27 @@ def test_get_page():
     finally:
         connect.close_driver()
 
+def test_load_json():
+    """
+    Tests the load_json function.
+    """
+    connect = HeavyConnect()
+    try:
+        # TEST LOADING PAGE AS A JSON OBJECT
+        json = connect.get_json("http://echo.jsontest.com/key/value/json/test")
+        assert json["json"] == "test"
+        assert json["key"] == "value"
+        # TEST LOADING AN INVALID PAGE
+        json = connect.get_json("asdfghjkl")
+        assert json is None
+        json = connect.get_json(None)
+        assert json is None
+    finally:
+        connect.close_driver()
+
 def all_tests():
     """
     Runs all tests for the heavy_connect module.
     """
+    test_load_json()
     test_get_page()
