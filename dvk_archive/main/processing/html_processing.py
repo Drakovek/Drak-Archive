@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from dvk_archive.main.processing.string_processing import remove_whitespace
+from html.parser import HTMLParser
 
 def escape_to_char(escape:str=None) -> str:
     """
@@ -12,38 +13,17 @@ def escape_to_char(escape:str=None) -> str:
     :return: Unicode escape character
     :rtype: str
     """
-    # RETURNS EMPTY STRING IF GIVEN STRING IS NOT A VALID HTML ESCAPE CHARACTER
+    # RETURNS GIVEN STRING IF GIVEN STRING IS NOT A VALID HTML ESCAPE CHARACTER
     if(escape is None
            or len(escape) < 3
            or not escape[0] == "&"
            or not escape[-1] == ";"):
         return ""
-    # REMOVE STARTING $ AND ENDING ; FROM THE ESCAPE CHARACTER
-    mid = escape[1:-1]
-    # IF HTML ESCAPE CHRACTER REFERS TO A UNICODE INDEX
-    if mid[0] == "#":
-        try:
-            # RETURN UNICODE CHARACTER
-            out = chr(int(mid[1:len(mid)]))
-            return out
-        except ValueError:
-            # IF UNICODE INDEX ISN'T VALID, RETURN EMPTY STRING
-            return ""
-    # RETURN CHARACTER FOR HTML SPECIFIC ESCAPE CHARACTERS
-    if mid == "quot":
-        return "\""
-    if mid == "apos":
-        return "'"
-    if mid == "amp":
-        return "&"
-    if mid == "lt":
-        return "<"
-    if mid == "gt":
-        return ">"
-    if mid == "nbsp":
-        return " "
-    # RETURN EMPTY STRING IF NOTHING IS FOUND
-    return ""
+    parser = HTMLParser()
+    replace = parser.unescape(escape)
+    if replace == escape:
+        return ""
+    return replace
 
 def replace_escapes(text:str=None) -> str:
     """

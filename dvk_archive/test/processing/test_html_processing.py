@@ -16,9 +16,15 @@ def test_escape_to_char():
     assert escape_to_char("&amp;") == "&"
     assert escape_to_char("&lt;") == "<"
     assert escape_to_char("&gt;") == ">"
-    assert escape_to_char("&nbsp;") == " "
+    assert escape_to_char("&nbsp;") == " "
     assert escape_to_char("&#60;") == "<"
     assert escape_to_char("&#38;") == "&"
+    # TEST NON-LATIN HTML ENTITIES
+    assert escape_to_char("&Agrave;") == "À"
+    assert escape_to_char("&Aacute;") == "Á"
+    assert escape_to_char("&Auml;") == "Ä"
+    assert escape_to_char("&Atilde;") == "Ã"
+    assert escape_to_char("&Aring;") == "Å"
     # TEST REPLACING INVALID ESCAPE CHARACTERS
     assert escape_to_char(None) == ""
     assert escape_to_char("") == ""
@@ -33,8 +39,8 @@ def test_replace_escapes():
     Tests the replace_escapes function.
     """
     # TEST REPLACING HTML ESCAPE CHARACTERS IN STRING
-    in_str = "&lt;i&gt;Test HTML&#60;&#47;i&#62;"
-    assert replace_escapes(in_str) == "<i>Test HTML</i>"
+    in_str = "&lt;i&gt;T&euml;st HTML&#60;&#47;i&#62;"
+    assert replace_escapes(in_str) == "<i>Tëst HTML</i>"
     in_str = "this&that"
     assert replace_escapes(in_str) == "this&that"
     in_str = "remove&this;"

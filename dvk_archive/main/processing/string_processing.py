@@ -127,8 +127,50 @@ def get_filename(text:str=None, length:int=90) -> str:
         if ((value > 47 and value < 58)
                 or (value > 64 and value < 91)
                 or (value > 96 and value < 123)
-                or value == ord(" ")):
+                or value == 32):
             out = out + text[i]
+        elif value > 191 and value < 198:
+            # REPLACE "A" VARIENTS
+            out = out + "A"
+        elif value > 199 and value < 204:
+            # REPLACE "E" VARIENTS
+            out = out + "E"
+        elif value > 203 and value < 208:
+            # REPLACE "I" VARIENTS
+            out = out + "I"
+        elif value == 209:
+            # REPLACE "N" VARIENT
+            out = out + "N"
+        elif value > 209 and value < 215:
+            # REPLACE "O" VARIENTS
+            out = out + "O"
+        elif value > 216 and value < 221:
+            # REPLACE "U" VARIENTS
+            out = out + "U"
+        elif value == 221:
+            # REPLACE "Y" VARIENT
+            out = out + "Y"
+        elif value > 223 and value < 230:
+            # REPLACE "a" VARIENTS
+            out = out + "a"
+        elif value > 231 and value < 236:
+            # REPLACE "e" VARIENTS
+            out = out + "e"
+        elif value > 235 and value < 240:
+            # REPLACE "i" VARIENTS
+            out = out + "i"
+        elif value == 241:
+            # REPLACE "n" VARIENT
+            out = out + "n"
+        elif value > 241 and value < 247:
+            # REPLACE "o" VARIENTS
+            out = out + "o"
+        elif value > 248 and value < 253:
+            # REPLACE "u" VARIENTS
+            out = out + "u"
+        elif value == 253 or value == 255:
+            # REPLACE "y" VARIENTS
+            out = out + "y"
         else:
             out = out + "-"
         # INCREMENT COUNTER

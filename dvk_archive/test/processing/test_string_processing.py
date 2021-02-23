@@ -47,6 +47,17 @@ def test_get_filename():
     assert get_filename("a% - !b @  ??c") == "a - b - c"
     assert get_filename("Test String", 5) == "Test"
     assert get_filename("Test String", -1) == "Test String"
+    # TEST CONVERTING FROM NON-STANDARD LATIN CHARACTERS
+    assert get_filename("ÀÁÂÃÄÅ") == "AAAAAA"
+    assert get_filename("ÈÉÊË") == "EEEE"
+    assert get_filename("ÌÍÎÏ") == "IIII"
+    assert get_filename("ÑÒÓÔÕÖ") == "NOOOOO"
+    assert get_filename("ÙÚÛÜÝ") == "UUUUY"
+    assert get_filename("àáâãäå") == "aaaaaa"
+    assert get_filename("èéêë") == "eeee"
+    assert get_filename("ìíîï") == "iiii"
+    assert get_filename("ñòóôõö") == "nooooo"
+    assert get_filename("ùúûüýÿ") == "uuuuyy"
     # TEST GETTING FILENAMES WITH NO LENGTH
     assert get_filename("") == "0"
     assert get_filename("$") == "0"

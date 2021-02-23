@@ -82,7 +82,8 @@ class DvkHandler:
                 for file in listdir(path):
                     if file.endswith(".dvk"):
                         dvk = Dvk(abspath(join(path, file)))
-                        self.dvks.append(dvk)
+                        if dvk.get_title() is not None:
+                            self.dvks.append(dvk)
 
     def sort_dvks(self, sort_type:str=None):
         """

@@ -193,14 +193,18 @@ class Dvk:
                     except:
                         self.set_secondary_file()
                     # Get DVK download info.
-                    dvk_download = json["download"]
                     try:
-                        self.set_favorites(dvk_download["favorites"])
+                        dvk_download = json["download"]
+                        try:
+                            self.set_favorites(dvk_download["favorites"])
+                        except:
+                            self.set_favorites()
+                        try:
+                            self.set_single(dvk_download["is_single"])
+                        except:
+                            self.set_single()
                     except:
                         self.set_favorites()
-                    try:
-                        self.set_single(dvk_download["is_single"])
-                    except:
                         self.set_single()
         except:
             print("Error reading DVK file: " + self.get_dvk_file())
