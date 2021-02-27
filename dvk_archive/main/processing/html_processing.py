@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from dvk_archive.main.processing.string_processing import remove_whitespace
-from html.parser import HTMLParser
+from html import unescape
 
 def escape_to_char(escape:str=None) -> str:
     """
@@ -19,8 +19,7 @@ def escape_to_char(escape:str=None) -> str:
            or not escape[0] == "&"
            or not escape[-1] == ";"):
         return ""
-    parser = HTMLParser()
-    replace = parser.unescape(escape)
+    replace = unescape(escape)
     if replace == escape:
         return ""
     return replace
