@@ -243,6 +243,144 @@ def test_sort_time():
     dvk_handler.sort_dvks("t")
     assert dvk_handler.get_size() == 0
 
+def test_add_dvk():
+    """
+    Tests the add_dvk method()
+    """
+    # TEST ADDING UNWRITABLE DVK
+    test_dir = get_test_dir()
+    dvk_handler = DvkHandler()
+    assert dvk_handler.get_size() == 0
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "dvk.dvk"))
+    dvk.set_dvk_id("ID123")
+    dvk.set_title("Title")
+    dvk.set_artist("Artist")
+    dvk.set_page_url("/url/")
+    dvk_handler.add_dvk(dvk)
+    assert dvk_handler.get_size() == 0 
+    # TEST ADDING DVK TO EMPTY DVK HANDLER
+    dvk.set_media_file("media")
+    dvk.write_dvk()
+    dvk_handler.add_dvk(dvk)
+    assert dvk_handler.get_size() == 1
+    read_dvk = dvk_handler.get_dvk(0)
+    assert read_dvk.get_title() == "Title"
+    assert read_dvk.get_page_url() == "/url/"
+    # TEST ADDING DVK TO DVK HANDLER WITH DVK ALREADY LOADED
+    dvk_handler = DvkHandler(test_dir)
+    assert dvk_handler.get_size() == 1
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "new.dvk"))
+    dvk.set_dvk_id("NEW123")
+    dvk.set_title("Other")
+    dvk.set_artist("Person")
+    dvk.set_page_url("page/url/")
+    dvk.set_media_file("file")
+    dvk_handler.add_dvk(dvk)
+    assert dvk_handler.get_size() == 2
+    assert dvk_handler.get_dvk(0).get_title() == "Title"
+    read_dvk = dvk_handler.get_dvk(1)
+    assert read_dvk.get_dvk_id() == "NEW123"
+    assert read_dvk.get_title() == "Other"
+    assert read_dvk.get_artists() == ["Person"]
+    # TEST ADDING INVALID DVK
+    dvk_handler.add_dvk(None)
+    assert dvk_handler.get_size() == 2
+
+def test_set_dvk():
+    """
+    Tests the set_dvk method.
+    """
+    # WRITE TEST DVKS
+    test_dir = get_test_dir()
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "dvk1.dvk"))
+    dvk.set_dvk_id("ID123")
+    dvk.set_title("Title 1")
+    dvk.set_artist("Artist")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("media.txt")
+    dvk.write_dvk()
+    dvk.set_dvk_file(join(test_dir, "dvk2.dvk"))
+    dvk.set_title("Title 2")
+    dvk.write_dvk()
+    dvk_handler = DvkHandler(test_dir)
+    dvk_handler.sort_dvks("a")
+    assert dvk_handler.get_size() == 2
+    # TEST SETTING UNWRITABLE DVK
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "set.dvk"))
+    dvk.set_title("New Title")
+    dvk.set_artist("Other")
+    dvk.set_page_url("/page/url")
+    dvk.set_media_file("file.txt")
+    dvk_handler.set_dvk(dvk, 0)
+    assert dvk_handler.get_size() == 2
+    assert dvk_handler.get_dvk(0).get_title() == "Title 1"
+    assert dvk_handler.get_dvk(1).get_title() == "Title 2"
+    # TEST SETTING DVK WITH AN INVALID INDEX
+    dvk.set_dvk_id("NEW123")
+    dvk.write_dvk()
+    dvk_handler.set_dvk(dvk, -1)
+    assert dvk_handler.get_size() == 2
+    assert dvk_handler.get_dvk(0).get_title() == "Title 1"
+    assert dvk_handler.get_dvk(1).get_title() == "Title 2"
+    dvk_handler.set_dvk(dvk, 2)
+    assert dvk_handler.get_size() == 2
+    assert dvk_handler.get_dvk(0).get_title() == "Title 1"
+    assert dvk_handler.get_dvk(1).get_title() == "Title 2"
+    # TEST SETTING DVK AT VALID INDEX
+    dvk_handler.set_dvk(dvk, 1)
+    assert dvk_handler.get_size() == 2
+    assert dvk_handler.get_dvk(0).get_title() == "Title 1"
+    assert dvk_handler.get_dvk(0).get_dvk_id() == "ID123"
+    assert dvk_handler.get_dvk(1).get_title() == "New Title"
+    assert dvk_handler.get_dvk(1).get_dvk_id() == "NEW123"
+    # TEST SETTING INVALID DVK
+    dvk_handler.set_dvk(None, 0)
+    assert dvk_handler.get_size() == 2
+    assert dvk_handler.get_dvk(0).get_title() == "Title 1"
+    assert dvk_handler.get_dvk(1).get_title() == "New Title"
+
+def test_get_dvk_by_id():
+    """
+    Tests the get_dvk_by_id method.
+    """
+    # CREATE TEST DVKS
+    test_dir = get_test_dir()
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "dvk1.dvk"))
+    dvk.set_dvk_id("ID123")
+    dvk.set_title("Title")
+    dvk.set_artist("Artist")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("media.png")
+    dvk.write_dvk()
+    dvk.set_dvk_file(join(test_dir, "other.dvk"))
+    dvk.set_title("Other")
+    dvk.set_dvk_id("OTH246")
+    dvk.write_dvk()
+    dvk.set_dvk_file(join(test_dir, "Third.dvk"))
+    dvk.set_title("Third")
+    dvk.set_dvk_id("THR987")
+    dvk.write_dvk()
+    dvk_handler = DvkHandler(test_dir)
+    dvk_handler.sort_dvks("a")
+    assert dvk_handler.get_size() == 3
+    assert dvk_handler.get_dvk(0).get_title() == "Other"
+    assert dvk_handler.get_dvk(0).get_dvk_id() == "OTH246"
+    assert dvk_handler.get_dvk(1).get_title() == "Third"
+    assert dvk_handler.get_dvk(1).get_dvk_id() == "THR987"
+    assert dvk_handler.get_dvk(2).get_title() == "Title"
+    assert dvk_handler.get_dvk(2).get_dvk_id() == "ID123"
+    # TEST GETTING ID INDEX
+    assert dvk_handler.get_dvk_by_id("OTH246") == 0
+    assert dvk_handler.get_dvk_by_id("thr987") == 1
+    assert dvk_handler.get_dvk_by_id("Id123") == 2
+    assert dvk_handler.get_dvk_by_id("NON369") == -1
+    assert dvk_handler.get_dvk_by_id(None) == -1
+
 def test_contains_id():
     """
     Tests the contains_id method.
@@ -363,7 +501,10 @@ def all_tests():
     test_get_directories()
     test_sort_title()
     test_sort_time()
+    test_add_dvk()
+    test_set_dvk()
     test_contains_id()
+    test_get_dvk_by_id()
     test_contains_page_url()
     test_contains_direct_url()
     test_contains_media_file()

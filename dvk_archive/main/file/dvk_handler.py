@@ -162,6 +162,53 @@ class DvkHandler:
         """
         return self.dvks[index]
 
+    def add_dvk(self, dvk:Dvk=None):
+        """
+        Adds a given Dvk to the DvkHandler's list of Dvks.
+        Only adds if Dvk is valid and writable.
+
+        :param dvk: Given Dvk to add, defaults to None
+        :type dvk: Dvk, optional
+        """
+        if dvk is not None and dvk.can_write():
+            self.dvks.append(dvk)
+
+    def set_dvk(self, dvk:Dvk=None, index:int=-1):
+        """
+        Sets the Dvk at a given index.
+        Only sets if the Dvk is valid and writable.
+
+        :param dvk: Dvk to set at index, defaults to None
+        :type dvk: Dvk, optional
+        :param index: Index to set Dvk to, defaults to -1
+        :type index: int, optional
+        """
+        if (dvk is not None
+                and dvk.can_write()
+                and index > -1
+                and index < self.get_size()):
+            self.dvks[index] = dvk
+
+    def get_dvk_by_id(self, dvk_id:str=None) -> int:
+        """
+        Returns the index of the Dvk with the given ID.
+        If no Dvk has the given ID, returns -1.
+
+        :param dvk_id: Given Dvk ID, defaults to None
+        :type dvk_id: str, optional
+        :return: Index of the Dvk with the given ID
+        :rtype: int
+        """
+        # RETURNS -1 IF GIVEN ID IS INVALID
+        if dvk_id is None:
+            return -1
+        # SEARCH FOR GIVEN ID IN LOADED DVKS
+        upper_id = dvk_id.upper()
+        for i in range(0, self.get_size()):
+            if self.get_dvk(i).get_dvk_id() == upper_id:
+                return i
+        return -1
+
     def contains_id(self, dvk_id:str=None) -> bool:
         """
         Returns whether there are any Dvk objects with the given Dvk ID.
@@ -171,15 +218,10 @@ class DvkHandler:
         :return: Whether any loaded Dvk objects contains the given ID
         :rtype: bool
         """
-        # RETURNS FALSE IF GIVEN ID IS INVALID
-        if dvk_id is None:
+        index = self.get_dvk_by_id(dvk_id)
+        if index == -1:
             return False
-        # SEARCH FOR GIVEN ID IN LOADED DVKS
-        upper_id = dvk_id.upper()
-        for i in range(0, self.get_size()):
-            if self.get_dvk(i).get_dvk_id().upper() == upper_id:
-                return True
-        return False
+        return True
 
     def contains_page_url(self, page_url:str=None) -> bool:
         """
