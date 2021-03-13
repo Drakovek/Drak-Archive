@@ -3,8 +3,7 @@
 from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.test.temp_dir import get_test_dir
 from dvk_archive.main.web.bs_connect import download
-from io import open as io_open
-from os import remove, pardir, stat
+from os import remove, mkdir, pardir, stat
 from os.path import abspath, basename, exists, join
 
 def test_can_write():
@@ -819,6 +818,93 @@ def test_write_media():
     assert basename(secondary_dvk.get_secondary_file()) == "secondary.jpg"
     assert secondary_dvk.get_time() == "2014/08/04|00:49"
 
+def test_move_dvk():
+    """
+    Tests the move_dvk method.
+    """
+    # CREATE TEST FILES
+    test_dir = get_test_dir()
+    sub = abspath(join(test_dir, "sub"))
+    mkdir(sub)
+    no_media = Dvk()
+    no_media.set_dvk_file(join(test_dir, "no_media.dvk"))
+    no_media.set_dvk_id("NM123")
+    no_media.set_title("No Media")
+    no_media.set_artist("artist")
+    no_media.set_page_url("/url/")
+    no_media.set_media_file("no_media.png")
+    no_media.write_dvk()
+    main_dvk = Dvk()
+    main_dvk.set_dvk_file(join(test_dir, "main.dvk"))
+    main_dvk.set_dvk_id("ID234")
+    main_dvk.set_title("Main")
+    main_dvk.set_artist("artist")
+    main_dvk.set_page_url("/url/")
+    main_dvk.set_media_file("main.txt")
+    with open(main_dvk.get_media_file(), "w") as out_file:
+        out_file.write("Main test")
+    main_dvk.write_dvk()
+    second = Dvk()
+    second.set_dvk_file(join(test_dir, "second.dvk"))
+    second.set_dvk_id("SEC246")
+    second.set_title("Second")
+    second.set_artist("artist")
+    second.set_page_url("/url/")
+    second.set_media_file("second.txt")
+    second.set_secondary_file("second2.txt")
+    with open(second.get_media_file(), "w") as out_file:
+        out_file.write("File")
+    with open(second.get_secondary_file(), "w") as out_file:
+        out_file.write("Secondary Test")
+    second.write_dvk()
+    # TEST MOVING DVK FILE WITH NO MEDIA
+    file = no_media.get_dvk_file()
+    assert exists(file)
+    no_media.move_dvk(sub)
+    assert not exists(file)
+    assert abspath(join(sub, "no_media.dvk")) == no_media.get_dvk_file()
+    assert exists(no_media.get_dvk_file())
+    assert no_media.get_title() == "No Media"
+    # TEST MOVING DVK WITH MEDIA
+    assert exists(main_dvk.get_dvk_file())
+    file = main_dvk.get_media_file()
+    assert exists(file)
+    main_dvk.move_dvk(sub)
+    assert not exists(file)
+    assert abspath(join(sub, "main.dvk")) == main_dvk.get_dvk_file()
+    assert exists(main_dvk.get_dvk_file())
+    assert abspath(join(sub, "main.txt")) == main_dvk.get_media_file()
+    assert exists(main_dvk.get_media_file())
+    with open(main_dvk.get_media_file()) as f:
+            contents = f.read()
+    assert contents == "Main test"
+    assert main_dvk.get_title() == "Main"
+    # TEST MOVING DVK WITH SECONDARY MEDIA
+    assert exists(second.get_dvk_file())
+    assert exists(second.get_media_file())
+    file = second.get_secondary_file()
+    assert exists(file)
+    second.move_dvk(sub)
+    assert not exists(file)
+    assert abspath(join(sub, "second.dvk")) == second.get_dvk_file()
+    assert exists(second.get_dvk_file())
+    assert abspath(join(sub, "second.txt")) == second.get_media_file()
+    assert exists(second.get_media_file())
+    assert abspath(join(sub, "second2.txt")) == second.get_secondary_file()
+    assert exists(second.get_secondary_file())
+    with open(second.get_media_file()) as f:
+            contents = f.read()
+    assert contents == "File"
+    with open(second.get_secondary_file()) as f:
+            contents = f.read()
+    assert contents == "Secondary Test"
+    assert second.get_title() == "Second"
+    # TEST MOVING TO INVALID DIRECTORIES
+    main_dvk.move_dvk(None)
+    assert abspath(join(sub, "main.dvk")) == main_dvk.get_dvk_file()
+    main_dvk.move_dvk("/non-existant/dir/")
+    assert abspath(join(sub, "main.dvk")) == main_dvk.get_dvk_file()
+
 def test_update_extensions():
     """
     Tests the update_extensions method.
@@ -828,7 +914,7 @@ def test_update_extensions():
     image_file = abspath(join(test_dir, "image.pdf"))
     download("http://www.pythonscraping.com/img/gifts/img6.jpg", image_file)
     text_file = abspath(join(test_dir, "text.txt"))
-    with io_open(text_file, "w", encoding="utf8") as out_file:
+    with open(text_file, "w") as out_file:
         out_file.write("TEST File")
     assert exists(image_file)
     assert exists(text_file)
@@ -878,6 +964,6 @@ def all_tests():
     test_get_set_is_single()
     test_get_filename()
     test_rename_files()
+    test_move_dvk()
     test_write_media()
     test_update_extensions()
-

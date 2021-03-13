@@ -11,8 +11,9 @@ from dvk_archive.main.processing.html_processing import add_escapes_to_html
 from filetype import guess
 from json import dump, load
 from os import pardir, rename, remove
-from os.path import abspath, basename, exists, join
+from os.path import abspath, basename, exists, isdir, join
 from random import seed, randint
+from shutil import move
 from traceback import print_exc
 from typing import List
 
@@ -695,6 +696,40 @@ class Dvk:
                     self.set_secondary_file(to_file)
         # REWRITE DVK FILE
         self.write_dvk()
+
+    def move_dvk(self, directory:str=None):
+        """
+        Moves DVK file and associated media to the given directory.
+
+        :param directory: Directory to move files into, defauts to None
+        :type directory: str, optional
+        """
+        # CHECK DIRECTORY IS VALID
+        if directory is not None and exists(directory) and isdir(directory):
+            # GET MEDIA FILES
+            file = self.get_dvk_file()
+            media = self.get_media_file()
+            second = self.get_secondary_file()
+            # CHANGE DVK FILE DIRECTORY
+            filename = basename(file)
+            self.set_dvk_file(join(directory, filename))
+            try:
+                # MOVE MEDIA FILE
+                if media is not None and exists(media):
+                    filename = basename(media)
+                    self.set_media_file(filename)
+                    move(media, self.get_media_file())
+                # MOVE SECONDARY FILE
+                if second is not None and exists(second):
+                    filename = basename(second)
+                    self.set_secondary_file(filename)
+                    move(second, self.get_secondary_file())
+                # MOVE DVK FILE
+                if exists(file):
+                    remove(file)
+                self.write_dvk()
+            except:
+                self.set_dvk_file(file)
 
     def update_extensions(self):
         """
