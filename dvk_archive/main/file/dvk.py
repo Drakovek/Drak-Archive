@@ -582,7 +582,7 @@ class Dvk:
         """
         Returns list of artists that favorited this media online.
 
-        :return: List of fovorites artists
+        :return: List of favorites artists
         :rtype: list[str]
         """
         return self.favorites
@@ -605,6 +605,7 @@ class Dvk:
                 del tags[index]
                 index -= 1
             index += 1
+        self.set_web_tags(tags)
         # USE GIVEN SINGLE VALUE IF NOT OVERWRITTEN BY LEGACY TAG
         if not r_single:
             r_single = single
@@ -614,7 +615,7 @@ class Dvk:
         """
         Returns whether the Dvk's media was downloaded as a single file.
 
-        :return: Whetehr Dvk is a single file
+        :return: Whether Dvk is a single file
         :rtype: bool
         """
         return self.single

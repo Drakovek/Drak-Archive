@@ -299,7 +299,7 @@ def test_get_set_web_tags():
     assert dvk.get_web_tags() == []
     # WRITE DVK
     test_dir = get_test_dir()
-    dvk.set_dvk_file(join(test_dir, "tags.txt"))
+    dvk.set_dvk_file(join(test_dir, "tags.dvk"))
     dvk.set_dvk_id("id123")
     dvk.set_title("Title")
     dvk.set_artist("artist")
@@ -494,14 +494,12 @@ def test_get_set_secondary_file():
     # TEST SETTING SECONDARY MEDIA FILE WITH NO DVK FILE SET
     dvk.set_secondary_file("file.txt")
     assert dvk.get_secondary_file() is None
-    test_dir = get_test_dir()
-    dvk.set_secondary_file(join(test_dir, "file.txt"))
-    assert dvk.get_secondary_file() is None
     # TEST SETTING SECONDARY MEDIA FILE FROM DVK FILE WITH INVALID PARENT
     dvk.set_dvk_file("/non-existant/file.dvk")
     dvk.set_secondary_file("file.txt")
     assert dvk.get_secondary_file() is None
     # TEST SETTING SECONDARY MEDIA WITH VALID DVK FILE
+    test_dir = get_test_dir()
     dvk.set_dvk_file(join(test_dir, "file.dvk"))
     dvk.set_secondary_file("file.txt")
     assert abspath(join(dvk.get_secondary_file(), pardir)) == test_dir
@@ -564,7 +562,6 @@ def test_get_set_favorites():
     assert dvk.get_favorites()[2] == "thing"
     # TEST SETTING INVALID FAVORITES
     dvk = Dvk()
-    dvk.set_favorites("TEST")
     dvk.set_favorites(None)
     assert dvk.get_favorites() == []
     # WRITE DVK
@@ -588,7 +585,7 @@ def test_get_set_favorites():
     assert read_dvk.get_favorites()[1] == "Person"
     assert read_dvk.get_favorites()[2] == "person2"
 
-def test_get_set_is_single():
+def test_get_set_single():
     """
     Tests the is_single and set_single methods.
     """
@@ -637,7 +634,7 @@ def test_get_set_is_single():
     dvk_none.set_artist("Artist")
     dvk_none.set_page_url("/url/")
     dvk_none.set_media_file("media.png")
-    dvk_none.set_web_tags("Same")
+    dvk_none.set_web_tags(["none"])
     dvk_none.write_dvk()
     # TEST READING SINGLE VALUE FROM DVK FILES
     read_dvk = Dvk(dvk_single.get_dvk_file())
@@ -649,6 +646,7 @@ def test_get_set_is_single():
     assert read_dvk.is_single()
     read_dvk = Dvk(dvk_none.get_dvk_file())
     dvk_none = None
+    assert read_dvk.get_web_tags() == ["none"]
     assert not read_dvk.is_single()
 
 def test_get_filename():
@@ -961,7 +959,7 @@ def all_tests():
     test_get_set_media_file()
     test_get_set_secondary_file()
     test_get_set_favorites()
-    test_get_set_is_single()
+    test_get_set_single()
     test_get_filename()
     test_rename_files()
     test_move_dvk()

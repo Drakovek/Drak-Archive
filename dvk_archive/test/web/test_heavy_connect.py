@@ -4,7 +4,38 @@ from bs4 import BeautifulSoup
 from dvk_archive.main.web.heavy_connect import HeavyConnect
 from dvk_archive.test.temp_dir import get_test_dir
 from os import stat
-from os.path import abspath, join
+from os.path import abspath, exists, join
+
+def test_download():
+    """
+    Tests the download method.
+    """
+    connect = HeavyConnect()
+    try:
+        # TEST DOWNLOADING A GIVEN FILE
+        test_dir = get_test_dir()
+        file = abspath(join(test_dir, "image.jpg"))
+        url = "http://www.pythonscraping.com/img/gifts/img6.jpg"
+        connect.download(url, file)
+        assert exists(file)
+        assert stat(file).st_size == 39785
+        file = abspath(join(test_dir, "next.jpg"))
+        url = "http://www.pythonscraping.com/img/gifts/img4.jpg"
+        connect.download(url, file)
+        assert exists(file)
+        assert stat(file).st_size == 85007
+        # TEST DOWNLOADING WITH INVALID PARAMETERS
+        file = join(test_dir, "invalid.jpg")
+        connect.download(None, None)
+        assert not exists(file)
+        connect.download(None, file)
+        assert not exists(file)
+        connect.download("asdfasdf", file)
+        assert not exists(file)
+        connect.download(url, None)
+        assert not exists(file)
+    finally:
+        connect.close_driver()
 
 def test_get_page():
     """
@@ -34,8 +65,8 @@ def test_get_page():
         url = "qwertyuiopasdfghjkl"
         page = connect.get_page(url, None)
         assert page is None
-        # CLOSE DRIVER
     finally:
+        # CLOSE DRIVER
         connect.close_driver()
 
 def test_load_json():
@@ -60,5 +91,6 @@ def all_tests():
     """
     Runs all tests for the heavy_connect module.
     """
+    test_download()
     test_load_json()
     test_get_page()

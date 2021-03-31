@@ -2,13 +2,18 @@
 
 from bs4 import BeautifulSoup
 from json import loads
+from os import listdir, mkdir
+from os.path import abspath, exists, join
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options as FO
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-
+from shutil import move, rmtree
+from tempfile import gettempdir
+from time import sleep
+from traceback import print_exc
 
 def print_driver_instructions():
     """
@@ -41,16 +46,45 @@ class HeavyConnect:
         :type headless: bool, optional
         """
         try:
+            # SET UP TEMP DIR
+            self.tempdir = abspath(gettempdir())
+            self.tempdir = abspath(join(self.tempdir, "dvk_connection"))
+            if not exists(self.tempdir):
+                mkdir(self.tempdir)
             # TRY FIREFOX DRIVER
             options = FO()
             options.headless = headless
             options.page_load_strategy = "none"
+            # SET DOWNLOAD FOLDER OPTIONS
+            options.set_preference("browser.download.folderList", 2)
+            options.set_preference("browser.download.useDownloadDir", True)
+            options.set_preference("browser.download.dir", self.get_download_dir())
+            options.set_preference("browser.download.viewableInternally.enabledTypes", "")
+            options.set_preference("browser.helperApps.neverAsk.saveToDisk", "image/gif;image/jpeg;image/png;image/webp;image/svg+xml")
+            # CREATE DRIVER
             profile = webdriver.FirefoxProfile()
-            self.driver = webdriver.Firefox(options=options, firefox_profile=profile)
+            log_file = abspath(join(self.tempdir, "dvkgeckodriver.log"))
+            self.driver = webdriver.Firefox(
+                    options=options,
+                    log_path=log_file,
+                    firefox_profile=profile)
         except WebDriverException:
             # PRINTS INSTRUCTIONS FOR GETTING SELENIUM DRIVER
             self.driver = None
             print_driver_instructions()
+
+    def get_download_dir(self) -> str:
+        """
+        Creates and returns a directory for storing downloaded files.
+
+        :return: File path of the download directory
+        :rtype: str
+        """
+        ddir = abspath(join(self.tempdir, "downloads"))
+        if exists(ddir):
+            rmtree(ddir)
+        mkdir(ddir)
+        return ddir
 
     def get_page(self, url:str=None, element:str=None) -> BeautifulSoup:
         """
@@ -106,3 +140,49 @@ class HeavyConnect:
         """
         if self.driver is not None:
             self.driver.close()
+
+    def download(self, url:str=None, file_path:str=None) -> dict:
+        """
+        Downloads a file from given URL to given file.
+
+        :param url: Given URL, defaults to None
+        :type url: str, optional
+        :param file_path: Given file path, defaults to None
+        :type file_path: str, optional
+        :return: Headers retrieved from the given media URL
+        :rtype: dict
+        """
+        try:
+            # CHECK IF PARAMETERS ARE VALID
+            assert url is not None
+            assert file_path is not None
+            # GET DOWNLOAD DIRECTORY
+            directory = self.get_download_dir()
+            self.get_page(url, "//img")
+            # DOWNLOAD FILE TO TEMP DOWNLOAD DIRECTORY
+            js_command = "var link = document.createElement(\"a\");"\
+                         + "link.href = \"" + url + "\";"\
+                         + "link.download = \"d.dvk\";"\
+                         + "document.body.appendChild(link);link.click();"
+            self.driver.execute_script(js_command)
+            # WAIT UNTIL FILE STARTED DOWNLOADING OR TIMES OUT
+            sec = 0
+            while sec < 10 and len(listdir(directory)) == 0:
+                sleep(1)
+                sec += 1
+            assert not len(listdir(directory)) == 0
+            # WAIT UNTIL FILE FINISHED DOWNLOADING OR TIMES OUT
+            sec = 0
+            while sec < 10 and len(listdir(directory)) > 1:
+                sleep(1)
+                sec += 1
+            assert len(listdir(directory)) == 1
+            # GET DOWNLOADED FILE
+            file = abspath(join(directory, listdir(directory)[0]))
+            assert exists(file)
+            # WAIT
+            sleep(2)
+            # MOVE FILE
+            move(file, abspath(file_path))
+        except:
+            self.get_download_dir()

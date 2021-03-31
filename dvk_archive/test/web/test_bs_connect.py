@@ -6,8 +6,26 @@ from dvk_archive.test.temp_dir import get_test_dir
 from dvk_archive.main.web.bs_connect import bs_connect
 from dvk_archive.main.web.bs_connect import basic_connect
 from dvk_archive.main.web.bs_connect import download
+from dvk_archive.main.web.bs_connect import get_default_headers
+from dvk_archive.main.web.bs_connect import get_direct_response
 from dvk_archive.main.web.bs_connect import get_last_modified
 from dvk_archive.main.web.bs_connect import json_connect
+
+def test_get_direct_response():
+    """
+    Tests the get_direct_response function.
+    """
+    # TEST GETTING RESPONSE HEADERS
+    url = "http://pythonscraping.com/exercises/exercise1.html"
+    response = get_direct_response(url, get_default_headers())
+    headers = response.headers
+    assert headers["Server"] == "Apache"
+    assert headers["Connection"] == "Keep-Alive"
+    # TEST GETTING RESPONSE USING INVALID PARAMETERS
+    assert get_direct_response() is None
+    assert get_direct_response(None) is None
+    assert get_direct_response("") is None
+    assert get_direct_response("asdfghjkl") is None
 
 def test_basic_connect():
     """
@@ -119,6 +137,7 @@ def all_tests():
     """
     Runs all tests for the bs_connect module.
     """
+    test_get_direct_response()
     test_basic_connect()
     test_bs_connect()
     test_json_connect()

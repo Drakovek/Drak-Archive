@@ -6,20 +6,39 @@ from io import BytesIO
 from json import loads
 from os.path import abspath, exists
 from requests import exceptions
+from requests import Response
 from requests import Session
 from shutil import copyfileobj
 from urllib.error import HTTPError
 
-def get_headers() -> dict:
+def get_default_headers() -> dict:
     """
     Return headers to use when making a URL connection.
     """
     headers = {
         "User-Agent":
-        "Mozilla/5.0 (X11; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0",
+        "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86.0",
         "Accept-Language":
         "en-US,en;q=0.5"}
     return headers
+
+def get_direct_response(url:str=None, headers:dict=None, data:dict=None) -> Response:
+    # RETURN NONE IF URL IS INVALID
+    if url is None or url == "":
+        return None
+    session = Session()
+    try:
+        # SEND REQUEST
+        if data is None:
+            # SEND GET REQUEST IF THERE IS NO POST DATA
+            response = session.get(url, headers=headers)
+        else:
+            # SEND POST REQUEST IF POST DATA IS PROVIDED
+            response = session.post(url, data=data)
+        return response
+    except:
+        return None
+    return None
 
 def basic_connect(url:str=None, encoding:str="utf-8", data:dict=None) -> str:
     """
@@ -38,25 +57,17 @@ def basic_connect(url:str=None, encoding:str="utf-8", data:dict=None) -> str:
     # RETURN NONE IF URL IS INVALID
     if url is None or url == "":
         return None
-    session = Session()
-    headers = get_headers()
     try:
-        # SEND REQUEST
-        if data is None:
-            # SEND GET REQUEST IF THERE IS NO POST DATA
-            request = session.get(url, headers=headers)
-        else:
-            # SEND POST REQUEST IF POST DATA IS PROVIDED
-            request = session.post(url, data=data)
+        # GET REQUEST
+        response = get_direct_response(url, get_default_headers(), data)
         # SET ENCODING
         if encoding is None:
-            request.encoding = request.apparent_encoding
+            response.encoding = request.apparent_encoding
         else:
-            request.encoding = encoding
-        return request.text
+            response.encoding = encoding
+        return response.text
     except:
         return None
-    return None
 
 def bs_connect(url:str=None, encoding:str="utf-8", data:dict=None) -> BeautifulSoup:
     """
@@ -117,7 +128,7 @@ def download(url:str=None, file_path:str=None) -> dict:
         # SAVE FILE
         try:
             session = Session()
-            headers = get_headers()
+            headers = get_default_headers()
             response = session.get(url, headers=headers)
             byte_obj = BytesIO(response.content)
             byte_obj.seek(0)
@@ -133,7 +144,7 @@ def download(url:str=None, file_path:str=None) -> dict:
 
 def get_last_modified(headers:dict=None) -> str:
     """
-    Returns the time a webpage was last modified from its request headers.
+    Returns the time a webpage was last modified from its response headers.
 
     :param headers: HTML request headers, defaults to None
     :type headers: dict, optional
