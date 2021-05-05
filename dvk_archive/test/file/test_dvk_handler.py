@@ -343,6 +343,49 @@ def test_set_dvk():
     assert dvk_handler.get_dvk(0).get_title() == "Title 1"
     assert dvk_handler.get_dvk(1).get_title() == "New Title"
 
+def test_remove_dvk():
+    """
+    Tests the remove_dvk method
+    """
+    # Write test Dvks
+    test_dir = get_test_dir()
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "dvk1.dvk"))
+    dvk.set_dvk_id("ID1")
+    dvk.set_title("Title 1")
+    dvk.set_artist("Artist")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("media1.png")
+    dvk.write_dvk()
+    dvk.set_dvk_file(join(test_dir, "other.dvk"))
+    dvk.set_title("Other")
+    dvk.set_media_file("other.txt")
+    dvk.write_dvk()
+    dvk.set_dvk_file(join(test_dir, "third.dvk"))
+    dvk.set_title("Third")
+    dvk.set_media_file("third.jpg")
+    dvk.write_dvk()
+    dvk_handler = DvkHandler(test_dir)
+    dvk_handler.sort_dvks("a")
+    assert dvk_handler.get_size() == 3
+    # Test removing Dvks from list
+    dvk_handler.remove_dvk(1)
+    assert dvk_handler.get_size() == 2
+    assert dvk_handler.get_dvk(0).get_title() == "Other"
+    assert dvk_handler.get_dvk(1).get_title() == "Title 1"
+    dvk_handler.remove_dvk(0)
+    assert dvk_handler.get_size() == 1
+    assert dvk_handler.get_dvk(0).get_title() == "Title 1"
+    # Test removing from invalid indexes
+    dvk_handler = DvkHandler(test_dir)
+    assert dvk_handler.get_size() == 3
+    dvk_handler.remove_dvk(-1)
+    assert dvk_handler.get_size() == 3
+    dvk_handler.remove_dvk(3)
+    assert dvk_handler.get_size() == 3
+    dvk_handler.remove_dvk(4)
+    assert dvk_handler.get_size() == 3
+
 def test_get_dvk_by_id():
     """
     Tests the get_dvk_by_id method.
@@ -503,6 +546,7 @@ def all_tests():
     test_sort_time()
     test_add_dvk()
     test_set_dvk()
+    test_remove_dvk()
     test_contains_id()
     test_get_dvk_by_id()
     test_contains_page_url()

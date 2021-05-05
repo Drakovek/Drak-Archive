@@ -189,6 +189,16 @@ class DvkHandler:
                 and index < self.get_size()):
             self.dvks[index] = dvk
 
+    def remove_dvk(self, index:int=-1):
+        """
+        Removes the Dvk at a given index.
+
+        :param index: Index of the Dvk to remove, defaults to -1
+        :type index: int, optional
+        """
+        if index > -1 and index < self.get_size():
+            del self.dvks[index]
+
     def get_dvk_by_id(self, dvk_id:str=None) -> int:
         """
         Returns the index of the Dvk with the given ID.

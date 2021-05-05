@@ -66,7 +66,7 @@ class HeavyConnect:
             log_file = abspath(join(self.tempdir, "dvkgeckodriver.log"))
             self.driver = webdriver.Firefox(
                     options=options,
-                    log_path=log_file,
+                    service_log_path=log_file,
                     firefox_profile=profile)
         except WebDriverException:
             # PRINTS INSTRUCTIONS FOR GETTING SELENIUM DRIVER

@@ -698,6 +698,23 @@ class Dvk:
         # REWRITE DVK FILE
         self.write_dvk()
 
+    def delete_dvk(self):
+        """
+        Deletes the Dvk file and any linked media.
+        """
+        # Delete main Dvk file
+        file = self.get_dvk_file()
+        if file is not None and exists(file):
+            remove(file)
+        # Delete media file
+        file = self.get_media_file()
+        if file is not None and exists(file):
+            remove(file)
+        # Delete secondary media file
+        file = self.get_secondary_file()
+        if file is not None and exists(file):
+            remove(file)
+
     def move_dvk(self, directory:str=None):
         """
         Moves DVK file and associated media to the given directory.

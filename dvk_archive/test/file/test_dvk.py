@@ -816,6 +816,59 @@ def test_write_media():
     assert basename(secondary_dvk.get_secondary_file()) == "secondary.jpg"
     assert secondary_dvk.get_time() == "2014/08/04|00:49"
 
+def test_delete_dvk():
+    """
+    Tests the delete_dvk method.
+    """
+    # Test deleting DVK file with no media
+    test_dir = get_test_dir()
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "dvk.dvk"))
+    dvk.set_dvk_id("ID123")
+    dvk.set_title("Title")
+    dvk.set_artist("Artist")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("Non-Existant.png")
+    dvk.write_dvk()
+    assert exists(dvk.get_dvk_file())
+    dvk.delete_dvk()
+    assert not exists(dvk.get_dvk_file())
+    assert not exists(dvk.get_media_file())
+    assert dvk.get_secondary_file() is None
+    # Test deleting DVK file with media
+    dvk.set_media_file("media.txt")
+    with open(dvk.get_media_file(), "w") as out_file:
+        out_file.write("Main File")
+    dvk.write_dvk()
+    assert exists(dvk.get_dvk_file())
+    assert exists(dvk.get_media_file())
+    dvk.delete_dvk()
+    assert not exists(dvk.get_dvk_file())
+    assert not exists(dvk.get_media_file())
+    assert dvk.get_secondary_file() is None
+    # Test deleting DVK file with secondary file
+    dvk.set_secondary_file("secondary.png")
+    with open(dvk.get_media_file(), "w") as out_file:
+        out_file.write("Main File")
+    with open(dvk.get_secondary_file(), "w") as out_file:
+        out_file.write("Secondary")
+        dvk.write_dvk()
+    assert exists(dvk.get_dvk_file())
+    assert exists(dvk.get_media_file())
+    assert exists(dvk.get_secondary_file())
+    dvk.delete_dvk()
+    assert not exists(dvk.get_dvk_file())
+    assert not exists(dvk.get_media_file())
+    assert not exists(dvk.get_secondary_file())
+    # Test deleting DVK doesn't fail when file is invalid
+    dvk.set_dvk_file("/non-existant/asdf")
+    dvk.set_media_file("asdf")
+    dvk.set_secondary_file("asdf")
+    dvk.delete_dvk()
+    assert not exists(dvk.get_dvk_file())
+    assert dvk.get_media_file() is None
+    assert dvk.get_secondary_file() is None
+
 def test_move_dvk():
     """
     Tests the move_dvk method.
@@ -874,7 +927,7 @@ def test_move_dvk():
     assert abspath(join(sub, "main.txt")) == main_dvk.get_media_file()
     assert exists(main_dvk.get_media_file())
     with open(main_dvk.get_media_file()) as f:
-            contents = f.read()
+        contents = f.read()
     assert contents == "Main test"
     assert main_dvk.get_title() == "Main"
     # TEST MOVING DVK WITH SECONDARY MEDIA
@@ -962,6 +1015,7 @@ def all_tests():
     test_get_set_single()
     test_get_filename()
     test_rename_files()
+    test_delete_dvk()
     test_move_dvk()
     test_write_media()
     test_update_extensions()
