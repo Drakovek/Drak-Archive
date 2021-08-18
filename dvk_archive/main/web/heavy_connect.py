@@ -86,7 +86,10 @@ class HeavyConnect:
         mkdir(ddir)
         return ddir
 
-    def get_page(self, url:str=None, element:str=None) -> BeautifulSoup:
+    def get_page(self,
+                    url:str=None,
+                    element:str=None,
+                    timeout:int=10) -> BeautifulSoup:
         """
         Connects to a URL and returns a BeautifulSoup object.
         Capable of loading JavaScript, AJAX, etc.
@@ -95,6 +98,8 @@ class HeavyConnect:
         :type url: str, optional
         :param element: XPATH Element to wait for, defaults to None
         :type element: str, optional
+        :param timeout: Seconds before timeout, defaults to 10
+        :type timeout: int, optional
         :return: BeautifulSoup object for the web page
         :rtype: BeautifulSoup
         """
@@ -106,7 +111,7 @@ class HeavyConnect:
             self.driver.get(url)
             # WAIT FOR ELEMENT TO LOAD, IF SPECIFIED
             if element is not None and not element == "":
-                WebDriverWait(self.driver, 10).until(
+                WebDriverWait(self.driver, timeout).until(
                      EC.presence_of_all_elements_located((By.XPATH, element)))
             bs = BeautifulSoup(self.driver.page_source, "lxml")
             return bs
