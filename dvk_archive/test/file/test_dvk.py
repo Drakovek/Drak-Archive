@@ -649,6 +649,126 @@ def test_get_set_single():
     assert read_dvk.get_web_tags() == ["none"]
     assert not read_dvk.is_single()
 
+def test_get_set_next_id():
+    """
+    Tests the get_next_id and set_next_id methods.
+    """
+    # Test getting default next ID from Dvk constructor
+    dvk = Dvk()
+    assert dvk.get_next_id() is None
+    # Test getting and setting next ID
+    dvk.set_next_id("TST123")
+    assert dvk.get_next_id() == "TST123"
+    dvk.set_next_id("non")
+    assert dvk.get_next_id() == "non"
+    dvk.set_next_id(None)
+    assert dvk.get_next_id() is None
+    dvk.set_next_id()
+    assert dvk.get_next_id() is None
+    # Write DVK
+    test_dir = get_test_dir()
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "next.dvk"))
+    dvk.set_dvk_id("id123")
+    dvk.set_title("Title")
+    dvk.set_artist("Artist")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("media.png")
+    dvk.set_next_id("NEW9876")
+    dvk.write_dvk()
+    # Test reading next ID from DVK file
+    read_dvk = Dvk(dvk.get_dvk_file())
+    dvk = None
+    assert read_dvk.get_next_id() == "NEW9876"
+
+def test_get_set_prev_id():
+    """
+    Tests the get_prev_id and set_prev_id methods.
+    """
+    # Test getting default prev ID from Dvk constructor
+    dvk = Dvk()
+    assert dvk.get_prev_id() is None
+    # Test getting and setting prev ID
+    dvk.set_prev_id("TST123")
+    assert dvk.get_prev_id() == "TST123"
+    dvk.set_prev_id("non")
+    assert dvk.get_prev_id() == "non"
+    dvk.set_prev_id(None)
+    assert dvk.get_prev_id() is None
+    dvk.set_prev_id()
+    assert dvk.get_prev_id() is None
+    # Write DVK
+    test_dir = get_test_dir()
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "next.dvk"))
+    dvk.set_dvk_id("id123")
+    dvk.set_title("Title")
+    dvk.set_artist("Artist")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("media.png")
+    dvk.set_prev_id("NEW9876")
+    dvk.write_dvk()
+    # Test reading prev ID from DVK file
+    read_dvk = Dvk(dvk.get_dvk_file())
+    dvk = None
+    assert read_dvk.get_prev_id() == "NEW9876"
+
+def test_set_first():
+    """
+    Tests the set_first method.
+    """
+    # Test setting Dvk to the first in a sequence
+    dvk = Dvk()
+    assert dvk.get_prev_id() is None
+    dvk.set_first()
+    assert dvk.get_prev_id() == "non"
+    dvk.set_prev_id("ID123")
+    assert dvk.get_prev_id() == "ID123"
+    dvk.set_first()
+    assert dvk.is_first()
+
+def test_is_first():
+    """
+    Tests the is_first method.
+    """
+    # Test seeing if Dvk is the first in a sequence
+    dvk = Dvk()
+    assert not dvk.is_first()
+    dvk.set_prev_id("NEW123")
+    assert not dvk.is_first()
+    dvk.set_first()
+    assert dvk.is_first()
+    dvk.set_prev_id("non")
+    assert dvk.is_first()
+
+def test_set_last():
+    """
+    Tests the set_last method.
+    """
+    # Test setting Dvk to the last in a sequence
+    dvk = Dvk()
+    assert dvk.get_next_id() is None
+    dvk.set_last()
+    assert dvk.get_next_id() == "non"
+    dvk.set_next_id("ID123")
+    assert dvk.get_next_id() == "ID123"
+    dvk.set_last()
+    assert dvk.is_last()
+
+def test_is_last():
+    """
+    Tests the is_last method.
+    """
+    # Test seeing if Dvk is the last in a sequence
+    dvk = Dvk()
+    assert not dvk.is_last()
+    dvk.set_next_id("NEW123")
+    assert not dvk.is_last()
+    dvk.set_last()
+    assert dvk.is_last()
+    dvk.set_next_id("non")
+    assert dvk.is_last()
+
 def test_get_filename():
     """
     Tests the get_filename method.
@@ -682,6 +802,9 @@ def test_get_filename():
     assert dvk.get_filename(True) == "0_ID123_S"
 
 def test_rename_files():
+    """
+    Tests the rename_files method.
+    """
     # CREATE TEST DVK WITHOUT EXISTING MEDIA FILES
     no_media_dvk = Dvk()
     test_dir = get_test_dir()
@@ -1013,6 +1136,12 @@ def all_tests():
     test_get_set_secondary_file()
     test_get_set_favorites()
     test_get_set_single()
+    test_get_set_next_id()
+    test_get_set_prev_id()
+    test_is_first()
+    test_is_last()
+    test_set_first()
+    test_set_last()
     test_get_filename()
     test_rename_files()
     test_delete_dvk()

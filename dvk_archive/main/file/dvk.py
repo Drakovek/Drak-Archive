@@ -50,6 +50,8 @@ class Dvk:
         self.set_secondary_file()
         self.set_favorites()
         self.set_single()
+        self.set_next_id()
+        self.set_prev_id()
 
     def can_write(self) -> bool:
         """
@@ -98,15 +100,20 @@ class Dvk:
             dvk_file_dict["secondary_file"] = None
             if self.get_secondary_file() is not None:
                 dvk_file_dict["secondary_file"] = basename(self.get_secondary_file())
-            # Create dict for info aboout how the Dvk was downloaded
+            # Create dict for info about how the Dvk was downloaded
             dvk_download = dict()
             dvk_download["favorites"] = self.get_favorites()
             dvk_download["is_single"] = self.is_single()
+            # Create dict for info about how the Dvk fits in a sequence
+            dvk_sequence = dict()
+            dvk_sequence["next_id"] = self.get_next_id()
+            dvk_sequence["prev_id"] = self.get_prev_id()
             # Create dict to combine all Dvk info.
             dvk_data["info"] = dvk_info
             dvk_data["web"] = dvk_web
             dvk_data["file"] = dvk_file_dict
             dvk_data["download"] = dvk_download
+            dvk_data["sequence"] = dvk_sequence
             # Write dvk_data dict to a DVK(JSON) file.
             try:
                 with open(self.get_dvk_file(), "w") as out_file:
@@ -207,6 +214,20 @@ class Dvk:
                     except:
                         self.set_favorites()
                         self.set_single()
+                    # Get DVK sequence info.
+                    try:
+                        dvk_sequence = json["sequence"]
+                        try:
+                            self.set_next_id(dvk_sequence["next_id"])
+                        except:
+                            self.set_next_id()
+                        try:
+                            self.set_prev_id(dvk_sequence["prev_id"])
+                        except:
+                            self.set_prev_id()
+                    except:
+                        self.set_next_id()
+                        self.set_prev_id()
         except:
             print("Error reading DVK file: " + self.get_dvk_file())
             print_exc()
@@ -619,6 +640,78 @@ class Dvk:
         :rtype: bool
         """
         return self.single
+
+    def set_next_id(self, next_id:str=None):
+        """
+        Sets the next ID in a media sequence.
+
+        :param next_id: Next ID in the sequnce, defaults to None
+        :type next_id: str, optional 
+        """
+        self.next_id = next_id
+
+    def get_next_id(self) -> str:
+        """
+        Returns the next ID in a media sequence.
+
+        :return: Next ID in the sequence
+        :rtype: str
+        """
+        return self.next_id
+
+    def set_prev_id(self, prev_id:str=None):
+        """
+        Sets the previous ID in a media sequence.
+
+        :param prev_id: Previous ID in the sequnce, defaults to None
+        :type prev_id: str, optional 
+        """
+        self.prev_id = prev_id
+
+    def get_prev_id(self) -> str:
+        """
+        Returns the previous ID in a media sequence.
+
+        :return: Previous ID in the sequence
+        :rtype: str
+        """
+        return self.prev_id
+
+    def set_first(self):
+        """
+        Sets Dvk to be the first of a sequence.
+        Adds marker to prev_id indicating there are no previous Dvks.
+        """
+        self.set_prev_id("non")
+
+    def is_first(self) -> bool:
+        """
+        Returns whether Dvk is the first in a sequence.
+
+        :return: Whether Dvk is the first in a sequence.
+        :rtype: bool
+        """
+        if self.get_prev_id() == "non":
+            return True
+        return False
+
+    def set_last(self):
+        """
+        Sets Dvk to be the last of a sequence.
+        Adds marker to next_id indicating there are no next Dvks.
+        """
+        self.set_next_id("non")
+
+    def is_last(self) -> bool:
+        """
+        Returns whether Dvk is the last in a sequence.
+
+        :return: Whether Dvk is the last in a sequence.
+        :rtype: bool
+        """
+        if self.get_next_id() == "non":
+            return True
+        return False
 
     def get_filename(self, secondary:bool=False, prefix:str="DVK") -> str:
         """
