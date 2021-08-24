@@ -8,6 +8,7 @@ from dvk_archive.test.file.test_dvk import all_tests as test_dvk
 from dvk_archive.test.file.test_dvk_handler import all_tests as test_handler
 from dvk_archive.test.file.test_reformat import all_tests as test_reformat
 from dvk_archive.test.file.test_rename import all_tests as test_rename
+from dvk_archive.test.file.test_sequencing import all_tests as test_sequencing
 
 
 def test_all():
@@ -16,6 +17,6 @@ def test_all():
     """
     test_handler()
     test_dvk()
+    test_sequencing()
     test_reformat()
     test_rename()
-    
