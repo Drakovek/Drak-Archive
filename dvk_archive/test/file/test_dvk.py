@@ -679,6 +679,7 @@ def test_get_set_next_id():
     # Test reading next ID from DVK file
     read_dvk = Dvk(dvk.get_dvk_file())
     dvk = None
+    assert exists(read_dvk.get_dvk_file())
     assert read_dvk.get_next_id() == "NEW9876"
 
 def test_get_set_prev_id():
@@ -711,6 +712,7 @@ def test_get_set_prev_id():
     # Test reading prev ID from DVK file
     read_dvk = Dvk(dvk.get_dvk_file())
     dvk = None
+    assert exists(read_dvk.get_dvk_file())
     assert read_dvk.get_prev_id() == "NEW9876"
 
 def test_set_first():
@@ -768,6 +770,68 @@ def test_is_last():
     assert dvk.is_last()
     dvk.set_next_id("non")
     assert dvk.is_last()
+
+def test_get_set_sequence_title():
+    """
+    Tests the get_sequence_title and set_sequence_title methods.
+    """
+    # Test getting default sequence title from constructor.
+    dvk = Dvk()
+    assert dvk.get_sequence_title() == ""
+    # Test getting and setting the sequence title
+    dvk.set_sequence_title("Title!")
+    assert dvk.get_sequence_title() == "Title!"
+    dvk.set_sequence_title(" other   ")
+    assert dvk.get_sequence_title() == "other"
+    dvk.set_sequence_title(None)
+    assert dvk.get_sequence_title() == ""
+    # Write DVK
+    test_dir = get_test_dir()
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "seq_title.dvk"))
+    dvk.set_dvk_id("id123")
+    dvk.set_title("Title")
+    dvk.set_artist("Artist")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("media.png")
+    dvk.set_sequence_title("New Title")
+    dvk.write_dvk()
+    # Test reading sequence_title from DVK file
+    read_dvk = Dvk(dvk.get_dvk_file())
+    dvk = None
+    assert exists(read_dvk.get_dvk_file())
+    assert read_dvk.get_sequence_title() == "New Title"
+
+def test_get_set_section_title():
+    """
+    Tests the get_section_title and set_section_title methods.
+    """
+    # Test getting default section title from constructor.
+    dvk = Dvk()
+    assert dvk.get_sequence_title() == ""
+    # Test getting and setting the section title
+    dvk.set_section_title("Title!")
+    assert dvk.get_section_title() == "Title!"
+    dvk.set_section_title(" other   ")
+    assert dvk.get_section_title() == "other"
+    dvk.set_section_title(None)
+    assert dvk.get_section_title() == ""
+    # Write DVK
+    test_dir = get_test_dir()
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "seq_title.dvk"))
+    dvk.set_dvk_id("id123")
+    dvk.set_title("Title")
+    dvk.set_artist("Artist")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("media.png")
+    dvk.set_section_title("New Title")
+    dvk.write_dvk()
+    # Test reading section title from DVK file
+    read_dvk = Dvk(dvk.get_dvk_file())
+    dvk = None
+    assert exists(read_dvk.get_dvk_file())
+    assert read_dvk.get_section_title() == "New Title"
 
 def test_get_filename():
     """
@@ -1142,6 +1206,8 @@ def all_tests():
     test_is_last()
     test_set_first()
     test_set_last()
+    test_get_set_sequence_title()
+    test_get_set_section_title()
     test_get_filename()
     test_rename_files()
     test_delete_dvk()

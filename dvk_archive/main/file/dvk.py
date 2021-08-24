@@ -52,6 +52,8 @@ class Dvk:
         self.set_single()
         self.set_next_id()
         self.set_prev_id()
+        self.set_sequence_title()
+        self.set_section_title()
 
     def can_write(self) -> bool:
         """
@@ -108,6 +110,8 @@ class Dvk:
             dvk_sequence = dict()
             dvk_sequence["next_id"] = self.get_next_id()
             dvk_sequence["prev_id"] = self.get_prev_id()
+            dvk_sequence["seq_title"] = self.get_sequence_title()
+            dvk_sequence["section_title"] = self.get_section_title()
             # Create dict to combine all Dvk info.
             dvk_data["info"] = dvk_info
             dvk_data["web"] = dvk_web
@@ -225,9 +229,19 @@ class Dvk:
                             self.set_prev_id(dvk_sequence["prev_id"])
                         except:
                             self.set_prev_id()
+                        try:
+                            self.set_sequence_title(dvk_sequence["seq_title"])
+                        except:
+                            self.set_sequence_title()
+                        try:
+                            self.set_section_title(dvk_sequence["section_title"])
+                        except:
+                            self.set_section_title()
                     except:
                         self.set_next_id()
                         self.set_prev_id()
+                        self.set_sequence_title()
+                        self.set_section_title()
         except:
             print("Error reading DVK file: " + self.get_dvk_file())
             print_exc()
@@ -712,6 +726,48 @@ class Dvk:
         if self.get_next_id() == "non":
             return True
         return False
+
+    def set_sequence_title(self, seq_title:str=None):
+        """
+        Sets the title of the sequence Dvk is part of.
+
+        :param seq_title: Sequence title, defaults to None
+        :type seq_title: str, optional
+        """
+        if seq_title is None:
+            self.seq_title = ""
+        else:
+            self.seq_title = remove_whitespace(seq_title)
+
+    def get_sequence_title(self) -> str:
+        """
+        Returns the sequence title for the Dvk.
+
+        :return: Sequence title
+        :rtype: str
+        """
+        return self.seq_title
+
+    def set_section_title(self, section_title:str=None):
+        """
+        Sets the title of the section of a sequence Dvk is part of.
+
+        :param section_title: Section title, defaults to None
+        :type section_title: str, optional
+        """
+        if section_title is None:
+            self.section_title = ""
+        else:
+            self.section_title = remove_whitespace(section_title)
+
+    def get_section_title(self) -> str:
+        """
+        Returns the section title for the Dvk.
+
+        :return: Section title
+        :rtype: str
+        """
+        return self.section_title
 
     def get_filename(self, secondary:bool=False, prefix:str="DVK") -> str:
         """
