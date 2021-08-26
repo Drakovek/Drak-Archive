@@ -34,6 +34,9 @@ def test_rename_files():
     linked_dvk.set_secondary_file("other.png")
     download("http://www.pythonscraping.com/img/gifts/img5.jpg", linked_dvk.get_secondary_file())
     linked_dvk.write_dvk()
+    file = abspath(join(test_dir, "Linked Dvk.dvk"))
+    with open(file, "w") as out_file:
+        out_file.write("TEST")
     # TEST THAT THE TEST FILES WERE WRITTEN PROPERLY
     assert exists(no_media_dvk.get_dvk_file())
     assert exists(linked_dvk.get_dvk_file())
@@ -47,15 +50,15 @@ def test_rename_files():
     assert dvk_handler.get_size() == 2
     # TEST LINKED_DVK AND MEDIA WERE RENAMED
     assert abspath(join(dvk_handler.get_dvk(0).get_dvk_file(), pardir)) == test_dir
-    assert basename(dvk_handler.get_dvk(0).get_dvk_file()) == "Linked DVK_LD.dvk"
+    assert basename(dvk_handler.get_dvk(0).get_dvk_file()) == "Linked DVK - Artist.dvk"
     assert exists(dvk_handler.get_dvk(0).get_dvk_file())
-    assert basename(dvk_handler.get_dvk(0).get_media_file()) == "Linked DVK_LD.jpg"
+    assert basename(dvk_handler.get_dvk(0).get_media_file()) == "Linked DVK - Artist.jpg"
     assert exists(dvk_handler.get_dvk(0).get_media_file())
-    assert basename(dvk_handler.get_dvk(0).get_secondary_file()) == "Linked DVK_LD_S.jpg"
+    assert basename(dvk_handler.get_dvk(0).get_secondary_file()) == "Linked DVK - Artist_S.jpg"
     assert exists(dvk_handler.get_dvk(0).get_secondary_file())
     # TEST THAT NO_MEDIA_DVK WAS RENAMED
     assert abspath(join(dvk_handler.get_dvk(1).get_dvk_file(), pardir)) == test_dir
-    assert basename(dvk_handler.get_dvk(1).get_dvk_file()) == "No Media_NMD7089552299.dvk"
+    assert basename(dvk_handler.get_dvk(1).get_dvk_file()) == "No Media.dvk"
     # CHECK DVK FILE INFORMATION IS UNCHANGED
     dvk_handler.read_dvks(test_dir)
     dvk_handler.sort_dvks("a")

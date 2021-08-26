@@ -837,33 +837,47 @@ def test_get_filename():
     """
     Tests the get_filename method.
     """
-    # TEST WITH NO TITLE OR ID
+    # Test getting filename if duplicate filename doesn't exist
+    test_dir = get_test_dir()
     dvk = Dvk()
-    assert dvk.get_filename(False) == ""
-    # TEST WITH ONLY TITLE
-    dvk.set_title("Title")
-    assert dvk.get_filename(False) == ""
-    # TEST WITH ONLY ID
-    dvk.set_dvk_id("ID123")
-    dvk.set_title(None)
-    assert dvk.get_filename(False) == ""
-    # TEST WITH VALID TITLE AND ID
-    dvk.set_title("a   B-cd!")
-    assert dvk.get_filename() == "a B-cd_ID123"
-    assert dvk.get_filename(True) == "a B-cd_ID123_S"
-    # TEST WITH ID THAT IS TOO LONG
-    dvk.set_title("Title")
-    dvk.set_dvk_id("VERYLONG1234567890987654321")
-    assert dvk.get_filename() == "Title_DVK8698180574"
-    assert dvk.get_filename(True) == "Title_DVK8698180574_S"
-    assert dvk.get_filename(False, "AAA") == "Title_AAA8698180574"
-    assert dvk.get_filename(True, "abc") == "Title_ABC8698180574_S"
-    assert dvk.get_dvk_id() == "VERYLONG1234567890987654321"
-    # TEST WITH EMPTY TITLE
-    dvk.set_title("")
+    dvk.set_dvk_id("DVK1234")
+    dvk.set_title("It's a Title!")
+    dvk.set_artist("artist")
+    assert dvk.get_filename(test_dir) == "It-s a Title"
+    assert dvk.get_filename(test_dir, True) == "It-s a Title_S"
+    # Test getting filename if duplicate filename exists
+    file = abspath(join(test_dir, "Other Name.dvk"))
+    with open(file, "w") as out_file:
+        out_file.write("TEST")
+    dvk.set_title("Other name")
+    assert dvk.get_filename(test_dir) == "Other name - artist"
+    assert dvk.get_filename(test_dir, True) == "Other name - artist_S"
+    # Test getting filename if duplicate filename of same artist exists
+    file = abspath(join(test_dir, "BLAH.dvk"))
+    with open(file, "w") as out_file:
+        out_file.write("TEST")
+    file = abspath(join(test_dir, "Blah - artist.png"))
+    with open(file, "w") as out_file:
+        out_file.write("TEST")
+    file = abspath(join(test_dir, "Blah - artist.txt"))
+    with open(file, "w") as out_file:
+        out_file.write("TEST")
+    dvk.set_title("blah")
+    dvk.set_direct_url("page/url.txt")
+    dvk.set_secondary_url("page/url.png")
+    assert dvk.get_filename(test_dir) == "blah_V236"
+    assert dvk.get_filename(test_dir, True) == "blah_V236_S"
+    # Test getting filename with invalid parameters
+    assert dvk.get_filename("/non/existant/") == ""
+    assert dvk.get_filename(None) == ""
+    dvk.set_dvk_id(None)
+    assert dvk.get_filename(test_dir) == ""
     dvk.set_dvk_id("id123")
-    assert dvk.get_filename() == "0_ID123"
-    assert dvk.get_filename(True) == "0_ID123_S"
+    dvk.set_title(None)
+    assert dvk.get_filename(test_dir) == ""
+    dvk.set_title("Title")
+    dvk.set_artists()
+    assert dvk.get_filename(test_dir) == ""
 
 def test_rename_files():
     """

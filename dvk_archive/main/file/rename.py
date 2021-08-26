@@ -3,8 +3,8 @@
 from argparse import ArgumentParser
 from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.main.file.dvk_handler import DvkHandler
-from os import getcwd
-from os.path import abspath, exists, isdir
+from os import getcwd, pardir
+from os.path import abspath, exists, isdir, join
 from tqdm import tqdm
 
 def rename_files(dvk_handler:DvkHandler=None):
@@ -20,10 +20,10 @@ def rename_files(dvk_handler:DvkHandler=None):
         size = dvk_handler.get_size()
         for dvk_num in tqdm(range(0, size)):
             dvk = dvk_handler.get_dvk(dvk_num)
-            # GET ID PREFIX
-            prefix = dvk.get_dvk_id()[:3]
+            # Get parent directory
+            parent = abspath(join(abspath(dvk.get_dvk_file()), pardir))
             # RENAME DVK FILE AND ASSOCIATED MEDIA
-            dvk.rename_files(dvk.get_filename(False, prefix), dvk.get_filename(True, prefix))
+            dvk.rename_files(dvk.get_filename(parent, False), dvk.get_filename(parent, True))
             # UPDATE EXTENSIONS
             dvk.update_extensions()
 

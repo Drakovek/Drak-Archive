@@ -10,7 +10,7 @@ from dvk_archive.main.processing.string_processing import remove_whitespace
 from dvk_archive.main.processing.html_processing import add_escapes_to_html
 from filetype import guess
 from json import dump, load
-from os import pardir, rename, remove
+from os import listdir, pardir, rename, remove
 from os.path import abspath, basename, exists, isdir, join
 from random import seed, randint
 from shutil import move
@@ -757,29 +757,47 @@ class Dvk:
         """
         return self.section_title
 
-    def get_filename(self, secondary:bool=False, prefix:str="DVK") -> str:
+    def get_filename(self, directory:str=None, secondary:bool=False) -> str:
         """
         Returns a filename for the Dvk based on title and id.
         Doesn't include extension.
 
-        :param secondary: Whether this is for a secondary file, defaults to False
+        :param directory: Dirctory in which DVK will be saved, defaults to None
+        :type directory: str, optional
+        :param secondary: Whether to get name for a secondary file, defaults to False
         :type secondary: bool, optional
-        :param prefix: Prefix ID to use if actual ID is too long, defaults to "DVK"
-        :type prefix: str, optional
-        :return: Dvk filename
-        :rtype: str
         """
-        if self.get_dvk_id() is None or self.get_title() is None:
+        if (directory is None
+                    or not exists(directory)
+                    or self.get_artists() == []
+                    or self.get_title() is None
+                    or self.get_dvk_id() is None):
             return ""
-        # GET UNIQUE ID
-        file_id = self.get_dvk_id()
-        # IF ACTUAL DVK ID IS TOO LONG, USE A GENERATED ID FOR THE FILENAME
-        if len(file_id) > 13:
-            seed(file_id)
-            file_id = prefix.upper() + str(randint(1, 9999999999))
-        # SET FILENAME
-        filename = get_filename(self.get_title()) + "_" + file_id
-        if secondary is True:
+        # Get extension
+        if secondary and self.get_secondary_url() is not None:
+            ext = get_extension(self.get_secondary_url())
+        elif not secondary and self.get_direct_url is not None:
+            ext = get_extension(self.get_direct_url())
+        else:
+            ext = ""
+        # Get list of files in the directory
+        paths = listdir(directory)
+        for i in range(0, len(paths)):
+            paths[i] = paths[i].lower()
+        # Get default filename
+        filename = get_filename(self.get_title())
+        # Use different scheme if filename already exists
+        lower = filename.lower()
+        if lower + ".dvk" in paths or lower + ext in paths:
+            filename = filename + " - " + self.get_artists()[0]
+            lower = filename.lower()
+            seed(self.get_dvk_id())
+            while lower + ".dvk" in paths or lower + ext in paths:
+                ver = str(randint(1, 9999))
+                filename = get_filename(self.get_title()) + "_V" + ver
+                lower = filename.lower()
+        # Add suffix if for a secondary file
+        if secondary:
             filename = filename + "_S"
         return filename
 
