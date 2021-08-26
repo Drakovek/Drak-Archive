@@ -17,6 +17,40 @@ from shutil import move
 from traceback import print_exc
 from typing import List
 
+def dictadd(dictionary:dict=None,
+                key:str=None,
+                value=None,
+                default=None) -> dict:
+    """
+    Adds a key pair to a dict if not already the default value.
+
+    :param dictionary: Dict to add values to, defaults to None
+    :type dictionary: dict, optional
+    :param key: Name of the key to assign a value, defaults to None
+    :type key: str, optional
+    :param value: Value to assign to the key pair, defaults to None
+    :type value: any, optional
+    :param default: Defalt value of the given key, defaults to None
+    :type default: any, optional
+    :return: Dict with the value added, if necessary
+    :rtype: dict
+    """
+    # Return dict if parameters are invalid
+    if dictionary is None or key is None:
+        return dictionary
+    # Add value to dict if not default
+    my_dict = dictionary
+    if not value == default:
+        my_dict[key] = value
+    return my_dict
+
+def dictget(dictionary:dict=None, key:str=None, default=None):
+    try:
+        value = dictionary[key]
+        return value
+    except:
+        return default
+
 class Dvk:
 
     def __init__(self, dvk_file:str=None):
@@ -84,40 +118,38 @@ class Dvk:
             dvk_data["id"] = self.get_dvk_id()
             # Create dict for the basic DVK info.
             dvk_info = dict()
-            dvk_info["title"] = self.get_title()
-            dvk_info["artists"] = self.get_artists()
-            dvk_info["time"] = self.get_time()
-            dvk_info["web_tags"] = self.get_web_tags()
-            dvk_info["description"] = self.get_description()
+            dvk_info = dictadd(dvk_info, "title", self.get_title(), None)
+            dvk_info = dictadd(dvk_info, "artists", self.get_artists(), [])
+            dvk_info = dictadd(dvk_info, "time", self.get_time(), "0000/00/00|00:00")
+            dvk_info = dictadd(dvk_info, "web_tags", self.get_web_tags(), [])
+            dvk_info = dictadd(dvk_info, "description", self.get_description(), None)
             # Create dict for info about where media was downloaded from.
             dvk_web = dict()
-            dvk_web["page_url"] = self.get_page_url()
-            dvk_web["direct_url"] = self.get_direct_url()
-            dvk_web["secondary_url"] = self.get_secondary_url()
+            dvk_web = dictadd(dvk_web, "page_url", self.get_page_url(), None)
+            dvk_web = dictadd(dvk_web, "direct_url", self.get_direct_url(), None)
+            dvk_web = dictadd(dvk_web, "secondary_url", self.get_secondary_url(), None)
             # Create dict for info about where media is stored on disk.
             dvk_file_dict = dict()
-            dvk_file_dict["media_file"] = None
             if self.get_media_file() is not None:
                 dvk_file_dict["media_file"] = basename(self.get_media_file())
-            dvk_file_dict["secondary_file"] = None
             if self.get_secondary_file() is not None:
                 dvk_file_dict["secondary_file"] = basename(self.get_secondary_file())
             # Create dict for info about how the Dvk was downloaded
             dvk_download = dict()
-            dvk_download["favorites"] = self.get_favorites()
-            dvk_download["is_single"] = self.is_single()
+            dvk_download = dictadd(dvk_download, "favorites", self.get_favorites(), [])
+            dvk_download = dictadd(dvk_download, "is_single", self.is_single(), False)
             # Create dict for info about how the Dvk fits in a sequence
-            dvk_sequence = dict()
-            dvk_sequence["next_id"] = self.get_next_id()
-            dvk_sequence["prev_id"] = self.get_prev_id()
-            dvk_sequence["seq_title"] = self.get_sequence_title()
-            dvk_sequence["section_title"] = self.get_section_title()
+            dvk_seq = dict()
+            dvk_seq = dictadd(dvk_seq, "next_id", self.get_next_id(), None)
+            dvk_seq = dictadd(dvk_seq, "prev_id", self.get_prev_id(), None)
+            dvk_seq = dictadd(dvk_seq, "seq_title", self.get_sequence_title(), None)
+            dvk_seq = dictadd(dvk_seq, "section_title", self.get_section_title(), None)
             # Create dict to combine all Dvk info.
-            dvk_data["info"] = dvk_info
-            dvk_data["web"] = dvk_web
-            dvk_data["file"] = dvk_file_dict
-            dvk_data["download"] = dvk_download
-            dvk_data["sequence"] = dvk_sequence
+            dvk_data = dictadd(dvk_data, "info", dvk_info, dict())
+            dvk_data = dictadd(dvk_data, "web", dvk_web, dict())
+            dvk_data = dictadd(dvk_data, "file", dvk_file_dict, dict())
+            dvk_data = dictadd(dvk_data, "download", dvk_download, dict())
+            dvk_data = dictadd(dvk_data, "sequence", dvk_seq, dict())
             # Write dvk_data dict to a DVK(JSON) file.
             try:
                 with open(self.get_dvk_file(), "w") as out_file:
@@ -169,79 +201,35 @@ class Dvk:
                 # Check if file is a proper DVK file.
                 if json["file_type"] == "dvk":
                     # Get DVK ID.
-                    self.set_dvk_id(json["id"])
+                    self.set_dvk_id(dictget(json, "id", None))
                     # Get basic DVK info.
-                    dvk_info = json["info"]
-                    self.set_title(dvk_info["title"])
-                    self.set_artists(dvk_info["artists"])
-                    try:
-                        self.set_time(dvk_info["time"])
-                    except:
-                        self.set_time()
-                    try:
-                        self.set_web_tags(dvk_info["web_tags"])
-                    except:
-                        self.set_web_tags()
-                    try:
-                        self.set_description(dvk_info["description"])
-                    except:
-                        self.set_description()
+                    dvk_info = dictget(json, "info", None)
+                    self.set_title(dictget(dvk_info, "title", None))
+                    self.set_artists(dictget(dvk_info, "artists", []))
+                    self.set_time(dictget(dvk_info, "time", None))
+                    self.set_web_tags(dictget(dvk_info, "web_tags", []))
+                    self.set_description(dictget(dvk_info, "description", None))
                     # Get DVK web info.
-                    dvk_web = json["web"]
-                    self.set_page_url(dvk_web["page_url"])
-                    try:
-                        self.set_direct_url(dvk_web["direct_url"])
-                    except:
-                        self.set_direct_url()
-                    try:
-                        self.set_secondary_url(dvk_web["secondary_url"])
-                    except:
-                        self.set_secondary_url()
+                    dvk_web = dictget(json, "web", None)
+                    self.set_page_url(dictget(dvk_web, "page_url", None))
+                    self.set_direct_url(dictget(dvk_web, "direct_url", None))
+                    self.set_secondary_url(dictget(dvk_web, "secondary_url", None))
                     # Get DVK file info.
-                    dvk_file_dict = json["file"]
-                    self.set_media_file(dvk_file_dict["media_file"])
-                    try:
-                        self.set_secondary_file(dvk_file_dict["secondary_file"])
-                    except:
-                        self.set_secondary_file()
+                    dvk_file_dict = dictget(json, "file", None)
+                    file = dictget(dvk_file_dict, "media_file", None)
+                    self.set_media_file(file)
+                    file = dictget(dvk_file_dict, "secondary_file", None)
+                    self.set_secondary_file(file)
                     # Get DVK download info.
-                    try:
-                        dvk_download = json["download"]
-                        try:
-                            self.set_favorites(dvk_download["favorites"])
-                        except:
-                            self.set_favorites()
-                        try:
-                            self.set_single(dvk_download["is_single"])
-                        except:
-                            self.set_single()
-                    except:
-                        self.set_favorites()
-                        self.set_single()
+                    dvk_download = dictget(json, "download", None)
+                    self.set_favorites(dictget(dvk_download, "favorites", []))
+                    self.set_single(dictget(dvk_download, "is_single", False))
                     # Get DVK sequence info.
-                    try:
-                        dvk_sequence = json["sequence"]
-                        try:
-                            self.set_next_id(dvk_sequence["next_id"])
-                        except:
-                            self.set_next_id()
-                        try:
-                            self.set_prev_id(dvk_sequence["prev_id"])
-                        except:
-                            self.set_prev_id()
-                        try:
-                            self.set_sequence_title(dvk_sequence["seq_title"])
-                        except:
-                            self.set_sequence_title()
-                        try:
-                            self.set_section_title(dvk_sequence["section_title"])
-                        except:
-                            self.set_section_title()
-                    except:
-                        self.set_next_id()
-                        self.set_prev_id()
-                        self.set_sequence_title()
-                        self.set_section_title()
+                    dvk_sequence = dictget(json, "sequence", None)
+                    self.set_next_id(dictget(dvk_sequence, "next_id", None))
+                    self.set_prev_id(dictget(dvk_sequence, "prev_id", None))
+                    self.set_sequence_title(dictget(dvk_sequence, "seq_title", None))
+                    self.set_section_title(dictget(dvk_sequence, "section_title", None))
         except:
             print("Error reading DVK file: " + self.get_dvk_file())
             print_exc()
@@ -734,8 +722,8 @@ class Dvk:
         :param seq_title: Sequence title, defaults to None
         :type seq_title: str, optional
         """
-        if seq_title is None:
-            self.seq_title = ""
+        if seq_title is None or seq_title == "":
+            self.seq_title = None
         else:
             self.seq_title = remove_whitespace(seq_title)
 
@@ -755,8 +743,8 @@ class Dvk:
         :param section_title: Section title, defaults to None
         :type section_title: str, optional
         """
-        if section_title is None:
-            self.section_title = ""
+        if section_title is None or section_title == "":
+            self.section_title = None
         else:
             self.section_title = remove_whitespace(section_title)
 

@@ -777,14 +777,14 @@ def test_get_set_sequence_title():
     """
     # Test getting default sequence title from constructor.
     dvk = Dvk()
-    assert dvk.get_sequence_title() == ""
+    assert dvk.get_sequence_title() == None
     # Test getting and setting the sequence title
     dvk.set_sequence_title("Title!")
     assert dvk.get_sequence_title() == "Title!"
     dvk.set_sequence_title(" other   ")
     assert dvk.get_sequence_title() == "other"
-    dvk.set_sequence_title(None)
-    assert dvk.get_sequence_title() == ""
+    dvk.set_sequence_title("")
+    assert dvk.get_sequence_title() == None
     # Write DVK
     test_dir = get_test_dir()
     dvk = Dvk()
@@ -808,14 +808,14 @@ def test_get_set_section_title():
     """
     # Test getting default section title from constructor.
     dvk = Dvk()
-    assert dvk.get_sequence_title() == ""
+    assert dvk.get_sequence_title() == None
     # Test getting and setting the section title
     dvk.set_section_title("Title!")
     assert dvk.get_section_title() == "Title!"
     dvk.set_section_title(" other   ")
     assert dvk.get_section_title() == "other"
-    dvk.set_section_title(None)
-    assert dvk.get_section_title() == ""
+    dvk.set_section_title("")
+    assert dvk.get_section_title() == None
     # Write DVK
     test_dir = get_test_dir()
     dvk = Dvk()

@@ -20,7 +20,7 @@ desc = "Utility for loading and handling media files in the DVK file format."
 
 setuptools.setup(
     name="dvk-archive",
-    version="0.9.2",
+    version="0.9.3",
     author="Drakovek",
     author_email="DrakovekMail@gmail.com",
     description=desc,

@@ -89,11 +89,11 @@ def test_set_sequence():
     assert dvk_handler.get_dvk(0).get_dvk_id() == "CPL01"
     assert dvk_handler.get_dvk(0).is_first()
     assert dvk_handler.get_dvk(0).get_next_id() == "CPL02"
-    assert dvk_handler.get_dvk(0).get_sequence_title() == ""
+    assert dvk_handler.get_dvk(0).get_sequence_title() is None
     assert dvk_handler.get_dvk(1).get_dvk_id() == "CPL02"
     assert dvk_handler.get_dvk(1).is_last()
     assert dvk_handler.get_dvk(1).get_prev_id() == "CPL01"
-    assert dvk_handler.get_dvk(1).get_sequence_title() == ""
+    assert dvk_handler.get_dvk(1).get_sequence_title() is None
     # Test setting a sequence with sequence title
     set_sequence(dvk_handler, [3,4,5], "Title!")
     assert dvk_handler.get_dvk(3).get_dvk_id() == "TRI01"
@@ -113,7 +113,7 @@ def test_set_sequence():
     assert dvk_handler.get_dvk(2).get_dvk_id() == "SNG01"
     assert dvk_handler.get_dvk(2).is_first()
     assert dvk_handler.get_dvk(2).is_last()
-    assert dvk_handler.get_dvk(2).get_sequence_title() == ""
+    assert dvk_handler.get_dvk(2).get_sequence_title() is None
     # Test that sequence data was written to disk
     dvk_handler = None
     dvk_handler = DvkHandler(test_dir)
