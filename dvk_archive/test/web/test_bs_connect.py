@@ -63,9 +63,12 @@ def test_json_connect():
     Tests the json_connect function.
     """
     # TEST LOADING PAGE AS A JSON OBJECT
-    json = json_connect("http://echo.jsontest.com/key/value/json/test")
-    assert json["json"] == "test"
-    assert json["key"] == "value"
+    json = json_connect("https://jsonplaceholder.typicode.com/users/3/posts")
+    assert len(json) == 10
+    element = json[0]
+    assert element["userId"] == 3
+    assert element["id"] == 21
+    assert element["title"] == "asperiores ea ipsam voluptatibus modi minima quia sint"
     # TEST LOADING AN INVALID PAGE
     json = json_connect("asdfghjkl")
     assert json is None
