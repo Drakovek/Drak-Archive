@@ -1,10 +1,12 @@
 #!/usr/bin/env/ python3
 
-from dvk_archive.main.processing.html_processing import escape_to_char
-from dvk_archive.main.processing.html_processing import replace_escapes
 from dvk_archive.main.processing.html_processing import add_escapes
 from dvk_archive.main.processing.html_processing import add_escapes_to_html
 from dvk_archive.main.processing.html_processing import clean_element
+from dvk_archive.main.processing.html_processing import escape_to_char
+from dvk_archive.main.processing.html_processing import get_blocks
+from dvk_archive.main.processing.html_processing import remove_html_tags
+from dvk_archive.main.processing.html_processing import replace_escapes
 
 def test_escape_to_char():
     """
@@ -61,21 +63,38 @@ def test_add_escapes():
     # TEST ADDING ESCAPE CHARACTERS TO INVALID STRING
     assert add_escapes(None) == ""
 
+def test_get_blocks():
+    # Test getting blocks from HTML text
+    text = "<a href=\"thing\"><b>Text</b></a> block! "
+    assert get_blocks(text) == ["<a href=\"thing\">", "<b>", "Text", "</b>", "</a>", " block! "]
+    assert get_blocks("No HTML?") == ["No HTML?"]
+    assert get_blocks("<p><b></b></i>") == ["<p>", "<b>", "</b>", "</i>"]
+    assert get_blocks(" <b> </b> ") == [" ", "<b>", " ", "</b>", " "]
+    # Test getting blocks with inomplete HTML blocks
+    text = "thing <a href=\"other\""
+    assert get_blocks(text) == ["thing ", "<a href=\"other\""]
+    text = "text> blah </i> other</p>"
+    assert get_blocks(text) == ["text> blah ", "</i>", " other", "</p>"]
+    # Test getting blocks with invalid text
+    assert get_blocks() == []
+    assert get_blocks(None) == []
+
 def test_add_escapes_to_html():
     """
     Tests the add_escapes_to_html function.
     """
-    # TEST REPLACING CHARACTERS WITH HTML ESCAPE CHARACTERS IN HTML TEXT
+    # Test that HTML blocks are kept intact while text is converted
     in_str = "<a href=\"Sommarfågel\">Sommarfågel</a>"
     out_str = "<a href=\"Sommarfågel\">Sommarf&#229;gel</a>"
     assert add_escapes_to_html(in_str) == out_str
-    in_str = "<a href='Sommarfågel'>Sommarfågel</a>"
-    out_str = "<a href='Sommarfågel'>Sommarf&#229;gel</a>"
+    in_str = "/blah! <a href=\"Sommarfågel"
+    out_str = "&#47;blah&#33; <a href=\"Sommarfågel"
     assert add_escapes_to_html(in_str) == out_str
-    in_str = "<a href=\"Sommarfågel"
-    out_str = "<a href=\"Sommarfågel"
+    # Test that existing escape characters remain intact
+    in_str = "<b>&lt;Thing?&#33;&gt;</b>"
+    out_str = "<b>&#60;Thing&#63;&#33;&#62;</b>"
     assert add_escapes_to_html(in_str) == out_str
-    # TEST ADDING ESCAPE CHARACTERS TO INVALID STRING
+    # Test adding escape characters to invalid string
     assert add_escapes_to_html(None) == ""
 
 def test_clean_element():
@@ -114,6 +133,27 @@ def test_clean_element():
     assert clean_element(None, True) == ""
     assert clean_element(None, False) == ""
 
+def test_remove_html_tags():
+    """
+    Tests the remove_html_tags function.
+    """
+    # Test removing HTML tags
+    text = "<b>some</b><p>text</p>"
+    assert remove_html_tags(text) == "some text"
+    text = "test <a href=\"blah\"> & </a> stuff&gt;"
+    assert remove_html_tags(text) == "test   &   stuff&gt;"
+    # Test removing HTML tags from text with only one type of text
+    assert remove_html_tags("Other Thing") == "Other Thing"
+    assert remove_html_tags("<b><i></i><b></p>") == ""
+    # Test removing HTML tags that are incomplete
+    text = "thing <a href=\"blah\""
+    assert remove_html_tags(text) == "thing "
+    text = "other > text </b>"
+    assert remove_html_tags(text) == "other > text "
+    # Test removing HTML tags from invalid
+    assert remove_html_tags() == ""
+    assert remove_html_tags(None) == ""
+
 def all_tests():
     """
     Runs all tests for the html_processing module.
@@ -121,5 +161,7 @@ def all_tests():
     test_escape_to_char()
     test_replace_escapes()
     test_add_escapes()
+    test_get_blocks()
     test_add_escapes_to_html()
     test_clean_element()
+    test_remove_html_tags()

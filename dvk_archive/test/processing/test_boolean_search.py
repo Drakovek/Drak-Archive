@@ -1,13 +1,19 @@
 #!/usr/bin/env/ python3
 
+from dvk_archive.main.file.dvk import Dvk
+from dvk_archive.main.file.dvk_handler import DvkHandler
+from dvk_archive.main.processing.boolean_search import add_escapes_to_logic
 from dvk_archive.main.processing.boolean_search import get_arg_value
 from dvk_archive.main.processing.boolean_search import get_logic
 from dvk_archive.main.processing.boolean_search import get_logic_from_string
 from dvk_archive.main.processing.boolean_search import is_string
 from dvk_archive.main.processing.boolean_search import fix_logic
 from dvk_archive.main.processing.boolean_search import logic_to_lower
+from dvk_archive.main.processing.boolean_search import search_dvks
 from dvk_archive.main.processing.boolean_search import search_string
 from dvk_archive.main.processing.boolean_search import separate_into_chunks
+from dvk_archive.test.temp_dir import get_test_dir
+from os.path import join
 
 def test_separate_into_chunks():
     """
@@ -166,6 +172,9 @@ def test_get_logic_from_string():
     # Test nested logic
     logic = get_logic_from_string("[word and not thing] OR other")
     assert logic == [["word", False, "thing", True, "&"], False, 'other', False, '|']
+    # Test the to_lower parameter
+    logic = get_logic_from_string("[WORD and not tHiNg] OR Other", True)
+    assert logic == [["word", False, "thing", True, "&"], False, 'other', False, '|']
     # Test invalid parameters
     assert get_logic_from_string(None) == []
     assert get_logic_from_string("") == []
@@ -175,6 +184,10 @@ def test_logic_to_lower():
     Tests the logic_to_lower function.
     """
     # Test converting simple logic list
+    logic = get_logic_from_string("THING")
+    assert logic == ["THING", False, None, False, None]
+    logic = logic_to_lower(logic)
+    assert logic == ["thing", False, None, False, None]
     logic = get_logic_from_string("Test !\"STRING!\"")
     assert logic == ["Test", False, "STRING!", True, "&"]
     logic = logic_to_lower(logic)
@@ -189,6 +202,35 @@ def test_logic_to_lower():
     # Test converting with invalid parameters
     assert logic_to_lower(None) == []
     assert logic_to_lower(["word", "word"]) == []
+
+def test_add_escapes_to_logic():
+    """
+    Tests the add_escapes_to_logic function.
+    """
+    # Test adding escapes to simple logic
+    logic = get_logic_from_string("=Thing!!=")
+    assert logic == ["Thing!!", False, None, False, None]
+    logic = add_escapes_to_logic(logic)
+    assert logic == ["Thing&#33;&#33;", False, None, False, None]
+    logic = get_logic_from_string("test !,,,")
+    assert logic == ["test", False, ",,,", True, "&"]
+    logic = add_escapes_to_logic(logic)
+    assert logic == ["test", False, "&#44;&#44;&#44;", True, "&"]
+    # Test adding escapes to nested logic
+    logic = get_logic_from_string("('Word!' & Thing) | (!part; & (=Don't= | 'Object!'))")
+    assert logic == [["Word!", False, "Thing", False, "&"], False,
+                ["part;", True, ["Don't", False, "Object!", False, "|"], False, "&"], False, "|"]
+    logic = add_escapes_to_logic(logic)
+    assert logic == [["Word&#33;", False, "Thing", False, "&"], False,
+                ["part&#59;", True, ["Don&#39;t", False, "Object&#33;", False, "|"], False, "&"], False, "|"]
+    # Test adding escapes with commas
+    logic = get_logic_from_string(",, | (This and !=that,thing!=)")
+    assert logic == [",,", False, ["This", False, "that,thing!", True, "&"], False, "|"]
+    logic = add_escapes_to_logic(logic, True)
+    assert logic == [",&#44;&#44;,", False, [",This,", False, ",that&#44;thing&#33;,", True, "&"], False, "|"]
+    # Test adding escapes with invalid parameters
+    assert add_escapes_to_logic(None) == []
+    assert add_escapes_to_logic(["word", "word"]) == []
 
 def test_get_arg_value():
     """
@@ -260,6 +302,191 @@ def test_search_string():
     assert not search_string(None, "this", True)
     assert not search_string(logic, None, True)
 
+def test_search_dvks():
+    """
+    Tests the search_dvks function.
+    """
+    # Create Test Dvks
+    test_dir = get_test_dir()
+    basic = Dvk()
+    basic.set_dvk_file(join(test_dir, "basic.dvk"))
+    basic.set_dvk_id("BSE123")
+    basic.set_title("Basic")
+    basic.set_artist("person")
+    basic.set_page_url("https://hopefullynonexistant.io")
+    basic.set_media_file("media.txt")
+    basic.write_dvk()
+    full = Dvk()
+    full.set_dvk_file(join(test_dir, "full.dvk"))
+    full.set_dvk_id("FLL246")
+    full.set_title("Full")
+    full.set_artists(["Person", "Other", "artist"])
+    full.set_description("Don't forget the <b>escapes</b>, okay!")
+    full.set_web_tags(["tags", "Punctuation!!", ",commas,"])
+    full.set_page_url("http://othersite.pizza/page/")
+    full.set_media_file("thing.txt")
+    full.write_dvk()
+    other = Dvk()
+    other.set_dvk_file(join(test_dir, "other.dvk"))
+    other.set_dvk_id("OTH987")
+    other.set_title("Other full")
+    other.set_artists(["Artist", "Name!"])
+    other.set_description("Okay, plain description.")
+    other.set_web_tags(["tag", "Thing"])
+    other.set_page_url("HTTP://othersite.pizza/")
+    other.set_media_file("other.txt")
+    other.write_dvk()
+    last = Dvk()
+    last.set_dvk_file(join(test_dir, "last.dvk"))
+    last.set_dvk_id("LST123")
+    last.set_title("Last File")
+    last.set_artists([",,,", "Comma Guy"])
+    last.set_description("<a href=\"notrealurl\">Last one!</a>")
+    last.set_web_tags(["Tag", "Time!"])
+    last.set_page_url("http://brokenlink.notrealsite")
+    last.set_media_file("last.txt")
+    last.write_dvk()
+    # Test that Dvks were written correctly
+    dvk_handler = DvkHandler(test_dir)
+    dvk_handler.sort_dvks("a")
+    assert dvk_handler.get_size() == 4
+    assert dvk_handler.get_dvk(0).get_title() == "Basic"
+    assert dvk_handler.get_dvk(1).get_title() == "Full"
+    assert dvk_handler.get_dvk(2).get_title() == "Last File"
+    assert dvk_handler.get_dvk(3).get_title() == "Other full"
+    # Test searching by title
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=False,
+                title_search="FuLL & l",
+                title_exact=False)
+    assert indexes == [1,3]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=True,
+                title_search="full",
+                title_exact=False)
+    assert indexes == [3]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=False,
+                title_search="other | basic",
+                title_exact=True)
+    assert indexes == [0]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=False,
+                title_search="full",
+                title_exact=True)
+    assert indexes == [1]
+    # Test searching by artist
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=False,
+                artist_search="art & !blah",
+                artist_exact=False)
+    assert indexes == [1, 3]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=True,
+                artist_search="pers",
+                artist_exact=False)
+    assert indexes == [0]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=False,
+                artist_search="art | person",
+                artist_exact=True)
+    assert indexes == [0, 1]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=True,
+                artist_search=",,, | =Name!= | Oth | other",
+                artist_exact=True)
+    assert indexes == [2, 3]
+    # Test searching by web tags
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=False,
+                web_tag_search="tag & (pun | tim)",
+                web_tag_exact=False)
+    assert indexes == [1, 2]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=True,
+                web_tag_search="Tag | commas,",
+                web_tag_exact=False)
+    assert indexes == [1, 2]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=False,
+                web_tag_search="tag",
+                web_tag_exact=True)
+    assert indexes == [2, 3]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=True,
+                web_tag_search="Tag",
+                web_tag_exact=True)
+    indexes == [3]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=False,
+                web_tag_search="punct | time! | thin",
+                web_tag_exact=True)
+    assert indexes == [2]
+    # Test searching by description
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=False,
+                desc_search="(last | okay,)& !notrealurl",
+                desc_exact=False)
+    assert indexes == [2, 3]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=True,
+                desc_search="Okay",
+                desc_exact=False)
+    assert indexes == [3]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=False,
+                desc_search="/b | NOTREALURL",
+                desc_exact=True)
+    assert indexes == [1, 2]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=True,
+                desc_search="<B> | ('href=\"' & one&#33;)",
+                desc_exact=True)
+    assert indexes == [2]
+    # Test searching by page_url
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=False,
+                url_search="Othersite.PIZZA/ & http",
+                url_exact=False)
+    assert indexes == [1, 3]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=True,
+                url_search="http://othersite.pizza/",
+                url_exact=False)
+    assert indexes == [1]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=True,
+                url_search="http://brokenlink.notrealsite | othersite",
+                url_exact=True)
+    assert indexes == [2]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=False,
+                url_search="http://Othersite.PIZZA/ | nothing",
+                url_exact=True)
+    assert indexes == [3]
+    # Test searching by multiple parameters at once
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=False,
+                title_search="full",
+                artist_search="!other")
+    assert indexes == [3]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=False,
+                web_tag_search="PUNCTUATION!",
+                desc_search="okay")
+    assert indexes == [1]
+    indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=False,
+                title_search="FULL",
+                url_search="!page")
+    assert indexes == [3]
+    # Test searching with invalid parameters
+    indexes = search_dvks(dvk_handler=None,
+                case_sensitive=False,
+                title_search="FuLL & l",
+                title_exact=False)
+    assert indexes == []
+
 def all_tests():
     """
     Runs all tests for the html_processing module
@@ -270,5 +497,7 @@ def all_tests():
     test_get_logic()
     test_get_logic_from_string()
     test_logic_to_lower()
+    test_add_escapes_to_logic()
     test_get_arg_value()
     test_search_string()
+    test_search_dvks()

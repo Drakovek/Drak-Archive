@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 
+from dvk_archive.main.file.dvk_handler import DvkHandler
+from dvk_archive.main.processing.html_processing import add_escapes
+from dvk_archive.main.processing.html_processing import remove_html_tags
+from dvk_archive.main.processing.list_processing import list_to_string
 from dvk_archive.main.processing.string_processing import remove_whitespace
+from tqdm import tqdm
 from typing import List
 
 def separate_into_chunks(search:str=None) -> List[str]:
@@ -232,22 +237,27 @@ def get_logic(chunks:List[str]=None) -> List:
         # Simplify logic
         if not logic[1] and type(logic[0]) is list and logic[2] is None:
             return logic[0]
+        # Return logic
         return logic
     except:
         return []
 
-def get_logic_from_string(search:str=None) -> List:
+def get_logic_from_string(search:str=None, to_lower:bool=False) -> List:
     """
     Returns list with logic parameters from boolean search string.
 
     :param search: Boolean search string, defaults to None
     :type search: str, optional
+    :param to_lower: Whether to convert strings to lowercase, defaults to False
+    :type to_lower: bool, optional
     :return: Logic list
     :rtype: List
     """
     chunks = separate_into_chunks(search)
     chunks = fix_logic(chunks)
     logic = get_logic(chunks)
+    if to_lower:
+        return logic_to_lower(logic)
     return logic
 
 def logic_to_lower(logic:List=None) -> List:
@@ -260,20 +270,59 @@ def logic_to_lower(logic:List=None) -> List:
     :rtype: List
     """
     try:
+        converted = []
+        converted.extend(logic)
         # Convert arg1 to lowercase
-        if type(logic[0]) is list:
+        if converted[0] is not None and type(converted[0]) is str:
+            converted[0] = converted[0].lower()
+        elif converted[0] is not None and type(converted[0]) is list:
             # Recurse if arg1 is a logic list
-            logic[0] = logic_to_lower(logic[0])
-        else:
-            logic[0] = logic[0].lower()
+            converted[0] = logic_to_lower(converted[0])
         # Convert arg2 to lowercase
-        if type(logic[2]) is list:
+        if converted[2] is not None and type(converted[2]) is str:
+            converted[2] = converted[2].lower()
+        elif converted[2] is not None and type(converted[2]) is list:
             # Recurse if arg2 is a logic list
-            logic[2] = logic_to_lower(logic[2])
-        else:
-            logic[2] = logic[2].lower()
-        # Return logic
-        return logic
+            converted[2] = logic_to_lower(converted[2])
+        return converted
+    except:
+        return []
+
+def add_escapes_to_logic(logic:List=None, add_commas:bool=False) -> List:
+    """
+    Adds HTML escape characters to strings in a given logic statement.
+    Can also add commas to start and end of strings,
+    useful for searching for exact items in lists converted to strings.
+
+    :param logic: Logic to add escape chars to, defaults to None
+    :type logic: list, optional
+    :type add_commas: Adds commas to start and end of strings, defaults to False
+    :param add_commas: bool, optional
+    :return: Logic list with escape characters added to strings
+    :rtype: List
+    """
+    try:
+        converted = []
+        converted.extend(logic)
+        # Add escapes to arg1
+        if converted[0] is not None and type(converted[0]) is str:
+            converted[0] = add_escapes(converted[0])
+            # Add commas if specified
+            if add_commas:
+                converted[0] = "," + converted[0] + ","
+        elif converted[0] is not None and type(converted[0]) is list:
+            # Recurse if arg1 is a logic list
+            converted[0] = add_escapes_to_logic(converted[0], add_commas)
+        # Add escapes to arg2
+        if converted[2] is not None and type(converted[2]) is str:
+            converted[2] = add_escapes(converted[2])
+            # Add commas if specified
+            if add_commas:
+                converted[2] = "," + converted[2] + ","
+        elif converted[2] is not None and type(converted[2]) is list:
+            # Recurse if arg2 is a logic list
+            converted[2] = add_escapes_to_logic(converted[2], add_commas)
+        return converted
     except:
         return []
 
@@ -341,3 +390,125 @@ def search_string(logic:List=None,
     except:
         # Return False if comparing arguments fails
         return False
+
+def search_dvks(dvk_handler:DvkHandler=None,
+                case_sensitive:bool=False,
+                title_search:str=None,
+                title_exact:bool=False,
+                artist_search:str=None,
+                artist_exact:bool=False,
+                web_tag_search:str=None,
+                web_tag_exact:bool=False,
+                desc_search:str=None,
+                desc_exact:str=False,
+                url_search:str=None,
+                url_exact:bool=False) -> List[int]:
+    """
+    Searches DvkHandler for Dvks that match the given search parameters.
+
+    :param dvk_handler: DvkHandler used to search for Dvks, defaults to None
+    :type dvk_handler: DvkHandler, optional
+    :param case_sensitive: Whether searches should be case sensitive, defaults to False
+    :type case_sensitive: bool, optional
+    :param title_search: Boolean search for Dvk title, defaults to None
+    :type title_search: str, optional
+    :param title_exact: Whether to search for exact title or just if it is contained, defaults to False
+    :type title_exact: bool, optional
+    :param artist_search: Boolean search for Dvk artists, defaults to None
+    :type artist_search: str, optional
+    :param artist_exact: Whether to search for exact artists or just if it is contained, defaults to False
+    :type artist_exact: bool, optional
+    :param web_tag_search: Boolean search for Dvk web tags, defaults to None
+    :type web_tag_search: str, optional
+    :param web_tag_exact: Whether to search for exact web tags or just if it is contained, defaults to False
+    :type web_tag_exact: bool, optional
+    :param desc_search: Boolean search for Dvk description, defaults to None
+    :type desc_search: str, optional
+    :param desc_exact: Whether to search for exact description with HTML tags intact, defaults to False
+    :type desc_exact: bool, optional
+    :param url_search: Boolean search for Dvk page URL, defaults to None
+    :type url_search: str, optional
+    :param url_exact: Whether to search for exact page URL or just if it is contained, defaults to False
+    :type url_exact: bool, optional
+    """
+    # Return empty list if dvk_handler is invalid
+    if dvk_handler is None:
+        return []
+    # Get Dvk indexes
+    indexes = []
+    for i in range(0 , dvk_handler.get_size()):
+        indexes.append(i)
+    # Get logic statements
+    title_logic = get_logic_from_string(title_search, not case_sensitive)
+    artist_logic = get_logic_from_string(artist_search, not case_sensitive)
+    artist_logic = add_escapes_to_logic(artist_logic, artist_exact)
+    web_tag_logic = get_logic_from_string(web_tag_search, not case_sensitive)
+    web_tag_logic = add_escapes_to_logic(web_tag_logic, web_tag_exact)
+    url_logic = get_logic_from_string(url_search, not case_sensitive)
+    desc_logic = get_logic_from_string(desc_search, not case_sensitive)
+    if not desc_exact:
+        desc_logic = add_escapes_to_logic(desc_logic, False)
+    # Filter out dvks
+    size = len(indexes)
+    for index in tqdm(range(0, size)):
+        dvk = dvk_handler.get_dvk(indexes[index])
+        # Filter out Dvks by title
+        if title_search is not None:
+            title = dvk.get_title()
+            if not case_sensitive:
+                title = title.lower()
+            if not search_string(title_logic, title, title_exact):
+                indexes[index] = None
+                continue
+        # Filter out Dvks by artist
+        if artist_search is not None:
+            artists = []
+            artists.extend(dvk.get_artists())
+            if not case_sensitive:
+                for i in range(0, len(artists)):
+                    artists[i] = artists[i].lower()
+            artist_str = "," + list_to_string(artists, True) + ","
+            if not search_string(artist_logic, artist_str, False):
+                indexes[index] = None
+                continue 
+        # Filter out Dvks by web tags
+        if web_tag_search is not None:
+            tags = []
+            tags.extend(dvk.get_web_tags())
+            if not case_sensitive:
+                for i in range(0, len(tags)):
+                    tags[i] = tags[i].lower()
+            tag_str = "," + list_to_string(tags, True) + ","
+            if not search_string(web_tag_logic, tag_str, False):
+                indexes[index] = None
+                continue 
+        # Filter out Dvks by description
+        if desc_search is not None:
+            desc = dvk.get_description()
+            if desc is not None:
+                if not case_sensitive:
+                    desc = desc.lower()
+                if not desc_exact:
+                    desc = remove_html_tags(desc)
+            if not search_string(desc_logic, desc, False):
+                indexes[index] = None
+                continue
+        # Filter out Dvks by page_url
+        if url_search is not None:
+            url = dvk.get_page_url()
+            if not case_sensitive:
+                url = url.lower()
+            if not search_string(url_logic, url, url_exact):
+                indexes[index] = None
+                continue
+    # Remove None indexes
+    index = 0
+    while index < len(indexes):
+        if indexes[index] == None:
+            del indexes[index]
+            continue
+        index += 1
+    # Return indexes that are left
+    return indexes
+    
+    

@@ -2,6 +2,7 @@
 
 from dvk_archive.main.processing.string_processing import remove_whitespace
 from html import unescape
+from typing import List
 
 def escape_to_char(escape:str=None) -> str:
     """
@@ -83,6 +84,46 @@ def add_escapes(text:str=None) -> str:
         i = i + 1
     return out
 
+def get_blocks(text:str=None) -> List[str]:
+    """
+    Returns a list of string blocks from given HTML text.
+    Broken up into normal text and HTML blocks.
+
+    :param text: HTML text to split into blocks, defaults to None
+    :type text: str, optional
+    :return: List of string blocks from HTML text.
+    :rtype: List[str]
+    """
+    blocks = []
+    html = text
+    try:
+        while len(html) > 0:
+            # Find first start of HTML block if available
+            start = html.find("<")
+            if start == -1:
+                start = len(html)
+            # Add non-HTML block if available
+            if start > 0:
+                blocks.append(html[:start])
+                html = html[start:]
+            # Add HTML block if available
+            end = html.find(">")
+            if end == -1:
+                end = len(html) - 1
+            blocks.append(html[:end+1])
+            html = html[end+1:]
+        # Remove blank blocks
+        index = 0
+        while index < len(blocks):
+            if blocks[index] == "":
+                del blocks[index]
+                continue
+            index += 1
+        # Return blocks
+        return blocks
+    except TypeError:
+        return []
+
 def add_escapes_to_html(text:str=None) -> str:
     """
     Replaces all uncommon characters in a String with HTML escapes.
@@ -93,33 +134,22 @@ def add_escapes_to_html(text:str=None) -> str:
     :return: String with added HTML escape characters
     :rtype: str
     """
-    # RETURNS EMPTY STRING IF THE GIVEN STRING IS NONE
-    if text is None:
-        return ""
-    # RUN THROUGH EACH CHARACTER OF THE GIVEN STRING
-    i = 0
-    out = ""
-    while i < len(text):
-        value = ord(text[i])
-        if value == 34 or value == 39:
-            # LEAVE TEXT IN QUOTES ALONE
-            end = text.find("\"", i + 1) + 1
-            if end == 0:
-                end = text.find("\'", i + 1) + 1
-            if end == 0:
-                end = len(text)
-            out = out + text[i:end]
-            i = end - 1
-        elif value > 31 and value < 127:
-            # LEAVE ALL LATIN AND HTML CHARACTERS ALONE
-            out = out + text[i]
+    # Split text into blocks
+    blocks = get_blocks(text)
+    # Run through blocks, appending to HTML string
+    html = ""
+    for block in blocks:
+        if block[0] == "<":
+            # Keep HTML block intact
+            html = html + block
         else:
-            # REPLACE NON-STANDARD CHARACTERS
-            out = out + "&#" + str(value) + ";"
-        # INCREMENT COUNTER
-        i = i + 1
-    # RETURN MODIFIED STRING
-    return out
+            # Add HTML escape characters to normal text
+            string = replace_escapes(block)
+            string = add_escapes(string)
+            html = html + string
+    # Return updated HTML string
+    return html
+            
 
 def clean_element(html:str=None, remove_ends:str=False) -> str:
     """
@@ -160,3 +190,30 @@ def clean_element(html:str=None, remove_ends:str=False) -> str:
     # REMOVE WHITESPACE FROM THE START AND END OF STRING
     text = remove_whitespace(text)
     return text
+
+def remove_html_tags(text:str=None) -> str:
+    """
+    Removes HTML from given text, leaving only standard text.
+
+    :param text: HTML text to remove tags from, defaults to None
+    :type text: str, optional
+    :return: HTML with the HTML tags removed
+    :rtype: str
+    """
+    # Separate HTML into blocks
+    blocks = get_blocks(text)
+    # Remove HTML tags from blocks
+    index = 0
+    while index < len(blocks):
+        if blocks[index][0] == "<":
+            del blocks[index]
+            continue
+        index += 1
+    # Combine remaining blocks into HTML string
+    html = ""
+    for i in range(0, len(blocks)):
+        if i > 0:
+            html = html + " "
+        html = html + blocks[i]
+    # Return HTML with tags removed
+    return html
