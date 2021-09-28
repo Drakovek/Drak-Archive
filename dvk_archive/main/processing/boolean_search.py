@@ -1,10 +1,14 @@
 #!/usr/bin/env python3
 
+from argparse import ArgumentParser
 from dvk_archive.main.file.dvk_handler import DvkHandler
 from dvk_archive.main.processing.html_processing import add_escapes
 from dvk_archive.main.processing.html_processing import remove_html_tags
 from dvk_archive.main.processing.list_processing import list_to_string
 from dvk_archive.main.processing.string_processing import remove_whitespace
+from dvk_archive.main.processing.string_processing import truncate_path
+from os import getcwd
+from os.path import abspath, exists, isdir
 from tqdm import tqdm
 from typing import List
 
@@ -450,6 +454,7 @@ def search_dvks(dvk_handler:DvkHandler=None,
         desc_logic = add_escapes_to_logic(desc_logic, False)
     # Filter out dvks
     size = len(indexes)
+    print("Searching for DVKs...")
     for index in tqdm(range(0, size)):
         dvk = dvk_handler.get_dvk(indexes[index])
         # Filter out Dvks by title
@@ -510,5 +515,116 @@ def search_dvks(dvk_handler:DvkHandler=None,
         index += 1
     # Return indexes that are left
     return indexes
-    
-    
+
+def main():
+    """
+    Sets up commands for getting DVKs with missing media.
+    """
+    # Set up ArgumentParser
+    parser = ArgumentParser()
+    parser.add_argument(
+        "-p",
+        "--path",
+        help="Path in which to search for DVKs",
+        nargs="?",
+        type=str,
+        default=str(getcwd()))
+    parser.add_argument(
+        "-c",
+        "--case_sensitive",
+        help="Indicates string searches should be case sensitive",
+        action="store_true")
+    parser.add_argument(
+        "-t",
+        "--title",
+        metavar="TITLE",
+        help="Boolean search for DVK titles",
+        type=str,
+        default=None)
+    parser.add_argument(
+        "-T",
+        "--TITLE_EXACT",
+        help="Indicates title search should be an exact match",
+        action="store_true")
+    parser.add_argument(
+        "-a",
+        "--artist",
+        metavar="ARTIST",
+        help="Boolean search for DVK artist(s)",
+        type=str,
+        default=None)
+    parser.add_argument(
+        "-A",
+        "--ARTIST_LOOSE",
+        help="Indicates artist string doesn't have to be an exact match",
+        action="store_true")
+    parser.add_argument(
+        "-w",
+        "--web_tag",
+        metavar="TAG",
+        help="Boolean search for DVK web tags",
+        type=str,
+        default=None)
+    parser.add_argument(
+        "-W",
+        "--WEB_TAG_LOOSE",
+        help="Indicates web tag doesn't have to be an exact match",
+        action="store_true")
+    parser.add_argument(
+        "-d",
+        "--description",
+        metavar="DESC",
+        help="Boolean search for DVK descriptions",
+        type=str,
+        default=None)
+    parser.add_argument(
+        "-D",
+        "--DESCRIPTION_EXACT",
+        help="Indicates description search should include HTML tags and info",
+        action="store_true")
+    parser.add_argument(
+        "-u",
+        "--url",
+        metavar="URL",
+        help="Boolean search for DVK page URLs",
+        type=str,
+        default=None)
+    parser.add_argument(
+        "-U",
+        "--URL_EXACT",
+        help="Indicates page URL search should be an exact match",
+        action="store_true")
+    args = parser.parse_args()
+    # Check if the given directory exists
+    full_directory = abspath(args.path)
+    if (full_directory is not None
+            and exists(full_directory)
+            and isdir(full_directory)):
+        # Load all DVK files in the directory
+        dvk_handler = DvkHandler(full_directory)
+        dvk_handler.sort_dvks("a")
+        # Search for DVKs
+        indexes = search_dvks(dvk_handler=dvk_handler,
+                case_sensitive=args.case_sensitive,
+                title_search=args.title,
+                title_exact=args.TITLE_EXACT,
+                artist_search=args.artist,
+                artist_exact=not args.ARTIST_LOOSE,
+                web_tag_search=args.web_tag,
+                web_tag_exact=not args.WEB_TAG_LOOSE,
+                desc_search=args.description,
+                desc_exact=args.DESCRIPTION_EXACT,
+                url_search=args.url,
+                url_exact=args.URL_EXACT)
+        # Print list of found dvks
+        if len(indexes) > 0:
+            for index in indexes:
+                path = dvk_handler.get_dvk(index).get_dvk_file()
+                print(truncate_path(full_directory, path))
+        else:
+            print("No matching DVKs found.")
+    else:
+        print("Invalid directory")
+
+if __name__ == "__main__":
+    main
