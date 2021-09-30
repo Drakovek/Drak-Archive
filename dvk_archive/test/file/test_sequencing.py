@@ -2,10 +2,13 @@
 
 from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.main.file.dvk_handler import DvkHandler
+from dvk_archive.main.file.sequencing import get_default_sequence_order
 from dvk_archive.main.file.sequencing import get_sequence
 from dvk_archive.main.file.sequencing import set_sequence
+from dvk_archive.main.file.sequencing import set_sequence_from_indexes
 from dvk_archive.test.temp_dir import get_test_dir
-from os.path import exists, join
+from os import mkdir
+from os.path import abspath, exists, join
 
 def create_test_dvks() -> str:
     """
@@ -76,6 +79,75 @@ def create_test_dvks() -> str:
     return test_dir
 
 def test_set_sequence():
+    # Set up test files
+    test_dir = create_test_dvks()
+    dvk_handler = DvkHandler(test_dir)
+    dvk_handler.sort_dvks("a")
+    assert dvk_handler.get_size() == 6
+    dvk0 = dvk_handler.get_dvk(0)
+    dvk1 = dvk_handler.get_dvk(1)
+    dvk2 = dvk_handler.get_dvk(2)
+    dvk3 = dvk_handler.get_dvk(3)
+    dvk4 = dvk_handler.get_dvk(4)
+    dvk5 = dvk_handler.get_dvk(5)
+    # Test setting a sequence
+    dvks = [dvk0, dvk1]
+    seq_dvks = set_sequence(dvks)
+    assert seq_dvks[0].get_dvk_id() == "CPL01"
+    assert seq_dvks[0].is_first()
+    assert seq_dvks[0].get_next_id() == "CPL02"
+    assert seq_dvks[0].get_sequence_title() is None
+    assert seq_dvks[1].get_dvk_id() == "CPL02"
+    assert seq_dvks[1].is_last()
+    assert seq_dvks[1].get_prev_id() == "CPL01"
+    assert seq_dvks[1].get_sequence_title() is None
+    # Test setting a sequence with sequence title
+    dvks = [dvk3, dvk4, dvk5]
+    seq_dvks = set_sequence(dvks, "Title!")
+    assert len(seq_dvks) == 3
+    assert seq_dvks[0].get_dvk_id() == "TRI01"
+    assert seq_dvks[0].is_first()
+    assert seq_dvks[0].get_next_id() == "TRI02"
+    assert seq_dvks[0].get_sequence_title() == "Title!"
+    assert seq_dvks[1].get_dvk_id() == "TRI02"
+    assert seq_dvks[1].get_prev_id() == "TRI01"
+    assert seq_dvks[1].get_next_id() == "TRI03"
+    assert seq_dvks[1].get_sequence_title() == "Title!"
+    assert seq_dvks[2].get_dvk_id() == "TRI03"
+    assert seq_dvks[2].is_last()
+    assert seq_dvks[2].get_prev_id() == "TRI02"
+    assert seq_dvks[2].get_sequence_title() == "Title!"
+    # Test setting a single standalone Dvk file
+    dvks = [dvk2]
+    seq_dvks = set_sequence(dvks, "Other")
+    assert seq_dvks[0].get_dvk_id() == "SNG01"
+    assert seq_dvks[0].is_first()
+    assert seq_dvks[0].is_last()
+    assert seq_dvks[0].get_sequence_title() is None
+    # Test that sequence data was written to disk
+    dvk_handler = None
+    dvk_handler = DvkHandler(test_dir)
+    dvk_handler.sort_dvks("a")
+    assert dvk_handler.get_dvk(0).get_next_id() == "CPL02"
+    assert dvk_handler.get_dvk(1).get_prev_id() == "CPL01"
+    assert dvk_handler.get_dvk(2).is_first()
+    assert dvk_handler.get_dvk(3).get_next_id() == "TRI02"
+    assert dvk_handler.get_dvk(4).get_next_id() == "TRI03"
+    assert dvk_handler.get_dvk(5).get_prev_id() == "TRI02"
+    # Test setting a sequence with invalid parameters
+    assert set_sequence([]) == []
+    assert set_sequence(None) == []
+    dvk_handler = None
+    dvk_handler = DvkHandler(test_dir)
+    dvk_handler.sort_dvks("a")
+    assert dvk_handler.get_dvk(0).get_next_id() == "CPL02"
+    assert dvk_handler.get_dvk(1).get_prev_id() == "CPL01"
+    assert dvk_handler.get_dvk(2).is_first()
+    assert dvk_handler.get_dvk(3).get_next_id() == "TRI02"
+    assert dvk_handler.get_dvk(4).get_next_id() == "TRI03"
+    assert dvk_handler.get_dvk(5).get_prev_id() == "TRI02"
+
+def test_set_sequence_from_indexes():
     """
     Tests the set_sequence function.
     """
@@ -85,7 +157,7 @@ def test_set_sequence():
     dvk_handler.sort_dvks("a")
     assert dvk_handler.get_size() == 6
     # Test setting a sequence
-    set_sequence(dvk_handler, [0,1])
+    set_sequence_from_indexes(dvk_handler, [0,1])
     assert dvk_handler.get_dvk(0).get_dvk_id() == "CPL01"
     assert dvk_handler.get_dvk(0).is_first()
     assert dvk_handler.get_dvk(0).get_next_id() == "CPL02"
@@ -95,7 +167,7 @@ def test_set_sequence():
     assert dvk_handler.get_dvk(1).get_prev_id() == "CPL01"
     assert dvk_handler.get_dvk(1).get_sequence_title() is None
     # Test setting a sequence with sequence title
-    set_sequence(dvk_handler, [3,4,5], "Title!")
+    set_sequence_from_indexes(dvk_handler, [3,4,5], "Title!")
     assert dvk_handler.get_dvk(3).get_dvk_id() == "TRI01"
     assert dvk_handler.get_dvk(3).is_first()
     assert dvk_handler.get_dvk(3).get_next_id() == "TRI02"
@@ -109,7 +181,7 @@ def test_set_sequence():
     assert dvk_handler.get_dvk(5).get_prev_id() == "TRI02"
     assert dvk_handler.get_dvk(5).get_sequence_title() == "Title!"
     # Test setting a single standalone Dvk file
-    set_sequence(dvk_handler, [2], "Other")
+    set_sequence_from_indexes(dvk_handler, [2], "Other")
     assert dvk_handler.get_dvk(2).get_dvk_id() == "SNG01"
     assert dvk_handler.get_dvk(2).is_first()
     assert dvk_handler.get_dvk(2).is_last()
@@ -125,10 +197,10 @@ def test_set_sequence():
     assert dvk_handler.get_dvk(4).get_next_id() == "TRI03"
     assert dvk_handler.get_dvk(5).get_prev_id() == "TRI02"
     # Test setting a sequence with invalid parameters
-    set_sequence(None, [2])
-    set_sequence(dvk_handler, None)
-    set_sequence(dvk_handler, [])
-    set_sequence()
+    set_sequence_from_indexes(None, [2])
+    set_sequence_from_indexes(dvk_handler, None)
+    set_sequence_from_indexes(dvk_handler, [])
+    set_sequence_from_indexes()
     assert dvk_handler.get_dvk(0).get_next_id() == "CPL02"
     assert dvk_handler.get_dvk(1).get_prev_id() == "CPL01"
     assert dvk_handler.get_dvk(2).is_first()
@@ -146,7 +218,7 @@ def test_get_sequence():
     dvk_handler.sort_dvks("a")
     assert dvk_handler.get_size() == 6
     # Test getting sequence
-    set_sequence(dvk_handler, [3,4,5])
+    set_sequence_from_indexes(dvk_handler, [3,4,5])
     assert get_sequence(dvk_handler, 3) == [3,4,5]
     assert get_sequence(dvk_handler, 4) == [3,4,5]
     assert get_sequence(dvk_handler, 5) == [3,4,5]
@@ -174,9 +246,66 @@ def test_get_sequence():
     assert get_sequence(None, 2) == []
     assert get_sequence() == []
 
+def test_get_default_sequence_order():
+    """
+    Tests the get_default_sequence_order function.
+    """
+    # Create test files
+    test_dir = get_test_dir()
+    path1 = abspath(join(test_dir, "1 - Prologue"))
+    path2 = abspath(join(test_dir, "2 - Part 1"))
+    path3 = abspath(join(test_dir, "3 - End"))
+    mkdir(path1)
+    mkdir(path2)
+    mkdir(path3)
+    dvk = Dvk()
+    dvk.set_dvk_file(join(path1, "prologue.dvk"))
+    dvk.set_dvk_id("DVK123")
+    dvk.set_title("Prologue")
+    dvk.set_artist("artist")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("media.txt")
+    dvk.write_dvk()
+    dvk.set_dvk_file(join(path2, "1.dvk"))
+    dvk.set_title("Part 1 - 01")
+    dvk.write_dvk()
+    dvk.set_dvk_file(join(path2, "2.dvk"))
+    dvk.set_title("Part 1 - 02")
+    dvk.write_dvk()
+    dvk.set_dvk_file(join(path3, "end.dvk"))
+    dvk.set_title("End")
+    dvk.write_dvk()
+    # Test that files were written correctly
+    dvk_handler = DvkHandler(test_dir)
+    dvk_handler.sort_dvks("a")
+    assert dvk_handler.get_size() == 4
+    assert dvk_handler.get_dvk(0).get_title() == "End"
+    assert dvk_handler.get_dvk(1).get_title() == "Part 1 - 01"
+    assert dvk_handler.get_dvk(2).get_title() == "Part 1 - 02"
+    assert dvk_handler.get_dvk(3).get_title() == "Prologue"
+    # Test getting the default sequence order
+    dvks = get_default_sequence_order(test_dir)
+    assert len(dvks) == 4
+    assert dvks[0].get_title() == "Prologue"
+    assert dvks[1].get_title() == "Part 1 - 01"
+    assert dvks[2].get_title() == "Part 1 - 02"
+    assert dvks[3].get_title() == "End"
+    # Test getting default order with too many internal directories
+    dvk.set_dvk_file(join(test_dir, "break.dvk"))
+    dvk.set_title("Breaking the file structure.")
+    dvk.write_dvk()
+    dvk_handler = DvkHandler(test_dir)
+    assert dvk_handler.get_size() == 5
+    assert get_default_sequence_order(test_dir) == []
+    # Test getting default order with invalid directory
+    assert get_default_sequence_order(None) == []
+    assert get_default_sequence_order("/non/existant/dir/") == []
+
 def all_tests():
     """
     Runs all tests for the sequencing.py module.
     """
+    test_set_sequence_from_indexes()
     test_set_sequence()
     test_get_sequence()
+    test_get_default_sequence_order()
