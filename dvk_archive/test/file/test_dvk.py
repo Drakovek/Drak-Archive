@@ -833,6 +833,78 @@ def test_get_set_section_title():
     assert exists(read_dvk.get_dvk_file())
     assert read_dvk.get_section_title() == "New Title"
 
+def test_get_set_sequence_total():
+    """
+    Tests the get_sequence_total and set_sequence_total methods.
+    """
+    # Tests getting the default sequence total from the constructor
+    dvk = Dvk()
+    assert dvk.get_sequence_total() == 1
+    # Tests getting and setting the sequence total
+    dvk.set_sequence_total(45)
+    assert dvk.get_sequence_total() == 45
+    dvk.set_sequence_total(3)
+    assert dvk.get_sequence_total() == 3
+    dvk.set_sequence_total(1)
+    assert dvk.get_sequence_total() == 1
+    dvk.set_sequence_total(-2)
+    assert dvk.get_sequence_total() == 1
+    # Write DVK
+    test_dir = get_test_dir()
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "seq_total.dvk"))
+    dvk.set_dvk_id("ID123")
+    dvk.set_title("Sequence Total")
+    dvk.set_artist("artist")
+    dvk.set_page_url("URL")
+    dvk.set_media_file("media.txt")
+    dvk.set_sequence_total(71)
+    dvk.write_dvk()
+    assert exists(dvk.get_dvk_file())
+    # Test reading sequence total from DVK file
+    read_dvk = Dvk(dvk.get_dvk_file())
+    dvk = None
+    assert exists(read_dvk.get_dvk_file())
+    assert read_dvk.get_sequence_total() == 71
+
+def test_get_set_sequence_number():
+    """
+    Tests the get_sequence_number and set_sequence_number functions.
+    """
+    # Test getting default sequence number from constructor
+    dvk = Dvk()
+    assert dvk.get_sequence_number() == 0
+    # Test getting and setting the sequence number
+    dvk.set_sequence_total(20)
+    dvk.set_sequence_number(12)
+    assert dvk.get_sequence_number() == 12
+    dvk.set_sequence_number(20)
+    assert dvk.get_sequence_number() == 20
+    dvk.set_sequence_number(-1)
+    assert dvk.get_sequence_number() == 0
+    dvk.set_sequence_number(21)
+    assert dvk.get_sequence_number() == 0
+    # Write DVK
+    test_dir = get_test_dir()
+    dvk = Dvk()
+    dvk.set_dvk_file(join(test_dir, "seq_num.dvk"))
+    dvk.set_dvk_id("ID123")
+    dvk.set_title("Seq Num")
+    dvk.set_artist("artist")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("media.txt")
+    dvk.set_sequence_total(24)
+    dvk.set_sequence_number(13)
+    dvk.write_dvk()
+    assert exists(dvk.get_dvk_file())
+    assert dvk.get_sequence_number() == 13
+    # Test reading sequence number from Dvk
+    read_dvk = Dvk(dvk.get_dvk_file())
+    dvk = None
+    assert exists(read_dvk.get_dvk_file())
+    assert read_dvk.get_sequence_total() == 24
+    assert read_dvk.get_sequence_number() == 13
+
 def test_get_filename():
     """
     Tests the get_filename method.
@@ -867,6 +939,16 @@ def test_get_filename():
     dvk.set_secondary_url("page/url.png")
     assert dvk.get_filename(test_dir) == "blah_V236"
     assert dvk.get_filename(test_dir, True) == "blah_V236_S"
+    # Test getting filename if part of a sequence
+    dvk.set_title("Doesn't Matter")
+    dvk.set_sequence_title("Seq!")
+    dvk.set_sequence_total(250)
+    dvk.set_sequence_number(13)
+    assert dvk.get_filename(test_dir) == "013 Seq"
+    dvk.set_sequence_total(9)
+    dvk.set_sequence_number(1)
+    dvk.set_section_title("Chapter 1")
+    assert dvk.get_filename(test_dir, True) == "01 Seq - Chapter 1_S"
     # Test getting filename with invalid parameters
     assert dvk.get_filename("/non/existant/") == ""
     assert dvk.get_filename(None) == ""
@@ -1222,6 +1304,8 @@ def all_tests():
     test_set_last()
     test_get_set_sequence_title()
     test_get_set_section_title()
+    test_get_set_sequence_total()
+    test_get_set_sequence_number()
     test_get_filename()
     test_rename_files()
     test_delete_dvk()

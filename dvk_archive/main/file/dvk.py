@@ -45,6 +45,19 @@ def dictadd(dictionary:dict=None,
     return my_dict
 
 def dictget(dictionary:dict=None, key:str=None, default=None):
+    """
+    Returns the value for a key in a given dictionary.
+    Returns a default value if the given key is not found
+
+    :param dictionary: Dictionary to search for key within, defaults to None
+    :type dictionary: dict, optional
+    :param key: Key to read value from, defaults to None
+    :type key: str, optional
+    :param default: Default value to return if key is not found, defaults to None
+    :type default: Any, optional
+    :return: Value of the given key in the dictionary
+    :rtype: Any
+    """
     try:
         value = dictionary[key]
         return value
@@ -88,6 +101,8 @@ class Dvk:
         self.set_prev_id()
         self.set_sequence_title()
         self.set_section_title()
+        self.set_sequence_number()
+        self.set_sequence_total()
 
     def can_write(self) -> bool:
         """
@@ -144,6 +159,8 @@ class Dvk:
             dvk_seq = dictadd(dvk_seq, "prev_id", self.get_prev_id(), None)
             dvk_seq = dictadd(dvk_seq, "seq_title", self.get_sequence_title(), None)
             dvk_seq = dictadd(dvk_seq, "section_title", self.get_section_title(), None)
+            dvk_seq = dictadd(dvk_seq, "seq_total", self.get_sequence_total(), 1)
+            dvk_seq = dictadd(dvk_seq, "seq_num", self.get_sequence_number(), 0)
             # Create dict to combine all Dvk info.
             dvk_data = dictadd(dvk_data, "info", dvk_info, dict())
             dvk_data = dictadd(dvk_data, "web", dvk_web, dict())
@@ -230,6 +247,8 @@ class Dvk:
                     self.set_prev_id(dictget(dvk_sequence, "prev_id", None))
                     self.set_sequence_title(dictget(dvk_sequence, "seq_title", None))
                     self.set_section_title(dictget(dvk_sequence, "section_title", None))
+                    self.set_sequence_total(dictget(dvk_sequence, "seq_total", 1))
+                    self.set_sequence_number(dictget(dvk_sequence, "seq_num", 0))
         except:
             print("Error reading DVK file: " + self.get_dvk_file())
             print_exc()
@@ -757,6 +776,48 @@ class Dvk:
         """
         return self.section_title
 
+    def set_sequence_number(self, seq_num:int=0):
+        """
+        Sets the number indicating where the Dvk is in a sequence.
+
+        :param seq_num: Sequence number, defaults to 0
+        :type seq_num: int, optional
+        """
+        if seq_num < 1 or seq_num > self.get_sequence_total():
+            self.sequence_number = 0
+        else:
+            self.sequence_number = seq_num
+
+    def get_sequence_number(self) -> int:
+        """
+        Returns the number indicating where the Dvk is in a sequence.
+
+        :return: Sequence number
+        :rtype: int
+        """
+        return self.sequence_number
+
+    def set_sequence_total(self, seq_total:int=1):
+        """
+        Sets the total number of files in the sequence the Dvk is part of.
+
+        :param seq_total: Total number of files in the sequence, defaults to 1
+        :type seq_total: int, optional
+        """
+        if seq_total < 2:
+            self.sequence_total = 1
+        else:
+            self.sequence_total = seq_total
+
+    def get_sequence_total(self) -> int:
+        """
+        Gets the total number of files in the sequence the Dvk is part of.
+
+        :return: Total number of files in the sequence
+        :rtype: int
+        """
+        return self.sequence_total
+
     def get_filename(self, directory:str=None, secondary:bool=False) -> str:
         """
         Returns a filename for the Dvk based on title and id.
@@ -786,6 +847,18 @@ class Dvk:
             paths[i] = paths[i].lower()
         # Get default filename
         filename = get_filename(self.get_title())
+        if (self.get_sequence_total() > 1
+                    and self.get_sequence_number() > 0
+                    and self.get_sequence_title() is not None):
+            # Set special filename if part of a sequence
+            pad = len(str(self.get_sequence_total()))
+            if pad == 1:
+                pad = 2
+            padded = pad_num(str(self.get_sequence_number()), pad)
+            filename = padded + " " + get_filename(self.get_sequence_title())
+            # Add section title if applicable
+            if self.get_section_title() is not None:
+                filename = filename + " - " + get_filename(self.get_section_title())
         # Use different scheme if filename already exists
         lower = filename.lower()
         if lower + ".dvk" in paths or lower + ext in paths:

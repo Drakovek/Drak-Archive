@@ -51,7 +51,8 @@ def set_sequence(dvks:List[Dvk], seq_title:str=None) -> List[Dvk]:
         return []
     sequenced = []
     sequenced.extend(dvks)
-    for i in range(0, len(sequenced)):
+    total = len(sequenced)
+    for i in range(0, total):
         # Get Dvk to edit from index
         edit_dvk = sequenced[i]
         # Set the previous ID
@@ -73,6 +74,11 @@ def set_sequence(dvks:List[Dvk], seq_title:str=None) -> List[Dvk]:
             edit_dvk.set_sequence_title(seq_title)
         else:
             edit_dvk.set_sequence_title()
+        # Set the sequence number and total
+        edit_dvk.set_sequence_total(total)
+        edit_dvk.set_sequence_number(0)
+        if total > 1:
+            edit_dvk.set_sequence_number(i + 1)
         # Write Dvk and update the DvkHandler
         edit_dvk.write_dvk()
         sequenced[i] = edit_dvk
