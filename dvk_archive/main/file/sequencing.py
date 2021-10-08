@@ -161,59 +161,142 @@ def get_default_sequence_order(directory:str=None) -> List[Dvk]:
     # Return list of sorted Dvks
     return dvks
 
-def user_create_sequence(directory:str=None):
+def remove_sequence_info(dvks:List[Dvk]=None) -> List[Dvk]:
     """
-    Allows the user to set a sequence as well as its sequence and section titles.
+    Removes all sequence information from a given list of Dvks.
 
-    :param directory: Directory in which to create sequence, defaults to None
-    :type directory: str, optional
+    :param dvks: List of Dvk to remove sequence info from, defaults to None
+    :type dvks: List[Dvk], optional
+    :return: Given list of Dvks with all the sequence data removed
+    :rtype: List[Dvk]
     """
+    try:
+        removed = []
+        removed.extend(dvks)
+        for i in range(0, len(removed)):
+            # Remove all sequence information
+            removed[i].set_prev_id()
+            removed[i].set_next_id()
+            removed[i].set_sequence_number()
+            removed[i].set_sequence_total()
+            removed[i].set_sequence_title()
+            removed[i].set_section_title()
+            removed[i].write_dvk()
+        return removed
+    except (AttributeError, TypeError):
+        return []
+
+def separate_into_sections(directory:str=None, keep_existing:bool=True) -> List[List]:
+    """
+    Loads Dvks from a directory and groups them into sequence sections.
+    Each list item starts with a bool showing whether to keep a section's existing title.
+    The rest of each list item contains the Dvks of the given section.
+
+    :param directory: Directory in which to look for Dvks, defaults to None
+    :type directory: str, optional
+    :param keep_existing: Whether to keep existing section titles, defaults to True
+    :type keep_existing: bool, optional
+    :return: List of Dvks grouped into sections along with whether section titles should be kept
+    :rtype: List[List]
+    """
+    # Return empty list if parameters are invalid
+    if directory is None or not exists(directory) or not isdir(directory):
+        return []
     # Gets the default sequence order
-    print("Getting DVKs...")
     dvks = get_default_sequence_order(directory)
-    if dvks == []:
-        print("Files are not arranged properly!")
-    else:
-        # Get folders of the different sections
-        folders = []
-        for dvk in dvks:
-            print(dvk.get_title())
-            parent = abspath(join(dvk.get_dvk_file(), pardir))
-            if not parent in folders:
-                folders.append(parent)
-        # Get sequence title
-        write_sequence = True
-        print("")
-        seq_title = str(input("Sequence Title (q to cancel):"))
-        if seq_title == "q":
-            write_sequence = False
-        # Get section titles
-        section_titles = []
-        if write_sequence and len(folders) > 1:
-            for i in range(0, len(folders)):
-                show = "Section Title for: "\
-                            +basename(folders[i])\
-                            +" (q to cancel):"
-                sec_title = str(input(show))
-                section_titles.append(sec_title)
-                if sec_title == "q":
-                    write_sequence = False
-                    break
-        # Write sequence
-        if write_sequence:
-            dvks = set_sequence(dvks, seq_title)
-            # Set sections if applicable
-            if len(folders) > 1:
-                for i in range(0, len(dvks)):
-                    parent = abspath(join(dvks[i].get_dvk_file(), pardir))
-                    while not parent == folders[0]:
-                        del folders[0]
-                        del section_titles[0]
-                    dvks[i].set_section_title(section_titles[0])
-                    dvks[i].write_dvk()
-            print("Finished writing sequence!")
+    # Return empty list if no dvks wer found
+    if len(dvks) == 0:
+        return []
+    # Separate Dvks into sections based on their parent directory
+    path = abspath(join(dvks[0].get_dvk_file(), pardir))
+    group = [False]
+    sections = []
+    for dvk in dvks:
+        # Check if parent matches the path of the last
+        parent = abspath(join(dvk.get_dvk_file(), pardir))
+        if not path == parent:
+            # Start a new group
+            sections.append(group)
+            group = [False, dvk]
         else:
-            print("Sequence writing canceled.")
+            # Add dvk to the current group
+            group.append(dvk)
+        path = parent
+    sections.append(group)
+    # Check if sections contain section titles if section titles are to be kept
+    if keep_existing and len(sections) > 1:
+        for sec_num in range(0, len(sections)):
+            keep_section = True
+            for i in range(1, len(sections[sec_num])):
+                if sections[sec_num][i].get_section_title() is None:
+                    keep_section = False
+                    break
+            sections[sec_num][0] = keep_section
+    # Return section groups
+    return sections
+
+def user_create_sequence(directory:str=None, keep_sections:bool=True) -> bool:
+    """
+    Allows the user to create a sequence out of the Dvks from a given directory.
+
+    :param directory: Directory in which to create the Dvk sequence, defaults to None
+    :type directory: str, optional
+    :param keep_sections: Whether to keep the existing section titles of Dvks, defaults to True
+    :type keep_sections:bool, optional
+    :return: Whether or not creating the sequence was successful
+    :rtype: bool
+    """
+    # Get Dvks separated into sections based on directory
+    print("Getting DVKs...")
+    sections = separate_into_sections(directory, keep_sections)
+    # Return False if no sections were found
+    if len(sections) == 0:
+        return False
+    # Get Dvks and print them in order
+    dvks = []
+    for section in sections:
+        for i in range(1, len(section)):
+            dvks.append(section[i])
+            print(section[i].get_title())
+    # Get sequence title from the user
+    write_sequence = True
+    print("")
+    seq_title = str(input("Sequence Title (q to cancel):"))
+    if seq_title == "q":
+        return False
+    # Get section titles
+    section_titles = [None]
+    if len(sections) > 1:
+        section_titles = []
+        for section in sections:
+            sec_title = None
+            if not section[0]:
+                # Only ask the user for a section title if needed
+                path = abspath(join(section[1].get_dvk_file(), pardir))
+                show = "Section Title for: " + basename(path) + " (q to cancel):"
+                sec_title = str(input(show))
+                if sec_title == "q":
+                    return False
+            # Add section title to the list of titles
+            section_titles.append(sec_title)
+    # Set section titles and create dvk list
+    dvks = []
+    for sec_num in range(0, len(sections)):
+        group = []
+        for i in range(1, len(sections[sec_num])):
+            group.append(sections[sec_num][i])
+        if not sections[sec_num][0]:
+            for i in range(0, len(group)):
+                group[i].set_section_title(section_titles[sec_num])
+        dvks.extend(group)
+    # Set sequence
+    dvks = set_sequence(dvks, seq_title)
+    # Renmame files
+    for dvk in dvks:
+        parent = abspath(join(abspath(dvk.get_dvk_file()), pardir))
+        dvk.rename_files(dvk.get_filename(parent, False), dvk.get_filename(parent, True))
+    print("Finished writing sequence!")
+    return True
 
 def main():
     """
@@ -226,13 +309,18 @@ def main():
             nargs="?",
             type=str,
             default=str(getcwd()))
+    parser.add_argument(
+                "-o",
+                "--overwrite",
+                help="Whether to overwrite section titles or keep existing ones.",
+                action="store_true")
     args = parser.parse_args()
     full_directory = abspath(args.directory)
     # Check if directory exists
     if (full_directory is not None
                 and exists(full_directory)
                 and isdir(full_directory)):
-        user_create_sequence(full_directory)
+        user_create_sequence(full_directory, not args.overwrite)
     else:
         print("Invalid directory")
 

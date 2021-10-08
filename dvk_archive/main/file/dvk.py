@@ -834,6 +834,12 @@ class Dvk:
                     or self.get_title() is None
                     or self.get_dvk_id() is None):
             return ""
+        # Get old dvk filename
+        try:
+            old = basename(self.get_dvk_file())
+            old = old[:len(old)-4].lower()
+        except:
+            old = None
         # Get extension
         if secondary and self.get_secondary_url() is not None:
             ext = get_extension(self.get_secondary_url())
@@ -861,7 +867,7 @@ class Dvk:
                 filename = filename + " - " + get_filename(self.get_section_title())
         # Use different scheme if filename already exists
         lower = filename.lower()
-        if lower + ".dvk" in paths or lower + ext in paths:
+        if not lower == old and (lower + ".dvk" in paths or lower + ext in paths):
             filename = filename + " - " + self.get_artists()[0]
             lower = filename.lower()
             seed(self.get_dvk_id())

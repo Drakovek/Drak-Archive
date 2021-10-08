@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser
+from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.main.file.dvk_handler import DvkHandler
 from dvk_archive.main.file.sequencing import get_sequence
+from dvk_archive.main.file.sequencing import remove_sequence_info
 from dvk_archive.main.processing.list_processing import clean_list
 from dvk_archive.main.processing.string_processing import truncate_path
 from os import getcwd
@@ -175,8 +177,14 @@ def main():
             nargs="?",
             type=str,
             default=str(getcwd()))
+    parser.add_argument(
+                "-r",
+                "--remove",
+                help="Removes sequence info from broken sequences without asking",
+                action="store_true")
     args = parser.parse_args()
     full_directory = abspath(args.directory)
+    remove_all = args.remove
     # Check if directory exists
     if (full_directory is not None
             and exists(full_directory)
@@ -186,8 +194,25 @@ def main():
         # Print list
         if len(errors) > 0:
             for group in errors:
+                # Print group
+                print()
+                dvk = Dvk(group[0])
+                print("SEQUENCE: " + str(dvk.get_sequence_title()))
                 for item in group:
                     print(truncate_path(full_directory, item))
+                # Ask if sequence info should be deleted
+                delete = remove_all
+                if not remove_all:
+                    answer = str(input("Delete sequence info? [y/n]: ")).lower()
+                    delete = (answer == "y")
+                # Remove sequence info is specified
+                if delete:
+                    dvks = []
+                    for item in group:
+                        dvk = Dvk(item)
+                        dvks.append(dvk)
+                    remove_sequence_info(dvks)
+                    print("Sequence data removed.")
         else:
             print("\033[32mNo sequence errors found.\033[0m")
     else:

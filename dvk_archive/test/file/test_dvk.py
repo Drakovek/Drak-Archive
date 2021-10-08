@@ -949,6 +949,18 @@ def test_get_filename():
     dvk.set_sequence_number(1)
     dvk.set_section_title("Chapter 1")
     assert dvk.get_filename(test_dir, True) == "01 Seq - Chapter 1_S"
+    # Test filename doesn't change due to conflict with itself
+    dvk = Dvk()
+    dvk.set_dvk_id("ID123")
+    dvk.set_title("Self Overwrite")
+    dvk.set_artist("Person")
+    dvk.set_page_url("/url/")
+    dvk.set_media_file("overwrite.txt")
+    dvk.set_dvk_file(join(test_dir, dvk.get_filename(test_dir, False)) + ".dvk")
+    assert basename(dvk.get_dvk_file()) == "Self Overwrite.dvk"
+    dvk.write_dvk()
+    assert exists(dvk.get_dvk_file())
+    assert dvk.get_filename(test_dir, False) == "Self Overwrite"
     # Test getting filename with invalid parameters
     assert dvk.get_filename("/non/existant/") == ""
     assert dvk.get_filename(None) == ""
