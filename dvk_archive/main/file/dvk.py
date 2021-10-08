@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from dvk_archive.main.color_print import color_print
 from dvk_archive.main.web.bs_connect import download
 from dvk_archive.main.web.bs_connect import get_last_modified
 from dvk_archive.main.processing.list_processing import clean_list
@@ -172,7 +173,7 @@ class Dvk:
                 with open(self.get_dvk_file(), "w") as out_file:
                     dump(dvk_data, out_file, indent=4, separators=(",", ": "))
             except IOError as e:
-                print("File error: " + str(e))
+                color_print("File error: " + str(e), "r")
 
     def write_media(self, get_time:bool=False):
         """
@@ -250,7 +251,7 @@ class Dvk:
                     self.set_sequence_total(dictget(dvk_sequence, "seq_total", 1))
                     self.set_sequence_number(dictget(dvk_sequence, "seq_num", 0))
         except:
-            print("Error reading DVK file: " + self.get_dvk_file())
+            color_print("Error reading DVK file: " + self.get_dvk_file(), "r")
             print_exc()
             self.clear_dvk()
 

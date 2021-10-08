@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser
+from dvk_archive.main.color_print import color_print
 from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.main.file.dvk_handler import DvkHandler
 from dvk_archive.main.file.dvk_handler import get_directories
@@ -64,12 +65,13 @@ def main():
         unlinked = get_unlinked_media(full_directory)
         # PRINT LIST
         if len(unlinked) > 0:
+            color_print("UNLINKED MEDIA:", "r")
             for item in unlinked:
                 print(truncate_path(full_directory, item))
         else:
-            print("\033[32mNo unlinked media files found.\033[0m")
+            color_print("No unlinked media files found.", "g")
     else:
-        print("Invalid directory")
+        color_print("Invalid directory", "r")
 
 if __name__ == "__main__":
     main()

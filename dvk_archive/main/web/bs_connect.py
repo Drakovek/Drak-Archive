@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
+from dvk_archive.main.color_print import color_print
 from dvk_archive.main.processing.string_processing import pad_num
 from io import BytesIO
 from json import loads
@@ -139,7 +140,7 @@ def download(url:str=None, file_path:str=None) -> dict:
                 exceptions.ConnectionError,
                 exceptions.MissingSchema,
                 ConnectionResetError):
-            print("Failed to download:" + url)
+            color_print("Failed to download:" + url, "r")
         return dict()
 
 def get_last_modified(headers:dict=None) -> str:

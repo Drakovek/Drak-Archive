@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser
+from dvk_archive.main.color_print import color_print
 from dvk_archive.main.file.dvk_handler import DvkHandler
 from dvk_archive.main.processing.string_processing import truncate_path
 from os import getcwd
@@ -56,13 +57,14 @@ def main():
         missing = get_missing_sequence_info(full_directory)
         # Print list
         if len(missing) > 0:
+            print()
+            color_print("MISSING SEQUENCE INFO:", "r")
             for item in missing:
                 print(truncate_path(full_directory, item))
         else:
-            print("\033[32mNo DVKs with missing sequence info found.\033[0m")
+            color_print("No DVKs with missing sequence info found.", "g")
     else:
-        print("Invalid directory")
-    
+        color_print("Invalid directory", "r")
 
 if __name__ == "__main__":
     main()

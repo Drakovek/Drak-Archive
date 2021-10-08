@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser
+from dvk_archive.main.color_print import color_print
 from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.main.file.dvk_handler import DvkHandler
 from dvk_archive.main.processing.string_processing import truncate_path
@@ -70,14 +71,16 @@ def main():
         same = get_same_ids(full_directory)
         # PRINT LIST
         if len(same) > 0:
+            print()
+            color_print("SAME IDS:", "r")
             for i in range(0, len(same)):
                 print(truncate_path(full_directory, same[i][0]))
                 for k in range(1, len(same[i])):
                     print("    " + truncate_path(full_directory, same[i][k]))
         else:
-            print("\033[32mAll DVKs have unique IDs.\033[0m")
+            color_print("All DVKs have unique IDs.", "g")
     else:
-        print("Invalid directory")
+        color_print("Invalid directory", "r")
 
 if __name__ == "__main__":
     main()

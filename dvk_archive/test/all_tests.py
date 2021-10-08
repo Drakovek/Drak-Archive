@@ -6,6 +6,7 @@ from dvk_archive.test.file.file_tests import test_all as file_test
 from dvk_archive.test.error_finding.error_finding_tests import test_all as error_test
 from dvk_archive.test.processing.processing_tests import test_all as pro_test
 from dvk_archive.test.web.web_tests import test_all as web_test
+from dvk_archive.main.color_print import color_print
 
 def test_all():
     """
@@ -16,9 +17,9 @@ def test_all():
         file_test()
         error_test()
         web_test()
-        print("\033[32mAll dvk_archive tests passed.\033[0m")
+        color_print("All dvk_archive tests passed.", "g")
     except AssertionError:
-        print("\033[31mCheck failed:\033[0m")
+        color_print("Check failed:", "r")
         print_exc()
 
 def test_error_finding():
@@ -27,9 +28,9 @@ def test_error_finding():
     """
     try:
         error_test()
-        print("\033[32mAll error finding tests passed.\033[0m")
+        color_print("All error finding tests passed.", "g")
     except AssertionError:
-        print("\033[31mCheck failed:\033[0m")
+        color_print("Check failed:", "r")
         print_exc()
 
 def test_file():
@@ -38,9 +39,9 @@ def test_file():
     """
     try:
         file_test()
-        print("\033[32mAll file tests passed.\033[0m")
+        color_print("All file tests passed.", "g")
     except AssertionError:
-        print("\033[31mCheck failed:\033[0m")
+        color_print("Check failed:", "r")
         print_exc()
 
 def test_processing():
@@ -49,9 +50,9 @@ def test_processing():
     """
     try:
         pro_test()
-        print("\033[32mAll processing tests passed.\033[0m")
+        color_print("All processing tests passed.", "g")
     except AssertionError:
-        print("\033[31mCheck failed:\033[0m")
+        color_print("Check failed:", "r")
         print_exc()
 
 def test_web():
@@ -60,9 +61,9 @@ def test_web():
     """
     try:
         web_test()
-        print("\033[32mAll web tests passed.\033[0m")
+        color_print("All web tests passed.", "g")
     except AssertionError:
-        print("\033[31mCheck failed:\033[0m")
+        color_print("Check failed:", "r")
         print_exc()
 
 def main():

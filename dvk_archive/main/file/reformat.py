@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser
+from dvk_archive.main.color_print import color_print
 from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.main.file.dvk_handler import DvkHandler
 from dvk_archive.main.processing.html_processing import clean_element
@@ -47,7 +48,7 @@ def reformat_directory(directory:str=None):
         # REFORMAT DVKS
         reformat_dvks(dvk_handler)
     else:
-        print("Invalid directory")
+        color_print("Invalid directory", "r")
 
 def main():
     """

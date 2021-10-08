@@ -2,6 +2,7 @@
 
 from _functools import cmp_to_key
 from argparse import ArgumentParser
+from dvk_archive.main.color_print import color_print
 from dvk_archive.main.file.dvk_handler import Dvk
 from dvk_archive.main.file.dvk_handler import DvkHandler
 from dvk_archive.main.file.dvk_handler import get_directories
@@ -156,7 +157,7 @@ def get_default_sequence_order(directory:str=None) -> List[Dvk]:
     length = len(paths)
     paths = clean_list(paths)
     if not length == len(paths):
-        print("Too many internal directories.")
+        color_print("Too many internal directories.", "r")
         return []
     # Return list of sorted Dvks
     return dvks
@@ -260,7 +261,7 @@ def user_create_sequence(directory:str=None, keep_sections:bool=True) -> bool:
             print(section[i].get_title())
     # Get sequence title from the user
     write_sequence = True
-    print("")
+    print()
     seq_title = str(input("Sequence Title (q to cancel):"))
     if seq_title == "q":
         return False
@@ -295,7 +296,7 @@ def user_create_sequence(directory:str=None, keep_sections:bool=True) -> bool:
     for dvk in dvks:
         parent = abspath(join(abspath(dvk.get_dvk_file()), pardir))
         dvk.rename_files(dvk.get_filename(parent, False), dvk.get_filename(parent, True))
-    print("Finished writing sequence!")
+    color_print("Finished writing sequence!", "g")
     return True
 
 def main():
@@ -322,7 +323,7 @@ def main():
                 and isdir(full_directory)):
         user_create_sequence(full_directory, not args.overwrite)
     else:
-        print("Invalid directory")
+        color_print("Invalid directory", "r")
 
 if __name__ == "__main__":
     main()

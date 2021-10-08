@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser
+from dvk_archive.main.color_print import color_print
 from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.main.file.dvk_handler import DvkHandler
 from dvk_archive.main.processing.string_processing import truncate_path
@@ -62,12 +63,14 @@ def main():
         missing = get_missing_media_dvks(full_directory)
         # PRINT LIST
         if len(missing) > 0:
+            print()
+            color_print("MISSING MEDIA:", "r")
             for item in missing:
                 print(truncate_path(full_directory, item))
         else:
-            print("\033[32mNo DVKs with missing media found.\033[0m")
+            color_print("No DVKs with missing media found.", "g")
     else:
-        print("Invalid directory")
+        color_print("Invalid directory", "r")
 
 if __name__ == "__main__":
     main()

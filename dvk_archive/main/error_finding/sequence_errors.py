@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser
+from dvk_archive.main.color_print import color_print
 from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.main.file.dvk_handler import DvkHandler
 from dvk_archive.main.file.sequencing import get_sequence
@@ -195,9 +196,9 @@ def main():
         if len(errors) > 0:
             for group in errors:
                 # Print group
-                print()
                 dvk = Dvk(group[0])
-                print("SEQUENCE: " + str(dvk.get_sequence_title()))
+                print()
+                color_print("SEQUENCE: " + str(dvk.get_sequence_title()), "r")
                 for item in group:
                     print(truncate_path(full_directory, item))
                 # Ask if sequence info should be deleted
@@ -212,10 +213,11 @@ def main():
                         dvk = Dvk(item)
                         dvks.append(dvk)
                     remove_sequence_info(dvks)
-                    print("Sequence data removed.")
+                    color_print("Sequence data removed.", "g")
         else:
-            print("\033[32mNo sequence errors found.\033[0m")
+            color_print("No sequence errors found.", "g")
     else:
-        print("Invalid directory")
+        color_print("Invalid directory", "r")
+
 if __name__ == "__main__":
     main()

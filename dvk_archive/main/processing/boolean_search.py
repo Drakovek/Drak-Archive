@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser
+from dvk_archive.main.color_print import color_print
 from dvk_archive.main.file.dvk_handler import DvkHandler
 from dvk_archive.main.processing.html_processing import add_escapes
 from dvk_archive.main.processing.html_processing import remove_html_tags
@@ -618,13 +619,15 @@ def main():
                 url_exact=args.URL_EXACT)
         # Print list of found dvks
         if len(indexes) > 0:
+            print()
+            color_print("MATCHING SEARCHES:", "g")
             for index in indexes:
                 path = dvk_handler.get_dvk(index).get_dvk_file()
                 print(truncate_path(full_directory, path))
         else:
-            print("No matching DVKs found.")
+            color_print("No matching DVKs found.", "r")
     else:
-        print("Invalid directory")
+        color_print("Invalid directory", "r")
 
 if __name__ == "__main__":
     main
