@@ -14,6 +14,7 @@ console_scripts = ["dvk-archive-test = dvk_archive.test.all_tests:main",
                    "dvk-search = dvk_archive.main.processing.boolean_search:main",
                    "dvk-seq = dvk_archive.main.file.sequencing:main",
                    "dvk-seq-errors = dvk_archive.main.error_finding.sequence_errors:main",
+                   "dvk-seq-missing = dvk_archive.main.error_finding.missing_sequence_info:main",
                    "dvk-unlinked = dvk_archive.main.error_finding.unlinked_media:main"]
 
 with open("README.md", "r") as fh:
@@ -23,7 +24,7 @@ desc = "Utility for loading and handling media files in the DVK file format."
 
 setuptools.setup(
     name="dvk-archive",
-    version="0.10.8",
+    version="0.10.9",
     author="Drakovek",
     author_email="DrakovekMail@gmail.com",
     description=desc,

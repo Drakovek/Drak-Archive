@@ -2,6 +2,7 @@
 
 from dvk_archive.test.error_finding.test_same_ids import all_tests as same_ids
 from dvk_archive.test.error_finding.test_missing_media import all_tests as missing
+from dvk_archive.test.error_finding.test_missing_sequence_info import all_tests as missing_sequence
 from dvk_archive.test.error_finding.test_unlinked_media import all_tests as unlinked
 from dvk_archive.test.error_finding.test_sequence_errors import all_tests as sequencing
 
@@ -17,3 +18,4 @@ def test_all():
     unlinked()
     missing()
     sequencing()
+    missing_sequence()
