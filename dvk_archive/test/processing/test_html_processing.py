@@ -3,6 +3,7 @@
 from dvk_archive.main.processing.html_processing import add_escapes
 from dvk_archive.main.processing.html_processing import add_escapes_to_html
 from dvk_archive.main.processing.html_processing import clean_element
+from dvk_archive.main.processing.html_processing import create_html_tag
 from dvk_archive.main.processing.html_processing import escape_to_char
 from dvk_archive.main.processing.html_processing import get_blocks
 from dvk_archive.main.processing.html_processing import remove_html_tags
@@ -154,6 +155,40 @@ def test_remove_html_tags():
     assert remove_html_tags() == ""
     assert remove_html_tags(None) == ""
 
+def test_create_html_tag():
+    """
+    Tests the create_html_tag function.
+    """
+    # Test creating HTML Tag with no parameters or padding
+    tag = create_html_tag("b", text="Bold Text!", pad_text=False)
+    assert tag == "<b>Bold Text!</b>"
+    tag = create_html_tag("i", text="<b>tag</b>", pad_text=False)
+    assert tag == "<i><b>tag</b></i>"
+    # Test creating HTML Tag with padding
+    tag = create_html_tag("div", [], "Text.")
+    assert tag == "<div>\n    Text.\n</div>"
+    tag = create_html_tag("span", text="<b>\n    Thing\n</b>")
+    assert tag == "<span>\n    <b>\n        Thing\n    </b>\n</span>"
+    # Test creating HTML Tag with tag attributes
+    tag = create_html_tag("a", [["href", "/url/"]], "Link", pad_text=False)
+    assert tag == "<a href=\"/url/\">Link</a>"
+    attr = [["id", "Name"], ["class", "Thing"]]
+    tag = create_html_tag("div", attr, "Text!", pad_text=False)
+    assert tag == "<div id=\"Name\" class=\"Thing\">Text!</div>"
+    # Test creating HTML tag with attributes and padding
+    tag = create_html_tag("div", [["id", "thing"]], "<b>\n    Text\n</b>")
+    assert tag == "<div id=\"thing\">\n    <b>\n        Text\n    </b>\n</div>"
+    # Test creating HTML tag with no end tag
+    tag = create_html_tag("hr")
+    assert tag == "<hr>"
+    tag = create_html_tag("meta", [["thing","other"]])
+    assert tag == "<meta thing=\"other\">"
+    # Test creating HTML tag with invalid parameters
+    assert create_html_tag(None, [["id", "thing"]], "text") == ""
+    assert create_html_tag("a", [[None, "thing"]], "text") == ""
+    assert create_html_tag("a", [["id", None]], "text") == ""
+    assert create_html_tag("a", [[], []], "text") == ""
+
 def all_tests():
     """
     Runs all tests for the html_processing module.
@@ -165,3 +200,4 @@ def all_tests():
     test_add_escapes_to_html()
     test_clean_element()
     test_remove_html_tags()
+    test_create_html_tag()

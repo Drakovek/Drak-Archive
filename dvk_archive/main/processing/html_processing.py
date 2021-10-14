@@ -217,3 +217,51 @@ def remove_html_tags(text:str=None) -> str:
         html = html + blocks[i]
     # Return HTML with tags removed
     return html
+
+def create_html_tag(tag:str=None,
+            attributes:List[List[str]]=None,
+            text:str=None,
+            pad_text:bool=True) -> str:
+    """
+    Creates an HTML tag with given parameters and contained text.
+
+    :param tag: String for the tag itself (a, div, etc.), defaults to None
+    :type tag: str, optional
+    :param attributes: List of tag attribute pairs (Organized [attr, value]), defaults to None
+    :type attributes: list[list[str]]
+    :param text: Text to put inside the HTML tag, defaults to None
+    :type text: str, optional
+    :param pad_text: Whether to put internal text on a new line with tabs, defaults to True
+    :type pad_text: bool, optional
+    :return: HTML tag
+    :rtype: str
+    """
+    # Return empty string if parameters are invalid
+    if tag is None:
+        return ""
+    try:
+        # Create the end of the HTML tag
+        tag_end = ""
+        if text is not None:
+            tag_end = "</" + tag + ">"
+        # Create the start of the HTML tag
+        tag_start = "<" + tag
+        # Add attributes to HTML tag
+        if attributes is not None:
+            for attribute in attributes:
+                tag_start = tag_start + " " + attribute[0]\
+                            +"=\"" + attribute[1] + "\""
+        tag_start = tag_start + ">"
+        # Add padding to the internal text of the tag if specified
+        inner_text = text
+        if inner_text is None:
+            inner_text = ""
+        if pad_text and text:
+            inner_text = inner_text.replace("\n", "\n    ")
+            inner_text = "\n    " + inner_text + "\n"
+        # Create and return the full HTML tag
+        tag = tag_start + inner_text + tag_end
+        return tag
+    except (IndexError, TypeError):
+        # Return empty string if creating HTML tag fails
+        return ""
