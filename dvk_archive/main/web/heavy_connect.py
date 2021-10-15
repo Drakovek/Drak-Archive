@@ -2,12 +2,13 @@
 
 from bs4 import BeautifulSoup
 from json import loads
-from os import listdir, mkdir
+from os import listdir, mkdir, remove
 from os.path import abspath, exists, join
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options as FO
+from selenium.webdriver import Firefox
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from shutil import move, rmtree
@@ -62,12 +63,7 @@ class HeavyConnect:
             options.set_preference("browser.download.viewableInternally.enabledTypes", "")
             options.set_preference("browser.helperApps.neverAsk.saveToDisk", "image/gif;image/jpeg;image/png;image/webp;image/svg+xml")
             # CREATE DRIVER
-            profile = webdriver.FirefoxProfile()
-            log_file = abspath(join(self.tempdir, "dvkgeckodriver.log"))
-            self.driver = webdriver.Firefox(
-                    options=options,
-                    service_log_path=log_file,
-                    firefox_profile=profile)
+            self.driver = Firefox(options=options)
         except WebDriverException:
             # PRINTS INSTRUCTIONS FOR GETTING SELENIUM DRIVER
             self.driver = None
@@ -89,7 +85,7 @@ class HeavyConnect:
     def get_page(self,
                     url:str=None,
                     element:str=None,
-                    timeout:int=10) -> BeautifulSoup:
+                    timeout:int=20) -> BeautifulSoup:
         """
         Connects to a URL and returns a BeautifulSoup object.
         Capable of loading JavaScript, AJAX, etc.
@@ -113,6 +109,8 @@ class HeavyConnect:
             if element is not None and not element == "":
                 WebDriverWait(self.driver, timeout).until(
                      EC.presence_of_all_elements_located((By.XPATH, element)))
+            else:
+                sleep(timeout)
             bs = BeautifulSoup(self.driver.page_source, "lxml")
             return bs
         except:
@@ -120,9 +118,17 @@ class HeavyConnect:
         return None
 
     def get_json(self, url:str=None) -> dict:
-        bs = self.get_page(url, "//div[@id='json']")
+        """
+        Returns a dict containing JSON info from a given JSON URL.
+
+        :param url: URL to retrieve, defaults to None
+        :type url: str, optional
+        :return: Dictionary with JSON data
+        :rtype: dict
+        """
+        bs = self.get_page("view-source:" + str(url), "//pre")
         try:
-            element = bs.find("div", {"id": "json"})
+            element = bs.find("pre")
             html = element.get_text()
             # CONVERT TO JSON
             json = loads(html)
@@ -143,8 +149,13 @@ class HeavyConnect:
         """
         Closes the Selenium driver if possible.
         """
+        # Close the Selenium driver
         if self.driver is not None:
             self.driver.close()
+        # Try getting and deleting geckodriver log.
+        log_file = abspath("geckodriver.log")
+        if exists(log_file):
+            remove(log_file)
 
     def download(self, url:str=None, file_path:str=None) -> dict:
         """

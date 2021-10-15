@@ -69,9 +69,9 @@ def test_get_page():
         # CLOSE DRIVER
         connect.close_driver()
 
-def test_load_json():
+def test_get_json():
     """
-    Tests the load_json function.
+    Tests the get_json function.
     """
     connect = HeavyConnect()
     try:
@@ -94,6 +94,6 @@ def all_tests():
     """
     Runs all tests for the heavy_connect module.
     """
-    test_download()
-    test_load_json()
+    test_get_json()
     test_get_page()
+    test_download()

@@ -24,6 +24,18 @@ def get_default_headers() -> dict:
     return headers
 
 def get_direct_response(url:str=None, headers:dict=None, data:dict=None) -> Response:
+    """
+    Sends an HTTP request and returns the exact HTTP response.
+
+    :param url: URL to retrieve, defaults to None
+    :type url: str, optional
+    :param encoding: Text encoding to use, defaults to "utf-8"
+    :type encoding: str, optional
+    :param data: Request payload for post requests, defaults to None
+    :type data: str, optional
+    :return: HTTP response
+    :rtype: Response
+    """
     # RETURN NONE IF URL IS INVALID
     if url is None or url == "":
         return None
