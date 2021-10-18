@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from dvk_archive.main.file.dvk import Dvk
+from dvk_archive.main.file.dvk_html import create_css
 from dvk_archive.main.file.dvk_html import get_dvk_header_html
 from dvk_archive.main.file.dvk_html import get_dvk_html
 from dvk_archive.main.file.dvk_html import get_dvk_info_html
@@ -250,6 +251,23 @@ def test_get_page_link_html():
     # Test getting page_link tag with invalid Dvk
     assert get_page_link_html(None) == ""
 
+def test_create_css():
+    """
+    Tests the create_css function.
+    """
+    # Test creating a CSS file
+    test_dir = get_test_dir()
+    css_file = create_css(test_dir)
+    assert exists(css_file)
+    assert basename(css_file) == "dvk_style.css"
+    with open(css_file) as f:
+        contents = f.read()
+    assert "body {\n    background_color: " in contents
+    assert "font_family: Arial, sans-serif;" in contents
+    # Test creating CSS file with invalid parameters
+    assert create_css("/non/existant/dir/") == ""
+    assert create_css(None) == ""
+
 def test_get_dvk_html():
     """
     Tests the get_dvk_html function.
@@ -267,9 +285,12 @@ def test_get_dvk_html():
     dvk.set_direct_url("/page/direct/")
     dvk.set_secondary_url("/page/second/")
     dvk.set_media_file("media.png")
+    css_file = create_css(test_dir)
     # Test getting dvk_html
-    html = get_dvk_html(dvk)
+    html = get_dvk_html(dvk, css_file)
     assert html == "<!DOCTYPE html>\n<html>\n    <head>"\
+                +"\n        <link rel=\"stylesheet\" type=\"text/css\" href=\""\
+                + abspath(css_file) + "\">"\
                 +"\n        <title>Something&#33;</title>"\
                 +"\n        <meta charset=\"UTF-8\">"\
                 +"\n    </head>\n    <body>\n        <div id=\"dvk_content\">"\
@@ -294,9 +315,10 @@ def test_get_dvk_html():
                 +"\n                <a class=\"dvk_link\" href=\"/page/second/\">Secondary URL</a>"\
                 +"\n            </div>\n        </div>\n    </body>\n</html>"
     # Tests getting dvk_html with invalid Dvk
+    assert get_dvk_html(dvk, None) == ""
     dvk.set_title(None)
-    assert get_dvk_html(dvk) == ""
-    assert get_dvk_html(None) == ""
+    assert get_dvk_html(dvk, css_file) == ""
+    assert get_dvk_html(None, css_file) == ""
 
 def test_write_dvk_html():
     """
@@ -331,5 +353,6 @@ def all_tests():
     test_get_dvk_info_html()
     test_get_tag_info_html()
     test_get_page_link_html()
+    test_create_css()
     test_get_dvk_html()
     test_write_dvk_html()

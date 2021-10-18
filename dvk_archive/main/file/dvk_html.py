@@ -10,7 +10,7 @@ from dvk_archive.main.processing.string_processing import pad_num
 from dvk_archive.main.processing.list_processing import clean_list
 from dvk_archive.main.processing.list_processing import list_to_string
 from os import mkdir
-from os.path import abspath, exists, join
+from os.path import abspath, exists, isdir, join
 from shutil import rmtree
 from tempfile import gettempdir
 from typing import List
@@ -276,22 +276,180 @@ def get_page_link_html(dvk:Dvk=None) -> str:
     # Combine links into an HTML tag
     return create_html_tag("div", attr, list_to_lines(links))
 
-def get_dvk_html(dvk:Dvk=None) -> str:
+def create_css(directory:str=None) -> str:
+    """
+    Creates a CSS file for styling DVK HTML.
+
+    :param directory: Directory to save the CSS file, defaults to None
+    :type directory: str, optional
+    :return: Path to the written CSS file
+    :rtype: str
+    """
+    if directory is None or not isdir(directory) or not exists(directory):
+        return ""
+    # Color variables
+    pad_space = "6px"
+    border_width = "1px"
+    base_font_size = "16px"
+    large_font_size = "24px"
+    info_color = "rgb(60, 60, 60)"
+    tag_color = "rgb(80,80,80)"
+    text_color = "rgb(250,250,250)"
+    header_color = "rgb(40,40,40)"
+    border_color = "rgb(100,100,100)"
+    background_color = "rgb(30,30,30)"
+    link_color = "rgb(60,135,200)"
+    link_hover_color = "rgb(95,160,210)"
+    link_active_color = "rgb(240,45,85)"
+    # Set the default background color and font
+    css = ["body {"]
+    css.append("    background-color: " + background_color + ";")
+    css.append("    font-family: Arial, sans-serif;")
+    css.append("    font-size:" + base_font_size + ";")
+    css.append("}")
+    # Set the default text color
+    css.append("")
+    css.append("div {")
+    css.append("    color: " + text_color + ";")
+    css.append("}")
+    # Set the title font size
+    css.append("")
+    css.append("#dvk_title {")
+    css.append("    font-size: " + large_font_size + ";")
+    css.append("}")
+    # Set style for links
+    css.append("")
+    css.append("a {")
+    css.append("    color: " + link_color + ";")
+    css.append("    text-decoration: none;")
+    css.append("}")
+    css.append("")
+    css.append("a:active {")
+    css.append("    color: " + link_active_color + ";")
+    css.append("}")
+    css.append("a:hover {")
+    css.append("    color: " + link_hover_color + ";")
+    css.append("}")
+    # Set the default padding
+    css.append("")
+    css.append(".dvk_padded, .dvk_tag, .dvk_link {")
+    css.append("    padding-top: " + pad_space+ ";")
+    css.append("    padding-bottom: " + pad_space+ ";")
+    css.append("    padding-left: " + pad_space+ ";")
+    css.append("    padding-right: " + pad_space+ ";")
+    css.append("}")
+    # Set the default dvk_info style
+    css.append("")
+    css.append(".dvk_info {")
+    css.append("    background-color: " + info_color + ";")
+    css.append("    border-style: solid;")
+    css.append("    border-width: " + border_width + ";")
+    css.append("    border-color: " + border_color + ";")
+    css.append("    margin-top: " + pad_space + ";")
+    css.append("    margin-bottom: " + pad_space + ";")
+    css.append("    margin-left: 0px;")
+    css.append("    margin-right: 0px;")
+    css.append("}")
+    # Set the header style
+    css.append("")
+    css.append("#dvk_header, #dvk_web_tag_header {")
+    css.append("    background-color: " + header_color + ";")
+    css.append("}")
+    # Set the tag style
+    css.append("")
+    css.append(".dvk_tag {")
+    css.append("    display: inline-block;")
+    css.append("    background-color: " + tag_color + ";")
+    css.append("    margin-top: 0px;")
+    css.append("    margin-left: 0px;")
+    css.append("    margin-bottom: " + pad_space + ";")
+    css.append("    margin-right: " + pad_space + ";")
+    css.append("}")
+    css.append("")
+    css.append("#dvk_tags {")
+    css.append("    padding-bottom: 0px;")
+    css.append("    padding-right: 0px;")
+    css.append("}")
+    # Set style for dvk_links
+    css.append("")
+    css.append(".dvk_link {")
+    css.append("    text-align: center;")
+    css.append("    color: " + text_color + ";")
+    css.append("    background-color: " + info_color + ";")
+    css.append("    display: block;")
+    css.append("    border-style: solid;")
+    css.append("    border-width: " + border_width + ";")
+    css.append("    border-color: " + border_color + ";")
+    css.append("}")
+    css.append("")
+    css.append(".dvk_link:hover {")
+    css.append("    color: " + text_color + ";")
+    css.append("    background-color: " + tag_color + ";")
+    css.append("}")
+    # Set style for the page links
+    css.append("")
+    css.append("#dvk_page_links {")
+    css.append("    display: grid;")
+    css.append("    grid-column-gap: " + pad_space + ";")
+    css.append("    grid-row-gap: 0px;")
+    css.append("}")
+    css.append("")
+    css.append(".dvk_four_grid {")
+    css.append("    grid-template-columns: auto auto auto auto;")
+    css.append("}")
+    css.append("")
+    css.append(".dvk_three_grid {")
+    css.append("    grid-template-columns: auto auto auto;")
+    css.append("}")
+    css.append("")
+    css.append(".dvk_two_grid {")
+    css.append("    grid-template-columns: auto auto;")
+    css.append("}")
+    css.append("")
+    css.append(".dvk_one_grid {")
+    css.append("    grid-template-columns: auto;")
+    css.append("}")
+    # Set style for image media
+    css.append("")
+    css.append("#dvk_image {")
+    css.append("    display: block;")
+    css.append("    margin-left: auto;")
+    css.append("    margin-right: auto;")
+    css.append("    margin-top: 0px;")
+    css.append("    margin-bottom: 0px;")
+    css.append("    max-width: 100%;")
+    css.append("    max-height: 100%;")
+    css.append("    width: auto;")
+    css.append("    height: auto;")
+    css.append("}")
+    # Write CSS File
+    css_file = abspath(join(directory, "dvk_style.css"))
+    with open(css_file, "w") as out_file:
+        out_file.write(list_to_lines(css))
+    if not exists(css_file):
+        return ""
+    return css_file
+
+def get_dvk_html(dvk:Dvk=None, css:str=None) -> str:
     """
     Returns HTML page with all the info for a given Dvk file.
 
     :param dvk: Dvk to get info from, defaults to None
     :type dvk: Dvk, optional
+    :param css: Path of CSS file for styling HTML, defaults to None
+    :type css: str, optional
     :return: HTML containing Dvk info
     :rtype: str
     """
     # Return empty string if dvk is invalid
-    if dvk is None or dvk.get_title() is None:
+    if dvk is None or css is None or dvk.get_title() is None:
         return ""
     # Create HTML head
+    attr = [["rel", "stylesheet"], ["type", "text/css"], ["href", abspath(css)]]
+    link = create_html_tag("link", attr)
     title = create_html_tag("title", None, add_escapes(dvk.get_title()), False)
     charset = create_html_tag("meta", [["charset", "UTF-8"]])
-    head = create_html_tag("head", None, list_to_lines([title, charset]))
+    head = create_html_tag("head", None, list_to_lines([link, title, charset]))
     # Create HTML media tag
     media = get_media_html(dvk)
     # Create dvk_info_tag
@@ -322,7 +480,8 @@ def write_dvk_html(dvk:Dvk=None) -> str:
     temp_dir = get_temp_directory()
     html_file = abspath(join(temp_dir, "dvk.html"))
     # Get HTML for the given Dvk
-    html = get_dvk_html(dvk)
+    css_file = create_css(temp_dir)
+    html = get_dvk_html(dvk, css_file)
     if html == "":
         return ""
     # Write html to disk
@@ -347,7 +506,6 @@ def main():
     if dvk is not None:
         html = write_dvk_html(dvk)
         if not html == "":
-            print(html)
             web_open("file://" + abspath(html))
         else:
             color_print("Failed writing HTML", "r")
