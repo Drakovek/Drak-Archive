@@ -97,7 +97,16 @@ def test_read_dvks():
     assert dvk_handler.get_dvk(1).get_title() == "TITLE 0.55"
     assert dvk_handler.get_dvk(2).get_title() == "Title 2"
     assert dvk_handler.get_dvk(3).get_title() == "Title 10"
+    # TEST LOADING DVKS WITHOUT SUBDIRECTORIES
+    dvk_handler.read_dvks(test_dir, False)
+    dvk_handler.sort_dvks("a")
+    assert dvk_handler.get_size() == 2
+    assert dvk_handler.get_dvk(0).get_title() == "TITLE 0.55"
+    assert dvk_handler.get_dvk(1).get_title() == "Title 10"
     # TEST GETTING ALL INFORMATION FROM DVK
+    dvk_handler.read_dvks(test_dir)
+    dvk_handler.sort_dvks("a")
+    assert dvk_handler.get_size() == 4
     file = join(dvk_handler.get_dvk(3).get_dvk_file(), pardir)
     assert abspath(file) == test_dir
     file = basename(dvk_handler.get_dvk(3).get_dvk_file())

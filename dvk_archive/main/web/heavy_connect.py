@@ -105,6 +105,7 @@ class HeavyConnect:
         # ATTEMPT LOADING WEB PAGE
         try:
             self.driver.get(url)
+            sleep(1)
             # WAIT FOR ELEMENT TO LOAD, IF SPECIFIED
             if element is not None and not element == "":
                 WebDriverWait(self.driver, timeout).until(

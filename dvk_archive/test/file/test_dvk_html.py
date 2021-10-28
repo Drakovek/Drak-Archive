@@ -5,7 +5,9 @@ from dvk_archive.main.file.dvk_html import create_css
 from dvk_archive.main.file.dvk_html import get_dvk_header_html
 from dvk_archive.main.file.dvk_html import get_dvk_html
 from dvk_archive.main.file.dvk_html import get_dvk_info_html
+from dvk_archive.main.file.dvk_html import get_file_as_url
 from dvk_archive.main.file.dvk_html import get_media_html
+from dvk_archive.main.file.dvk_html import get_navbar_html
 from dvk_archive.main.file.dvk_html import get_page_link_html
 from dvk_archive.main.file.dvk_html import get_tag_info_html
 from dvk_archive.main.file.dvk_html import get_temp_directory
@@ -13,25 +15,44 @@ from dvk_archive.main.file.dvk_html import get_time_string
 from dvk_archive.main.file.dvk_html import is_image_extension
 from dvk_archive.main.file.dvk_html import list_to_lines
 from dvk_archive.main.file.dvk_html import write_dvk_html
+from dvk_archive.main.file.dvk_html import write_dvk_html_list
 from dvk_archive.test.temp_dir import get_test_dir
+from os import pardir
 from os.path import abspath, basename, exists, isdir, join
+
+def test_get_file_as_url():
+    """
+    Tests the get_file_as_url function.
+    """
+    # Test getting files as URL paths
+    url = get_file_as_url("/path/file/#3 Thing?.txt")
+    assert url == "file:///path/file/%233%20Thing%3F.txt"
+    url = get_file_as_url("C:\dir\Text 100%.png")
+    assert url == "file://C%3A\dir\Text%20100%25.png"
+    # Test using invalid parameters
+    assert get_file_as_url("") == ""
+    assert get_file_as_url(None) == ""
 
 def test_get_temp_directory():
     """
     Tests the get_temp_directory function.
     """
     # Test getting the temporary directory.
-    temp_dir = get_temp_directory()
+    temp_dir = get_temp_directory(True)
     assert exists(temp_dir)
     assert isdir(temp_dir)
     assert basename(temp_dir) == "dvk_html"
-    # Test that contents of directory get deleted when function is called
+    # Test getting temp directory with file already inside
     file = abspath(join(temp_dir, "file.txt"))
     assert not exists(file)
     with open(file, "w") as out_file:
         out_file.write("TEST")
     assert exists(file)
     temp_dir = get_temp_directory()
+    assert exists(temp_dir)
+    assert exists(file)
+    # Test deleting directory
+    temp_dir = get_temp_directory(True)
     assert exists(temp_dir)
     assert not exists(file)
 
@@ -251,6 +272,27 @@ def test_get_page_link_html():
     # Test getting page_link tag with invalid Dvk
     assert get_page_link_html(None) == ""
 
+def test_get_navbar_html():
+    # Try getting navbar html
+    html = get_navbar_html("/prev/path.html", "/next?/path.html")
+    assert html == "<div id=\"dvk_navbar\" class=\"dvk_two_grid\">"\
+                +"\n    <a class=\"dvk_link\" href=\"file:///prev/path.html\">&lt; PREV</a>"\
+                +"\n    <a class=\"dvk_link\" href=\"file:///next%3F/path.html\">NEXT &gt;</a>"\
+                +"\n</div>"
+    # Try getting navbar html with no previous path
+    html = get_navbar_html(None, "/path/txt.html")
+    assert html == "<div id=\"dvk_navbar\" class=\"dvk_two_grid\">"\
+                +"\n    <span class=\"dvk_muted_link\">&lt; PREV</span>"\
+                +"\n    <a class=\"dvk_link\" href=\"file:///path/txt.html\">NEXT &gt;</a>"\
+                +"\n</div>"
+    # Try getting navbar html with no next path
+    html = get_navbar_html("/prev thing.txt", None)
+    assert html == "<div id=\"dvk_navbar\" class=\"dvk_two_grid\">"\
+               +"\n    <a class=\"dvk_link\" href=\"file:///prev%20thing.txt\">&lt; PREV</a>"\
+               +"\n    <span class=\"dvk_muted_link\">NEXT &gt;</span>\n</div>"
+    # Try getting navbar with no links
+    assert get_navbar_html(None, None) == ""
+
 def test_create_css():
     """
     Tests the create_css function.
@@ -262,8 +304,8 @@ def test_create_css():
     assert basename(css_file) == "dvk_style.css"
     with open(css_file) as f:
         contents = f.read()
-    assert "body {\n    background_color: " in contents
-    assert "font_family: Arial, sans-serif;" in contents
+    assert "body {\n    background-color: " in contents
+    assert "font-family: Arial, sans-serif;" in contents
     # Test creating CSS file with invalid parameters
     assert create_css("/non/existant/dir/") == ""
     assert create_css(None) == ""
@@ -287,7 +329,7 @@ def test_get_dvk_html():
     dvk.set_media_file("media.png")
     css_file = create_css(test_dir)
     # Test getting dvk_html
-    html = get_dvk_html(dvk, css_file)
+    html = get_dvk_html(dvk, css_file, "/prev.html", "/next.html")
     assert html == "<!DOCTYPE html>\n<html>\n    <head>"\
                 +"\n        <link rel=\"stylesheet\" type=\"text/css\" href=\""\
                 + abspath(css_file) + "\">"\
@@ -296,6 +338,10 @@ def test_get_dvk_html():
                 +"\n    </head>\n    <body>\n        <div id=\"dvk_content\">"\
                 +"\n            <img id=\"dvk_image\" src=\"file://"\
                 + dvk.get_media_file() + "\" alt=\"Something&#33;\">"\
+                +"\n            <div id=\"dvk_navbar\" class=\"dvk_two_grid\">"\
+                +"\n                <a class=\"dvk_link\" href=\"file:///prev.html\">&lt; PREV</a>"\
+                +"\n                <a class=\"dvk_link\" href=\"file:///next.html\">NEXT &gt;</a>"\
+                +"\n            </div>"\
                 +"\n            <div id=\"dvk_info_base\" class=\"dvk_info\">"\
                 +"\n                <div id=\"dvk_header\" class=\"dvk_padded\">"\
                 +"\n                    <div id=\"dvk_title\"><b>Something&#33;</b></div>"\
@@ -328,22 +374,83 @@ def test_write_dvk_html():
     dvk = Dvk()
     dvk.set_title("Thing")
     dvk.set_artist("Blah")
-    path = write_dvk_html(dvk)
+    path = write_dvk_html(dvk, "html-1.html", delete=True)
     assert exists(path)
-    assert basename(path) == "dvk.html"
+    assert basename(abspath(join(path, pardir))) == "dvk_html"
+    assert basename(path) == "html-1.html"
     with open(path) as f:
         contents = f.read()
     html = "<div id=\"dvk_pub\">By <b>Blah</b>, Unknown Publication Date</div>"
     assert html in contents
+    # Test writing HTML without deleting temp directory
+    new_path = write_dvk_html(dvk, "new.txt", delete=False)
+    assert exists(path)
+    assert exists(new_path)
+    assert basename(new_path) == "new.txt"
+    # Test writing HTML while deleting temp directory
+    new_path = write_dvk_html(dvk, "next.html", delete=True)
+    assert not exists(path)
+    assert exists(new_path)
+    assert basename(new_path) == "next.html"
+    # Test adding navbar links
+    new_path = write_dvk_html(dvk,
+                filename="links.html",
+                prev_path="/previous.html",
+                next_path="/nxt.htm",
+                delete=True)
+    assert exists(new_path)
+    assert basename(new_path) == "links.html"
+    with open(new_path) as f:
+        contents = f.read()
+    html = "<a class=\"dvk_link\" href=\"file:///previous.html\">&lt; PREV</a>"
+    assert html in contents
     # Test writing invalid dvks
+    assert write_dvk_html(dvk, None) == ""
     dvk.set_title(None)
-    assert write_dvk_html(dvk) == ""
-    assert write_dvk_html(None) == ""
+    assert write_dvk_html(dvk, "new") == ""
+    assert write_dvk_html(None, "new") == ""
+
+def test_write_dvk_html_list():
+    # Create test Dvks
+    dvk1 = Dvk()
+    dvk1.set_title("Thing 1")
+    dvk1.set_artist("Artist")
+    dvk2 = Dvk()
+    dvk2.set_title("Next")
+    dvk2.set_artist("Other")
+    dvk3 = Dvk()
+    dvk3.set_title("Third")
+    dvk3.set_artist("Person")
+    # Test writing dvk HTML files
+    paths = write_dvk_html_list([dvk1,dvk2,dvk3])
+    assert len(paths) == 3
+    assert basename(paths[0]) == "0.html"
+    assert basename(paths[1]) == "1.html"
+    assert basename(paths[2]) == "2.html"
+    with open(paths[0]) as f:
+        contents = f.read()
+    assert "<span class=\"dvk_muted_link\">&lt; PREV</span>" in contents
+    assert "<a class=\"dvk_link\" href=\"file://" in contents
+    assert "1.html\">NEXT &gt;</a>" in contents
+    with open(paths[1]) as f:
+        contents = f.read()
+    assert "<a class=\"dvk_link\" href=\"file://" in contents
+    assert "0.html\">&lt; PREV</a>" in contents
+    assert "2.html\">NEXT &gt;</a>" in contents
+    with open(paths[2]) as f:
+        contents = f.read()
+    assert "<a class=\"dvk_link\" href=\"file://" in contents
+    assert "1.html\">&lt; PREV</a>" in contents
+    assert "<span class=\"dvk_muted_link\">NEXT &gt;</span>" in contents
+    # Test writing Dvks with invalid parameters
+    assert write_dvk_html_list([]) == []
+    assert write_dvk_html_list(None) == []
 
 def all_tests():
     """
     Runs all tests for the dvk_html.py module.
     """
+    test_get_file_as_url()
     test_get_temp_directory()
     test_list_to_lines()
     test_get_time_string()
@@ -353,6 +460,8 @@ def all_tests():
     test_get_dvk_info_html()
     test_get_tag_info_html()
     test_get_page_link_html()
+    test_get_navbar_html()
     test_create_css()
     test_get_dvk_html()
     test_write_dvk_html()
+    test_write_dvk_html_list()

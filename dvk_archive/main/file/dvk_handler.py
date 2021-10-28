@@ -65,17 +65,22 @@ class DvkHandler:
         if directory is not None:
             self.read_dvks(directory)
     
-    def read_dvks(self, directory:str=None):
+    def read_dvks(self, directory:str=None, include_subs:bool=True):
         """
         Reads all the DVK files in a given directory and stores them in a list.
 
         :param directory: Directory from which to load DVKs, defaults to None
         :type directory: str, optional
+        :param include_subs: Whether to include subdirectories when loading Dvks, defaults to True
+        :type include_subs: bool, optional
         """
         self.dvks = []
         if directory is not None:
             # GET LIST OF DIRECTORIES CONTAINING DVK FILES
-            dirs = get_directories(abspath(directory))
+            absolute = abspath(directory)
+            dirs = [absolute]
+            if include_subs:
+                dirs = get_directories(absolute)
             # LOAD LIST OF DVK FILES
             print("Reading DVK files:")
             for path in tqdm(dirs):

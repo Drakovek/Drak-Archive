@@ -2,6 +2,7 @@
 
 from argparse import ArgumentParser
 from dvk_archive.main.file.dvk import Dvk
+from dvk_archive.main.file.dvk_handler import DvkHandler
 from dvk_archive.main.color_print import color_print
 from dvk_archive.main.processing.html_processing import add_escapes
 from dvk_archive.main.processing.html_processing import create_html_tag
@@ -9,25 +10,64 @@ from dvk_archive.main.processing.string_processing import get_extension
 from dvk_archive.main.processing.string_processing import pad_num
 from dvk_archive.main.processing.list_processing import clean_list
 from dvk_archive.main.processing.list_processing import list_to_string
-from os import mkdir
+from os import mkdir, pardir
 from os.path import abspath, exists, isdir, join
 from shutil import rmtree
 from tempfile import gettempdir
 from typing import List
 from webbrowser import open as web_open
 
-def get_temp_directory() -> str:
+def get_file_as_url(file:str=None) -> str:
+    """
+    Converts a file path to be read as a URL in a web browser.
+
+    :param file: File path to convert, defaults to None
+    :type file: str, optional
+    :return: File URL
+    :rtype: str
+    """
+    # Return empty string if path is invalid
+    if file is None or file == "":
+        return ""
+    # Replace characters with escapes if necessary
+    url = ""
+    for i in range(0, len(file)):
+        char = file[i]
+        value = ord(char)
+        if ((value > 47 and value < 58)
+                    or (value > 64 and value < 91)
+                    or (value > 96 and value < 123)
+                    or char == "-"
+                    or char == "/"
+                    or char == "\\"
+                    or char == "."):
+            # Use existing character
+            url = url + char
+        else:
+            # Use URL escape character
+            url = url + "%" + hex(value)[2:].upper()
+    # Return path with "file://" url tag
+    return "file://" + url
+
+def get_temp_directory(delete:bool=False) -> str:
     """
     Returns a temporary directory for holding HTML files.
-    Deletes previous temp directory when called, if applicable.
 
+    :param delete: Whether to delete previous directory contents, defaults to False
+    :type delete: bool, optional
     :return: Path of the temporary directory
     :rtype: str
     """
+    # Get path of the temp directory
     temp_dir = abspath(join(abspath(gettempdir()), "dvk_html"))
-    if(exists(temp_dir)):
+    # Delete directory if specified
+    temp_exists = exists(temp_dir)
+    if delete and temp_exists:
         rmtree(temp_dir)
-    mkdir(temp_dir)
+        temp_exists = False
+    # Create temp directory if necessary
+    if not temp_exists:
+        mkdir(temp_dir)
     return temp_dir
 
 def list_to_lines(lst:List[str]=None) -> str:
@@ -276,6 +316,35 @@ def get_page_link_html(dvk:Dvk=None) -> str:
     # Combine links into an HTML tag
     return create_html_tag("div", attr, list_to_lines(links))
 
+def get_navbar_html(prev_path:str=None, next_path:str=None) -> str:
+    """
+    Creates a navbar for navigating to other Dvk HTML files.
+
+    :param prev_path: Path of the previous Dvk HTML, defaults to None
+    :type prev_path: str, optional
+    :param next_path: Path of the next Dvk HTML, defaults to None
+    :type next_path: str, optional
+    :return: HTML tag for the navbar
+    :rtype: str
+    """
+    # Return empty string if no prev or next paths are given
+    if prev_path is None and next_path is None:
+        return ""
+    # Get link to previous Dvk HTML
+    prev_tag = create_html_tag("span", [["class", "dvk_muted_link"]], "&lt; PREV", False)
+    if prev_path is not None:
+        attr = [["class", "dvk_link"], ["href", get_file_as_url(prev_path)]]
+        prev_tag = create_html_tag("a", attr, "&lt; PREV", False)
+    # Get link to previous Dvk HTML
+    next_tag = create_html_tag("span", [["class", "dvk_muted_link"]], "NEXT &gt;", False)
+    if next_path is not None:
+        attr = [["class", "dvk_link"], ["href", get_file_as_url(next_path)]]
+        next_tag = create_html_tag("a", attr, "NEXT &gt;", False)
+    # Combine into one div tag
+    attr = [["id", "dvk_navbar"], ["class", "dvk_two_grid"]]
+    navbar_tag = create_html_tag("div", attr, list_to_lines([prev_tag, next_tag]))
+    return navbar_tag
+
 def create_css(directory:str=None) -> str:
     """
     Creates a CSS file for styling DVK HTML.
@@ -288,7 +357,7 @@ def create_css(directory:str=None) -> str:
     if directory is None or not isdir(directory) or not exists(directory):
         return ""
     # Color variables
-    pad_space = "6px"
+    pad_space = 6
     border_width = "1px"
     base_font_size = "16px"
     large_font_size = "24px"
@@ -332,11 +401,11 @@ def create_css(directory:str=None) -> str:
     css.append("}")
     # Set the default padding
     css.append("")
-    css.append(".dvk_padded, .dvk_tag, .dvk_link {")
-    css.append("    padding-top: " + pad_space+ ";")
-    css.append("    padding-bottom: " + pad_space+ ";")
-    css.append("    padding-left: " + pad_space+ ";")
-    css.append("    padding-right: " + pad_space+ ";")
+    css.append(".dvk_padded, .dvk_tag, .dvk_link, .dvk_muted_link {")
+    css.append("    padding-top: " + str(pad_space) + "px;")
+    css.append("    padding-bottom: " + str(pad_space) + "px;")
+    css.append("    padding-left: " + str(pad_space) + "px;")
+    css.append("    padding-right: " + str(pad_space) + "px;")
     css.append("}")
     # Set the default dvk_info style
     css.append("")
@@ -345,8 +414,8 @@ def create_css(directory:str=None) -> str:
     css.append("    border-style: solid;")
     css.append("    border-width: " + border_width + ";")
     css.append("    border-color: " + border_color + ";")
-    css.append("    margin-top: " + pad_space + ";")
-    css.append("    margin-bottom: " + pad_space + ";")
+    css.append("    margin-top: " + str(pad_space) + "px;")
+    css.append("    margin-bottom: " + str(pad_space) + "px;")
     css.append("    margin-left: 0px;")
     css.append("    margin-right: 0px;")
     css.append("}")
@@ -362,8 +431,8 @@ def create_css(directory:str=None) -> str:
     css.append("    background-color: " + tag_color + ";")
     css.append("    margin-top: 0px;")
     css.append("    margin-left: 0px;")
-    css.append("    margin-bottom: " + pad_space + ";")
-    css.append("    margin-right: " + pad_space + ";")
+    css.append("    margin-bottom: " + str(pad_space) + "px;")
+    css.append("    margin-right: " + str(pad_space) + "px;")
     css.append("}")
     css.append("")
     css.append("#dvk_tags {")
@@ -372,7 +441,7 @@ def create_css(directory:str=None) -> str:
     css.append("}")
     # Set style for dvk_links
     css.append("")
-    css.append(".dvk_link {")
+    css.append(".dvk_link, .dvk_muted_link {")
     css.append("    text-align: center;")
     css.append("    color: " + text_color + ";")
     css.append("    background-color: " + info_color + ";")
@@ -390,25 +459,45 @@ def create_css(directory:str=None) -> str:
     css.append("")
     css.append("#dvk_page_links {")
     css.append("    display: grid;")
-    css.append("    grid-column-gap: " + pad_space + ";")
+    css.append("    grid-column-gap: " + str(pad_space) + "px;")
     css.append("    grid-row-gap: 0px;")
     css.append("}")
     css.append("")
     css.append(".dvk_four_grid {")
-    css.append("    grid-template-columns: auto auto auto auto;")
+    css.append("    grid-template-columns: 25% 25% 25% 25%;")
+    css.append("    margin-right: 0px;")
     css.append("}")
     css.append("")
     css.append(".dvk_three_grid {")
-    css.append("    grid-template-columns: auto auto auto;")
+    css.append("    grid-template-columns: 33% 34% 33%;")
+    css.append("    margin-right: 0px;")
     css.append("}")
     css.append("")
     css.append(".dvk_two_grid {")
     css.append("    grid-template-columns: auto auto;")
+    css.append("    margin-right: 0px;")
     css.append("}")
     css.append("")
     css.append(".dvk_one_grid {")
     css.append("    grid-template-columns: auto;")
+    css.append("    margin-right: 0px;")
     css.append("}")
+    # Set style for the navbar
+    css.append("")
+    css.append("#dvk_navbar {")
+    css.append("    display: grid;")
+    css.append("    grid-column-gap: " + str(pad_space) + "px;")
+    css.append("    grid-row-gap: 0px;")
+    css.append("    margin-top: " + str(pad_space) + "px;")
+    css.append("}")
+    # Set style for muted links
+    css.append("")
+    css.append(".dvk_muted_link {")
+    css.append("    color: " + border_color + ";")
+    css.append("    background-color: " + header_color + ";")
+    css.append("    border-color: " + info_color + ";")
+    css.append("}")
+    
     # Set style for image media
     css.append("")
     css.append("#dvk_image {")
@@ -430,7 +519,10 @@ def create_css(directory:str=None) -> str:
         return ""
     return css_file
 
-def get_dvk_html(dvk:Dvk=None, css:str=None) -> str:
+def get_dvk_html(dvk:Dvk=None,
+                css:str=None,
+                prev_path:str=None,
+                next_path:str=None) -> str:
     """
     Returns HTML page with all the info for a given Dvk file.
 
@@ -438,6 +530,10 @@ def get_dvk_html(dvk:Dvk=None, css:str=None) -> str:
     :type dvk: Dvk, optional
     :param css: Path of CSS file for styling HTML, defaults to None
     :type css: str, optional
+    :param prev_path: Path of the previous Dvk HTML in navbar, defaults to None
+    :type prev_path: str, optional
+    :param next_path: Path of the next Dvk HTML in navbar, defaults to None
+    :type next_path: str, optional
     :return: HTML containing Dvk info
     :rtype: str
     """
@@ -452,6 +548,8 @@ def get_dvk_html(dvk:Dvk=None, css:str=None) -> str:
     head = create_html_tag("head", None, list_to_lines([link, title, charset]))
     # Create HTML media tag
     media = get_media_html(dvk)
+    # Creath dvk_navbar tag
+    dvk_navbar = get_navbar_html(prev_path, next_path)
     # Create dvk_info_tag
     dvk_info = get_dvk_info_html(dvk)
     # Create tag info HTML tag
@@ -459,7 +557,7 @@ def get_dvk_html(dvk:Dvk=None, css:str=None) -> str:
     # Create page link tag
     page_links = get_page_link_html(dvk)
     # Combine into dvk_content tag
-    content = list_to_lines(clean_list([media, dvk_info, tag_info, page_links]))
+    content = list_to_lines(clean_list([media, dvk_navbar, dvk_info, tag_info, page_links]))
     dvk_content = create_html_tag("div", [["id", "dvk_content"]], content)
     # Combine into final HTML
     html = head + "\n" + create_html_tag("body", None, dvk_content)
@@ -467,21 +565,39 @@ def get_dvk_html(dvk:Dvk=None, css:str=None) -> str:
     # Return HTML
     return html
 
-def write_dvk_html(dvk:Dvk=None) -> str:
+def write_dvk_html(dvk:Dvk=None,
+                   filename:str=None,
+                   prev_path:str=None,
+                   next_path:str=None,
+                   delete:bool=True) -> str:
     """
     Creates an HTML file from Dvk info.
 
     :param dvk: Dvk to get info from, defaults to None
     :type dvk: Dvk, optional
+    :param filename: Filename of the HTML to save, defaults to None
+    :type filename: str, optional
+    :param prev_path: Path of the previous Dvk HTML in navbar, defaults to None
+    :type prev_path: str, optional
+    :param next_path: Path of the next Dvk HTML in navbar, defaults to None
+    :type next_path: str, optional
+    :param delete: Whether to delete the contents of temp directory before writing, defaults to False
+    :type delete: bool, optional
     :return: Path of the written HTML file
     :rtype: str
     """
+    # Return empty string if parameters are invalid
+    if dvk is None or filename is None:
+        return ""
     # Get the filename for the dvk
-    temp_dir = get_temp_directory()
-    html_file = abspath(join(temp_dir, "dvk.html"))
+    temp_dir = get_temp_directory(delete)
+    html_file = abspath(join(temp_dir, filename))
     # Get HTML for the given Dvk
     css_file = create_css(temp_dir)
-    html = get_dvk_html(dvk, css_file)
+    html = get_dvk_html(dvk,
+                css=css_file,
+                prev_path=prev_path,
+                next_path=next_path)
     if html == "":
         return ""
     # Write html to disk
@@ -492,6 +608,45 @@ def write_dvk_html(dvk:Dvk=None) -> str:
     # Return the path to the html file
     return html_file
 
+def write_dvk_html_list(dvks:List[Dvk]=None, delete:bool=True) -> List[str]:
+    """
+    Writes HTML files for a list of Dvks.
+    Each Dvk HTML file links to next/previous HTMLs in the navbar
+
+    :param dvks: List of Dvks to create HTMLs from, defaults to None
+    :type dvks: list[Dvk], optional
+    :param delete: Whether to delete temp directory contents before writing, defaults to True
+    :type delete: bool, optional
+    :return: List of paths to the generated HTML files
+    :rtype: list[str]
+    """
+    # Return empty list if list of Dvks is invalid
+    if dvks is None:
+        return []
+    # Get the temporary directory
+    temp_dir = get_temp_directory(delete)
+    # Get HTML for each Dvk
+    size = len(dvks)
+    htmls = []
+    for i in range(0, size):
+        # Get previous HTML to link
+        prev_path = None
+        if i > 0:
+            prev_path = abspath(join(temp_dir, str(i-1) + ".html"))
+        # Get the next HTML to link
+        next_path = None
+        if i < (size-1):
+            next_path = abspath(join(temp_dir, str(i+1) + ".html"))
+        # Write the HTML file
+        html = write_dvk_html(dvks[i],
+                    filename=str(i) + ".html",
+                    prev_path=prev_path,
+                    next_path=next_path,
+                    delete=False)
+        htmls.append(html)
+    # Return HTML paths
+    return htmls
+
 def main():
     """
     Sets up parser for creating and opening HTML files from DVK.
@@ -501,14 +656,37 @@ def main():
         "dvk",
         help="DVK file to open as an HTML file.",
         type=str)
+    parser.add_argument(
+        "-l",
+        "--load_directory",
+        help="Also creates and links HTML files for the whole parent directory",
+        action="store_true")
     args = parser.parse_args()
     dvk = Dvk(abspath(args.dvk))
-    if dvk is not None:
-        html = write_dvk_html(dvk)
-        if not html == "":
-            web_open("file://" + abspath(html))
+    if dvk is not None and dvk.get_title() is not None:
+        if not args.load_directory:
+            # Write single HTML file
+            html = write_dvk_html(dvk, "dvk")
+            if not html == "":
+                web_open(get_file_as_url(abspath(html)))
+            else:
+                color_print("Failed writing HTML", "r")
         else:
-            color_print("Failed writing HTML", "r")
+            # Write HTML files for the whole directory
+            dvk_handler = DvkHandler()
+            parent = join(dvk.get_dvk_file(), pardir)
+            dvk_handler.read_dvks(parent, False)
+            # Get list of all dvks in the parent directory
+            dvk_handler.sort_dvks("a")
+            dvks = []
+            size = dvk_handler.get_size()
+            for i in range(0, size):
+                dvks.append(dvk_handler.get_dvk(i))
+            # Create HTML files
+            htmls = write_dvk_html_list(dvks, True)
+            # Open Dvk HTML
+            index = dvk_handler.get_dvk_by_id(dvk.get_dvk_id())
+            web_open(get_file_as_url(abspath(htmls[index])))
     else:
         color_print("Invalid Dvk", "r")
 
