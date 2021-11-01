@@ -137,9 +137,10 @@ def test_get_media_html():
     dvk.set_title("Image DVK!")
     dvk.set_media_file("image.jpg")
     media_tag = get_media_html(dvk)
-    check_tag = "<img id=\"dvk_image\" src=\"file://"\
-                + dvk.get_media_file() + "\" alt=\"Image DVK&#33;\">"
-    assert media_tag == check_tag
+    assert "<img id=\"dvk_image\" src=\"file://" in media_tag
+    assert "image.jpg" in media_tag
+    assert get_file_as_url(dvk.get_media_file()) in media_tag
+    assert "\" alt=\"Image DVK&#33;\">" in media_tag
     # Test getting media tag for Dvk whose media can't be shown in HTML
     dvk.set_media_file("media.pdf")
     assert get_media_html(dvk) == ""
@@ -336,8 +337,8 @@ def test_get_dvk_html():
                 +"\n        <title>Something&#33;</title>"\
                 +"\n        <meta charset=\"UTF-8\">"\
                 +"\n    </head>\n    <body>\n        <div id=\"dvk_content\">"\
-                +"\n            <img id=\"dvk_image\" src=\"file://"\
-                + dvk.get_media_file() + "\" alt=\"Something&#33;\">"\
+                +"\n            <img id=\"dvk_image\" src=\""\
+                + get_file_as_url(dvk.get_media_file()) + "\" alt=\"Something&#33;\">"\
                 +"\n            <div id=\"dvk_navbar\" class=\"dvk_two_grid\">"\
                 +"\n                <a class=\"dvk_link\" href=\"file:///prev.html\">&lt; PREV</a>"\
                 +"\n                <a class=\"dvk_link\" href=\"file:///next.html\">NEXT &gt;</a>"\

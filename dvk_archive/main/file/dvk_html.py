@@ -175,13 +175,13 @@ def get_media_html(dvk:Dvk=None) -> str:
     if dvk is None or dvk.get_title() is None or dvk.get_media_file() is None:
         return ""
     media_tag = ""
-    media_file = "file://" + str(dvk.get_media_file())
+    media_file = dvk.get_media_file()
     extension = get_extension(media_file)
     # Check if media file is an image
     if is_image_extension(extension):
         # Create HTML img tag
         attr = [["id", "dvk_image"],
-                    ["src", media_file],
+                    ["src", get_file_as_url(media_file)],
                     ["alt", add_escapes(dvk.get_title())]]
         media_tag = create_html_tag("img", attr)
     # Returns the media tag
