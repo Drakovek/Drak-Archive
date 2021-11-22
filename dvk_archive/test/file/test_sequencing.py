@@ -293,19 +293,22 @@ def test_get_default_sequence_order():
     mkdir(path3)
     dvk = Dvk()
     dvk.set_dvk_file(join(path1, "prologue.dvk"))
-    dvk.set_dvk_id("DVK123")
+    dvk.set_dvk_id("PRO123")
     dvk.set_title("Prologue")
     dvk.set_artist("artist")
     dvk.set_page_url("/url/")
     dvk.set_media_file("media.txt")
     dvk.write_dvk()
     dvk.set_dvk_file(join(path2, "1.dvk"))
+    dvk.set_dvk_id("PRT1")
     dvk.set_title("Part 1 - 01")
     dvk.write_dvk()
     dvk.set_dvk_file(join(path2, "2.dvk"))
+    dvk.set_dvk_id("PRT2")
     dvk.set_title("Part 1 - 02")
     dvk.write_dvk()
     dvk.set_dvk_file(join(path3, "end.dvk"))
+    dvk.set_dvk_id("END1")
     dvk.set_title("End")
     dvk.write_dvk()
     # Test that files were written correctly
@@ -317,22 +320,33 @@ def test_get_default_sequence_order():
     assert dvk_handler.get_dvk(2).get_title() == "Part 1 - 02"
     assert dvk_handler.get_dvk(3).get_title() == "Prologue"
     # Test getting the default sequence order
-    dvks = get_default_sequence_order(test_dir)
+    dvks = get_default_sequence_order(dvk_handler)
     assert len(dvks) == 4
     assert dvks[0].get_title() == "Prologue"
     assert dvks[1].get_title() == "Part 1 - 01"
     assert dvks[2].get_title() == "Part 1 - 02"
     assert dvks[3].get_title() == "End"
-    # Test getting default order with too many internal directories
-    dvk.set_dvk_file(join(test_dir, "break.dvk"))
-    dvk.set_title("Breaking the file structure.")
-    dvk.write_dvk()
-    dvk_handler = DvkHandler(test_dir)
-    assert dvk_handler.get_size() == 5
-    assert get_default_sequence_order(test_dir) == []
-    # Test getting default order with invalid directory
+    # Test getting default order with existing sequence data
+    dvk_handler.sort_dvks("a")
+    set_sequence_from_indexes(dvk_handler, [0, 2])
+    dvks = get_default_sequence_order(dvk_handler, True)
+    assert dvk_handler.get_size() == 4
+    assert dvks[0].get_title() == "End"
+    assert dvks[1].get_title() == "Part 1 - 02"    
+    assert dvks[2].get_title() == "Prologue"
+    assert dvks[3].get_title() == "Part 1 - 01"
+    # Test getting default order while ignoring sequence data
+    dvks = get_default_sequence_order(dvk_handler, False)
+    assert len(dvks) == 4
+    assert dvks[0].get_title() == "Prologue"
+    assert dvks[1].get_title() == "Part 1 - 01"
+    assert dvks[2].get_title() == "Part 1 - 02"
+    assert dvks[3].get_title() == "End"
+    # Test getting default order with invalid parameters
+    dvk_handler = DvkHandler()
+    assert get_default_sequence_order(dvk_handler) == []
     assert get_default_sequence_order(None) == []
-    assert get_default_sequence_order("/non/existant/dir/") == []
+    
 
 def test_remove_sequence_info():
     """
@@ -432,21 +446,24 @@ def test_separate_into_sections():
     mkdir(path3)
     dvk = Dvk()
     dvk.set_dvk_file(join(path1, "prologue.dvk"))
-    dvk.set_dvk_id("DVK123")
+    dvk.set_dvk_id("PRO123")
     dvk.set_title("Prologue")
     dvk.set_artist("artist")
     dvk.set_page_url("/url/")
     dvk.set_media_file("media.txt")
     dvk.write_dvk()
     dvk.set_dvk_file(join(path2, "1.dvk"))
+    dvk.set_dvk_id("PRT1")
     dvk.set_title("Part 1 - 01")
     dvk.set_section_title("Part 1")
     dvk.write_dvk()
     dvk.set_dvk_file(join(path2, "2.dvk"))
+    dvk.set_dvk_id("PRT2")
     dvk.set_title("Part 1 - 02")
     dvk.set_section_title()
     dvk.write_dvk()
     dvk.set_dvk_file(join(path3, "end.dvk"))
+    dvk.set_dvk_id("END1")
     dvk.set_title("End")
     dvk.set_section_title("End")
     dvk.write_dvk()
@@ -463,7 +480,7 @@ def test_separate_into_sections():
     assert dvk_handler.get_dvk(3).get_title() == "Prologue"
     assert dvk_handler.get_dvk(3).get_section_title() is None
     # Test separating Dvks into sections
-    sections = separate_into_sections(test_dir, False)
+    sections = separate_into_sections(dvk_handler, False, False)
     assert len(sections) == 3
     assert len(sections[0]) == 2
     assert sections[0][0] == False
@@ -476,7 +493,7 @@ def test_separate_into_sections():
     assert sections[2][0] == False
     assert sections[2][1].get_title() == "End"
     # Test separating Dvks into sections while attempting to keep section titles
-    sections = separate_into_sections(test_dir, True)
+    sections = separate_into_sections(dvk_handler, False, True)
     assert len(sections) == 3
     assert len(sections[0]) == 2
     assert sections[0][0] == False
@@ -489,16 +506,35 @@ def test_separate_into_sections():
     assert sections[2][0] == True
     assert sections[2][1].get_title() == "End"
     # Test separating into sections with only one section
-    sections = separate_into_sections(path3, True)
+    dvk_handler = DvkHandler(path3)
+    dvk_handler.sort_dvks("a")
+    sections = separate_into_sections(dvk_handler, False, True)
     assert len(sections) == 1
     assert len(sections[0]) == 2
     assert sections[0][0] == False
     assert sections[0][1].get_title() == "End"
+    # Test separating into sections with existing sequence data breaking up sections
+    dvk_handler = DvkHandler(test_dir)
+    dvk_handler.sort_dvks("a")
+    set_sequence_from_indexes(dvk_handler, [1, 0])
+    sections = separate_into_sections(dvk_handler, True, False)
+    assert len(sections) == 4
+    assert len(sections[0]) == 2
+    assert sections[0][0] == False
+    assert sections[0][1].get_title() == "Part 1 - 01"
+    assert len(sections[1]) == 2
+    assert sections[1][0] == False
+    assert sections[1][1].get_title() == "End"
+    assert len(sections[2]) == 2
+    assert sections[2][0] == False
+    assert sections[2][1].get_title() == "Prologue"
+    assert len(sections[3]) == 2
+    assert sections[3][0] == False
+    assert sections[3][1].get_title() == "Part 1 - 02"
     # Test separating into sections with invalid parameters
+    dvk_handler = DvkHandler()
+    assert separate_into_sections(dvk_handler) == []
     assert separate_into_sections(None, False) == []
-    assert separate_into_sections("/non/existant/") == []
-    test_dir = get_test_dir()
-    assert separate_into_sections(test_dir) == []
 
 def all_tests():
     """

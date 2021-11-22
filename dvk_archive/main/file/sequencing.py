@@ -5,7 +5,6 @@ from argparse import ArgumentParser
 from dvk_archive.main.color_print import color_print
 from dvk_archive.main.file.dvk_handler import Dvk
 from dvk_archive.main.file.dvk_handler import DvkHandler
-from dvk_archive.main.file.dvk_handler import get_directories
 from dvk_archive.main.processing.list_processing import clean_list
 from dvk_archive.main.processing.string_compare import compare_alphanum
 from dvk_archive.main.processing.string_processing import pad_num
@@ -130,37 +129,65 @@ def get_sequence(dvk_handler:DvkHandler=None, index:int=None) -> List[int]:
     except:
         return []
 
-def get_default_sequence_order(directory:str=None) -> List[Dvk]:
+def get_default_sequence_order(dvk_handler:DvkHandler=None, respect_seq:bool=True) -> List[Dvk]:
     """
     Returns a list of Dvks in the order they would be expected to be in a sequence.
 
-    :param directory: Directory in which to look for Dvks, defaults to None
-    :type directory: str, optional
+    :param directory: DvkHandler with loaded Dvks, defaults to None
+    :type directory: DvkHandler, optional
+    :param respect_seq: Whether to keep order of existing sequence, defaults to True
+    :type respect_seq: bool, optional
     :return: List of Dvks in the default sequence order
     :rtype: list[Dvk]
     """
-    # Get directories, then sort them
-    directories = get_directories(directory)
-    comparator = cmp_to_key(compare_alphanum)
-    directories = sorted(directories, key=comparator)    
-    # Get dvks in each directory and add to the list of dvks
-    dvks = []
-    for directory in directories:
-        dvk_handler = DvkHandler(directory)
-        dvk_handler.sort_dvks("a")
-        for i in range(0, dvk_handler.get_size()):
-            dvks.append(dvk_handler.get_dvk(i))
-    # Check that there are no duplicates
-    paths = []
-    for dvk in dvks:
-        paths.append(dvk.get_dvk_file())
-    length = len(paths)
-    paths = clean_list(paths)
-    if not length == len(paths):
-        color_print("Too many internal directories.", "r")
+    # Return empty list if parameters are invalid
+    if dvk_handler is None:
         return []
-    # Return list of sorted Dvks
-    return dvks
+    # Sort Dvks
+    dvk_handler.sort_dvks("a")
+    # Get list of parent directories
+    size = dvk_handler.get_size()
+    parents = []
+    for i in range(0, size):
+        parent = abspath(join(dvk_handler.get_dvk(i).get_dvk_file(), pardir))
+        parents.append(str(parent))
+    # Get list of unique parent directories
+    directories = []
+    directories.extend(parents)
+    directories = clean_list(directories)
+    comparator = cmp_to_key(compare_alphanum)
+    directories = sorted(directories, key=comparator)
+    # Add Dvks by directory
+    indexes = []
+    for directory in directories:
+        for i in range(0, size):
+            # Add Dvk if in the right directory
+            if directory == parents[i]:
+                indexes.append(i)
+    # Get sequence order, if specified
+    if respect_seq:
+        new_indexes = []
+        while len(indexes) > 0:
+            # Add sequence to indexes
+            seq = get_sequence(dvk_handler, indexes[0])
+            if len(seq) > 1:
+                seq.extend(new_indexes)
+                new_indexes = []
+            new_indexes.extend(seq)
+            # Remove sequence from existing indexes
+            for index in seq:
+                try:
+                    del_num = indexes.index(index)
+                    del indexes[del_num]
+                except ValueError:
+                    continue
+        indexes = new_indexes
+    # Convert Indexes to List of Dvks
+    dvks = []
+    for index in indexes:
+        dvks.append(dvk_handler.get_dvk(index))
+    # Return list of Dvks
+    return dvks  
 
 def remove_sequence_info(dvks:List[Dvk]=None) -> List[Dvk]:
     """
@@ -187,25 +214,24 @@ def remove_sequence_info(dvks:List[Dvk]=None) -> List[Dvk]:
     except (AttributeError, TypeError):
         return []
 
-def separate_into_sections(directory:str=None, keep_existing:bool=True) -> List[List]:
+def separate_into_sections(dvk_handler:DvkHandler=None, respect_seq:bool=True, keep_existing:bool=True) -> List[List[Dvk]]:
     """
-    Loads Dvks from a directory and groups them into sequence sections.
+    Groups Dvks from a DvkHandler into sequence sections.
     Each list item starts with a bool showing whether to keep a section's existing title.
     The rest of each list item contains the Dvks of the given section.
 
-    :param directory: Directory in which to look for Dvks, defaults to None
-    :type directory: str, optional
+    :param dvk_handler: DvkHandler containing Dvks, defaults to None
+    :type dvk_handler: DvkHandler, optional
+    :param respect_seq: Whether to keep order of existing sequence when getting default Dvk order, defaults to True
+    :type respect_seq: bool, optional
     :param keep_existing: Whether to keep existing section titles, defaults to True
     :type keep_existing: bool, optional
     :return: List of Dvks grouped into sections along with whether section titles should be kept
-    :rtype: List[List]
+    :rtype: List[List[Dvk]]
     """
-    # Return empty list if parameters are invalid
-    if directory is None or not exists(directory) or not isdir(directory):
-        return []
     # Gets the default sequence order
-    dvks = get_default_sequence_order(directory)
-    # Return empty list if no dvks wer found
+    dvks = get_default_sequence_order(dvk_handler, respect_seq)
+    # Return empty list if no dvks were found
     if len(dvks) == 0:
         return []
     # Separate Dvks into sections based on their parent directory
@@ -236,20 +262,22 @@ def separate_into_sections(directory:str=None, keep_existing:bool=True) -> List[
     # Return section groups
     return sections
 
-def user_create_sequence(directory:str=None, keep_sections:bool=True) -> bool:
+def user_create_sequence(directory:str=None, respect_seq:bool=True, keep_sections:bool=True) -> bool:
     """
     Allows the user to create a sequence out of the Dvks from a given directory.
 
     :param directory: Directory in which to create the Dvk sequence, defaults to None
     :type directory: str, optional
     :param keep_sections: Whether to keep the existing section titles of Dvks, defaults to True
+    :type respect_seq: bool, optional
+    :param keep_existing: Whether to keep existing section titles, defaults to True
     :type keep_sections:bool, optional
     :return: Whether or not creating the sequence was successful
     :rtype: bool
     """
     # Get Dvks separated into sections based on directory
-    print("Getting DVKs...")
-    sections = separate_into_sections(directory, keep_sections)
+    dvk_handler = DvkHandler(directory)
+    sections = separate_into_sections(dvk_handler, respect_seq, keep_sections)
     # Return False if no sections were found
     if len(sections) == 0:
         return False
@@ -315,13 +343,18 @@ def main():
                 "--overwrite",
                 help="Whether to overwrite section titles or keep existing ones.",
                 action="store_true")
+    parser.add_argument(
+                "-i",
+                "--ignore",
+                help="Whether to ignore existing sequence info.",
+                action="store_true")
     args = parser.parse_args()
     full_directory = abspath(args.directory)
     # Check if directory exists
     if (full_directory is not None
                 and exists(full_directory)
                 and isdir(full_directory)):
-        user_create_sequence(full_directory, not args.overwrite)
+        user_create_sequence(full_directory, not args.ignore, not args.overwrite)
     else:
         color_print("Invalid directory", "r")
 

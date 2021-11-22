@@ -16,9 +16,9 @@ def test_all():
     """
     Runs all file tests.
     """
+    test_sequencing()
     test_dvk_html()
     test_dvk()
     test_handler()
     test_reformat()
     test_rename()
-    test_sequencing()
