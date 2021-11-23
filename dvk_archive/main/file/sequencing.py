@@ -10,6 +10,7 @@ from dvk_archive.main.processing.string_compare import compare_alphanum
 from dvk_archive.main.processing.string_processing import pad_num
 from os import getcwd, pardir
 from os.path import abspath, basename, exists, isdir, join
+from tqdm import tqdm
 from typing import List
 
 def set_sequence_from_indexes(dvk_handler:DvkHandler=None,
@@ -262,6 +263,41 @@ def separate_into_sections(dvk_handler:DvkHandler=None, respect_seq:bool=True, k
     # Return section groups
     return sections
 
+def user_create_standalone(directory:str=None) -> bool:
+    """
+    Allows the user to set all the DVKs from a given directory as standalone media.
+
+    :param directory: Directory in which to create the Dvk sequence, defaults to None
+    :type directory: str, optional
+    :return: Whether or not writing standalone sequence info was successful
+    :rtype: bool
+    """
+    # Get Dvks and sort them alphabetimally
+    dvk_handler = DvkHandler(directory)
+    dvk_handler.sort_dvks("a")
+    # Print List of Dvks
+    size = dvk_handler.get_size()
+    for i in range(0, size):
+        print(dvk_handler.get_dvk(i).get_title())
+    # Ask user if all the listed files should be listed as sequence singles
+    print()
+    response = str(input("Set all listed DVKs as single? (Y/N): ")).upper()
+    # Add single sequence info if requested
+    if response == "Y":
+        print("Setting sequence info:")
+        for i in tqdm(range(0, size)):
+            # Remove existing sequenc info from the Dvk
+            dvk = dvk_handler.get_dvk(i)
+            dvks = remove_sequence_info([dvk])
+            # Set Dvk as a standalone media file
+            dvks = set_sequence(dvks)
+            # Rename file
+            parent = abspath(join(abspath(dvk.get_dvk_file()), pardir))
+            dvk.rename_files(dvk.get_filename(parent, False), dvk.get_filename(parent, True))
+        color_print("Finished writing sequence data!", "g")
+        return True
+    return False
+
 def user_create_sequence(directory:str=None, respect_seq:bool=True, keep_sections:bool=True) -> bool:
     """
     Allows the user to create a sequence out of the Dvks from a given directory.
@@ -290,7 +326,7 @@ def user_create_sequence(directory:str=None, respect_seq:bool=True, keep_section
     # Get sequence title from the user
     write_sequence = True
     print()
-    seq_title = str(input("Sequence Title (q to cancel):"))
+    seq_title = str(input("Sequence Title (q to cancel): "))
     if seq_title == "q":
         return False
     # Get section titles
@@ -339,6 +375,11 @@ def main():
             type=str,
             default=str(getcwd()))
     parser.add_argument(
+                "-s",
+                "--standalone",
+                help="DVKs will be set as standalone media files not part of a sequence.",
+                action="store_true")
+    parser.add_argument(
                 "-o",
                 "--overwrite",
                 help="Whether to overwrite section titles or keep existing ones.",
@@ -354,7 +395,10 @@ def main():
     if (full_directory is not None
                 and exists(full_directory)
                 and isdir(full_directory)):
-        user_create_sequence(full_directory, not args.ignore, not args.overwrite)
+        if not args.standalone:
+            user_create_sequence(full_directory, not args.ignore, not args.overwrite)
+        else:
+            user_create_standalone(full_directory)
     else:
         color_print("Invalid directory", "r")
 
