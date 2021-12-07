@@ -162,6 +162,49 @@ def is_image_extension(extension:str=None) -> bool:
         return True
     return False
 
+def get_text_media_html(dvk:Dvk=None) -> str:
+    """
+    Returns an HTML tag that contains embeded text found in the linked text media file for a given Dvk.
+
+    :param dvk: Dvk to get media file and text from, defaults to None
+    :type dvk: Dvk, optional
+    :return: HTML tag that contains the text for a given Dvk
+    :rtype: str
+    """
+    # Return empty string if parameters are invalid
+    if dvk is None or dvk.get_title() is None or dvk.get_media_file() is None:
+        return ""
+    media_tag = ""
+    media_file = dvk.get_media_file()
+    extension = get_extension(media_file)
+    # Read the text file linked by the Dvk
+    try:
+        with open(media_file) as f:
+            contents = f.read()
+    except Exception:
+        return ""
+    # Modify the contents depending on the type of text
+    if extension == ".txt":
+        # Add escape characters to standard text
+        contents = add_escapes(contents)
+        contents = contents.replace("&#10;", "<br/>")
+    else:
+        # Remove unnecessary tags from HTML text
+        contents = contents.replace("<!DOCTYPE html>", "")
+        contents = contents.replace("<html>", "").replace("</html>", "")
+    # Create header with the Dvk title
+    title = add_escapes(dvk.get_title())
+    attr = [["id", "dvk_text_header"], ["class", "dvk_padded"]]
+    header = create_html_tag("div", attr, f"<b>{title}</b>", False)
+    # Create div container for the media text
+    attr = [["id", "dvk_text_container"], ["class", "dvk_padded"]]
+    text_div = create_html_tag("div", attr, contents)
+    # Combine text and header into a media tag
+    attr = [["id", "dvk_text_media"], ["class", "dvk_info"]]
+    media_tag = create_html_tag("div", attr, list_to_lines([header, text_div]))
+    # Return the completed media tag
+    return media_tag
+
 def get_media_html(dvk:Dvk=None) -> str:
     """
     Returns an HTML tag that contains the media file(s) for a given Dvk.
@@ -175,6 +218,7 @@ def get_media_html(dvk:Dvk=None) -> str:
     if dvk is None or dvk.get_title() is None or dvk.get_media_file() is None:
         return ""
     media_tag = ""
+    use_secondary = True
     media_file = dvk.get_media_file()
     extension = get_extension(media_file)
     if is_image_extension(extension):
@@ -183,10 +227,21 @@ def get_media_html(dvk:Dvk=None) -> str:
                     ["src", get_file_as_url(media_file)],
                     ["alt", add_escapes(dvk.get_title())]]
         media_tag = create_html_tag("img", attr)
+        use_secondary = False
+    elif extension == ".txt" or extension == ".html" or extension == ".htm":
+        media_tag = get_text_media_html(dvk)
     elif extension == ".pdf":
         # If media file is a PDF, create an HTML iframe
         attr = [["id", "dvk_pdf"], ["src", get_file_as_url(media_file)]]
         media_tag = create_html_tag("iframe", attr, "", False)
+        use_secondary = False
+    # Add secondary file if available and relevant
+    secondary = dvk.get_secondary_file()
+    if use_secondary and secondary is not None and is_image_extension(get_extension(secondary)):
+        attr = [["id", "dvk_image"],
+                    ["src", get_file_as_url(secondary)],
+                    ["alt", add_escapes(dvk.get_title())]]
+        media_tag = list_to_lines([create_html_tag("img", attr), media_tag])
     # Returns the media tag
     return media_tag
 
@@ -364,6 +419,7 @@ def create_css(directory:str=None) -> str:
     border_width = "1px"
     base_font_size = "16px"
     large_font_size = "24px"
+    portrait_width_size = "1000px"
     info_color = "rgb(60, 60, 60)"
     tag_color = "rgb(80,80,80)"
     text_color = "rgb(250,250,250)"
@@ -386,7 +442,7 @@ def create_css(directory:str=None) -> str:
     css.append("}")
     # Set the title font size
     css.append("")
-    css.append("#dvk_title {")
+    css.append("#dvk_title, #dvk_text_header {")
     css.append("    font-size: " + large_font_size + ";")
     css.append("}")
     # Set style for links
@@ -424,7 +480,7 @@ def create_css(directory:str=None) -> str:
     css.append("}")
     # Set the header style
     css.append("")
-    css.append("#dvk_header, #dvk_web_tag_header {")
+    css.append("#dvk_header, #dvk_web_tag_header, #dvk_text_header {")
     css.append("    background-color: " + header_color + ";")
     css.append("}")
     # Set the tag style
@@ -473,7 +529,7 @@ def create_css(directory:str=None) -> str:
     css.append("")
     css.append(".dvk_three_grid {")
     css.append("    grid-template-columns: 33% 34% 33%;")
-    css.append("    margin-right: 0px;")
+    css.append("    margin-right: " + str(pad_space*2) + "px;")
     css.append("}")
     css.append("")
     css.append(".dvk_two_grid {")
@@ -523,6 +579,14 @@ def create_css(directory:str=None) -> str:
     css.append("    margin-bottom: 0px;")
     css.append("    width: 98%;")
     css.append("    height: 125vh;")
+    css.append("}")
+    # Set style for text media
+    css.append("")
+    css.append("#dvk_text_media {")
+    css.append("    display: block;")
+    css.append("    margin-left: auto;")
+    css.append("    margin-right: auto;")
+    css.append(f"    max-width: {portrait_width_size};")
     css.append("}")
     # Write CSS File
     css_file = abspath(join(directory, "dvk_style.css"))

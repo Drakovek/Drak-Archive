@@ -148,7 +148,31 @@ def test_get_media_html():
     assert "doc.pdf" in media_tag
     assert get_file_as_url(dvk.get_media_file()) in media_tag
     assert "</iframe>" in media_tag
+    # Test getting media tag for Dvk with a linked text file
+    dvk.set_title("TEXT!!")
+    dvk.set_media_file("text.txt")
+    with open(dvk.get_media_file(), "w") as out_file:
+        out_file.write("Test text!!\n<html> Should remain.")
+    assert get_media_html(dvk) == "<div id=\"dvk_text_media\" class=\"dvk_info\">"\
+                +"\n    <div id=\"dvk_text_header\" class=\"dvk_padded\"><b>TEXT&#33;&#33;</b></div>"\
+                +"\n    <div id=\"dvk_text_container\" class=\"dvk_padded\">"\
+                +"\n        Test text&#33;&#33;<br/>&#60;html&#62; Should remain&#46;"\
+                +"\n    </div>\n</div>"
+    # Test getting media tag with secondary image
+    dvk.set_media_file("html.htm")
+    dvk.set_secondary_file("image.jpg")
+    with open(dvk.get_media_file(), "w") as out_file:
+        out_file.write("<!DOCTYPE html><html>Blah <b>stuff</b>\nMore</html>")
+    text_container = "<div id=\"dvk_text_media\" class=\"dvk_info\">"\
+                +"\n    <div id=\"dvk_text_header\" class=\"dvk_padded\"><b>TEXT&#33;&#33;</b></div>"\
+                +"\n    <div id=\"dvk_text_container\" class=\"dvk_padded\">"\
+                +"\n        Blah <b>stuff</b>\n        More\n    </div>\n</div>"
+    media_html = get_media_html(dvk)
+    assert text_container in media_html
+    assert "<img id=\"dvk_image\" src=\"file://" in media_html
+    assert "alt=\"TEXT&#33;&#33;\">" in media_html
     # Test getting media tag for Dvk whose media can't be shown in HTML
+    dvk.set_secondary_file(None)
     dvk.set_media_file("media.xdf")
     assert get_media_html(dvk) == ""
     # Test getting media tag with invalid parameters
