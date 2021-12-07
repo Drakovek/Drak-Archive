@@ -141,8 +141,15 @@ def test_get_media_html():
     assert "image.jpg" in media_tag
     assert get_file_as_url(dvk.get_media_file()) in media_tag
     assert "\" alt=\"Image DVK&#33;\">" in media_tag
+    # Test getting media tag for Dvk with a linked PDF file
+    dvk.set_media_file("doc.pdf")
+    media_tag = get_media_html(dvk)
+    assert "<iframe id=\"dvk_pdf\" src=\"file://" in media_tag
+    assert "doc.pdf" in media_tag
+    assert get_file_as_url(dvk.get_media_file()) in media_tag
+    assert "</iframe>" in media_tag
     # Test getting media tag for Dvk whose media can't be shown in HTML
-    dvk.set_media_file("media.pdf")
+    dvk.set_media_file("media.xdf")
     assert get_media_html(dvk) == ""
     # Test getting media tag with invalid parameters
     dvk.set_media_file("thing.png")

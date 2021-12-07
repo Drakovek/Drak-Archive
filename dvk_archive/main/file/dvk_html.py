@@ -177,13 +177,16 @@ def get_media_html(dvk:Dvk=None) -> str:
     media_tag = ""
     media_file = dvk.get_media_file()
     extension = get_extension(media_file)
-    # Check if media file is an image
     if is_image_extension(extension):
-        # Create HTML img tag
+        # If media file is an image, create an HTML img tag
         attr = [["id", "dvk_image"],
                     ["src", get_file_as_url(media_file)],
                     ["alt", add_escapes(dvk.get_title())]]
         media_tag = create_html_tag("img", attr)
+    elif extension == ".pdf":
+        # If media file is a PDF, create an HTML iframe
+        attr = [["id", "dvk_pdf"], ["src", get_file_as_url(media_file)]]
+        media_tag = create_html_tag("iframe", attr, "", False)
     # Returns the media tag
     return media_tag
 
@@ -474,7 +477,7 @@ def create_css(directory:str=None) -> str:
     css.append("}")
     css.append("")
     css.append(".dvk_two_grid {")
-    css.append("    grid-template-columns: auto auto;")
+    css.append("    grid-template-columns: 50% 50%;")
     css.append("    margin-right: 0px;")
     css.append("}")
     css.append("")
@@ -497,7 +500,6 @@ def create_css(directory:str=None) -> str:
     css.append("    background-color: " + header_color + ";")
     css.append("    border-color: " + info_color + ";")
     css.append("}")
-    
     # Set style for image media
     css.append("")
     css.append("#dvk_image {")
@@ -510,6 +512,17 @@ def create_css(directory:str=None) -> str:
     css.append("    max-height: 100%;")
     css.append("    width: auto;")
     css.append("    height: auto;")
+    css.append("}")
+    # Set style for pdf media
+    css.append("")
+    css.append("#dvk_pdf {")
+    css.append("    display: block;")
+    css.append("    margin-left: auto;")
+    css.append("    margin-right: auto;")
+    css.append("    margin-top: 0px;")
+    css.append("    margin-bottom: 0px;")
+    css.append("    width: 98%;")
+    css.append("    height: 125vh;")
     css.append("}")
     # Write CSS File
     css_file = abspath(join(directory, "dvk_style.css"))
