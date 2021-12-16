@@ -14,6 +14,7 @@ from os import mkdir, pardir
 from os.path import abspath, exists, isdir, join
 from shutil import rmtree
 from tempfile import gettempdir
+from traceback import print_exc
 from typing import List
 from webbrowser import open as web_open
 
@@ -176,13 +177,18 @@ def get_text_media_html(dvk:Dvk=None) -> str:
         return ""
     media_tag = ""
     media_file = dvk.get_media_file()
+    print(media_file)
     extension = get_extension(media_file)
     # Read the text file linked by the Dvk
     try:
-        with open(media_file) as f:
+        with open(media_file, encoding="utf-8") as f:
             contents = f.read()
     except Exception:
-        return ""
+        try:
+            with open(media_file, encoding="iso-8859-1") as f:
+                contents = f.read()
+        except Exception:
+            return ""
     # Modify the contents depending on the type of text
     if extension == ".txt":
         # Add escape characters to standard text
