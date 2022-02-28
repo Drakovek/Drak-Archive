@@ -2,6 +2,42 @@
 
 from math import floor
 from os.path import abspath
+from re import findall, sub
+
+def regex_replace(funct, pattern:str=None, string:str=None) -> str:
+    """
+    Replaces text matching regex pattern with said matching text run though a given function.
+
+    :param funct: Function to run matching text through, required
+    :type funct: function, required
+    :param pattern: Regex pattern to search for in string, defaults to None
+    :type pattern: str, optional
+    :param string: String to search for pattern within, defaults to None
+    :type string: str, optional
+    :return: Given string with pattern matched text replaced
+    :rtype: str
+    """
+    try:
+        # Get all strings that match the regex pattern
+        matched = findall(pattern, string)
+        # Run through all matches to replace text
+        new_text = ""
+        left_text = string
+        for match in matched:
+            # Keep all text before the match
+            index = left_text.find(match)
+            new_text = new_text + left_text[:index]
+            # Add replacement for the match
+            new_text = new_text + funct(match)
+            # Set the remaining text for after the match
+            index += len(match)
+            left_text = left_text[index:]
+        # Keep all the text left in the initial string
+        new_text = new_text + left_text
+        # Return the string with matching patterns replaced
+        return new_text
+    except TypeError:
+        return string
 
 def pad_num(num:str=None, length:int=0) -> str:
     """
@@ -15,16 +51,13 @@ def pad_num(num:str=None, length:int=0) -> str:
     :return: Padded string
     :rtype: str
     """
-    # RETURNS AN EMPTY STRING IF THE GIVEN STRING OR LENGTH IS INVALID
+    # Returns an empty string if the given string or length is invalid
     if num is None or length < 1:
         return ""
-    # RETURN STRING OF ZEROS IF LENGTH IS LESS THAN LENTH OF INPUT
-    if length < len(num):
-        return pad_num("0", length)
-    # PAD OUT THE STRING WITH ZEROS TO REACH THE GIVEN STRING LENGTH
+    # Pad out the string with zeros to reach the given string length
     new_num = num
     while len(new_num) < length:
-        new_num = "0" + new_num
+        new_num = f"0{new_num}"
     return new_num
 
 def remove_whitespace(text:str=None) -> str:
@@ -36,22 +69,13 @@ def remove_whitespace(text:str=None) -> str:
     :return: String without whitespace
     :rtype: str
     """
-    # RETURN AN EMPTY STRING IF THE GIVEN STRING IS INVALID
+    # Return an empty string if the given string is invalid
     if text is None:
         return ""
-    # FIND WHERE TEXT BEGINS AND ENDS
-    start = 0
-    while start < len(text) and (text[start] == " " or text[start] == "\t"):
-        start = start + 1
-    end = len(text) - 1
-    while end > -1 and (text[end] == " " or text[end] == "\t"):
-        end = end - 1
-    end = end + 1
-    # IF END < START, ASSUME THER'S NO WHITESPACE AT THE END
-    if end < start:
-        return text[start:len(text)]
-    # RETURN TEXT SUBSTRING
-    return text[start:end]
+    # Remove leading and ending whitespace
+    new_text = sub("^\\s+|\\s+$", "", text)
+    # Return the new text
+    return new_text
 
 def truncate_string(text:str=None, length:int=90) -> str:
     """
@@ -116,96 +140,41 @@ def get_filename(text:str=None, length:int=90) -> str:
     :return: Filename
     :rtype: str
     """
-    # IF GIVEN STRING IS NULL, RETURN STRING "0"
+    # If given string is invalid, return string "0"
     if text is None:
         return "0"
-    # REMOVE ALL NON-LETTER, NON-NUMERIC CHARACTERS
-    i = 0
-    out = ""
-    while i < len(text):
-        value = ord(text[i])
-        if ((value > 47 and value < 58)
-                or (value > 64 and value < 91)
-                or (value > 96 and value < 123)
-                or value == 32):
-            out = out + text[i]
-        elif value > 191 and value < 198:
-            # REPLACE "A" VARIENTS
-            out = out + "A"
-        elif value > 199 and value < 204:
-            # REPLACE "E" VARIENTS
-            out = out + "E"
-        elif value > 203 and value < 208:
-            # REPLACE "I" VARIENTS
-            out = out + "I"
-        elif value == 209:
-            # REPLACE "N" VARIENT
-            out = out + "N"
-        elif value > 209 and value < 215:
-            # REPLACE "O" VARIENTS
-            out = out + "O"
-        elif value > 216 and value < 221:
-            # REPLACE "U" VARIENTS
-            out = out + "U"
-        elif value == 221:
-            # REPLACE "Y" VARIENT
-            out = out + "Y"
-        elif value > 223 and value < 230:
-            # REPLACE "a" VARIENTS
-            out = out + "a"
-        elif value > 231 and value < 236:
-            # REPLACE "e" VARIENTS
-            out = out + "e"
-        elif value > 235 and value < 240:
-            # REPLACE "i" VARIENTS
-            out = out + "i"
-        elif value == 241:
-            # REPLACE "n" VARIENT
-            out = out + "n"
-        elif value > 241 and value < 247:
-            # REPLACE "o" VARIENTS
-            out = out + "o"
-        elif value > 248 and value < 253:
-            # REPLACE "u" VARIENTS
-            out = out + "u"
-        elif value == 253 or value == 255:
-            # REPLACE "y" VARIENTS
-            out = out + "y"
-        else:
-            out = out + "-"
-        # INCREMENT COUNTER
-        i = i + 1
-    # REMOVE START AND END SPACERS
-    while len(out) > 0 and (out[0] == " " or out[0] == "-"):
-        out = out[1:]
-    while len(out) > 0 and (out[-1] == " " or out[-1] == "-"):
-        out = out[:-1]
-    # REMOVE DUPLICATE SPACERS
-    i = 1
-    while i < len(out):
-        if (out[i] == " " or out[i] == "-") and out[i] == out[i-1]:
-            out = out[:i] + out[i+1:]
-            i = i - 1
-        # INCREMENT COUNTER
-        i = i + 1
-    # REMOVE HANGING HYPHENS
-    i = 1
-    while i < (len(out) - 1):
-        if out[i] == "-":
-            if ((out[i-1] == " " and not out[i+1] == " ")
-                    or (not out[i-1] == " " and out[i+1] == " ")):
-                out = out[:i] + out[i+1:]
-                i = i - 1
-        # INCREMENT COUNTER
-        i = i + 1
-    # TRUNCATE STRING
+    # Replace accented characters with nearest ASCII equivalents
+    new_text = sub("[À-Å]", "A", text)
+    new_text = sub("[È-Ë]", "E", new_text)
+    new_text = sub("[Ì-Ï]", "I", new_text)
+    new_text = sub("[Ò-Ö]", "O", new_text)
+    new_text = sub("[Ù-Ü]", "U", new_text)
+    new_text = sub("[à-å]", "a", new_text)
+    new_text = sub("[è-ë]", "e", new_text)
+    new_text = sub("[ì-ï]", "i", new_text)
+    new_text = sub("[ò-ö]", "o", new_text)
+    new_text = sub("[ù-ü]", "u", new_text)
+    new_text = sub("[ýÿ]", "y", new_text)
+    new_text = new_text.replace("Ñ", "N")
+    new_text = new_text.replace("Ý", "Y")
+    new_text = new_text.replace("ñ", "n")
+    # Replace all non-alphanumeric characters with hyphens
+    new_text = sub("[^a-zA-Z0-9 ]", "-", new_text)
+    # Remove whitespace and hyphens at begining and end of text
+    new_text = sub("^[\\s-]+|[\\s-]+$", "", new_text)
+    # Remove duplicate spacers
+    new_text = sub("-{2,}", "-", new_text)
+    new_text = sub(" {2,}", " ", new_text)
+    # Remove hanging hyphens
+    new_text = sub("(?<= )-(?=[a-zA-Z0-9])|(?<=[a-zA-Z0-9])-(?= )", "", new_text)
+    # Truncate string
     if length != -1:
-        out = truncate_string(out, length)
-    # RETURN CLEANED STRING
-    if len(out) == 0:
-        # IF FINAL STRING HAS NO LENGTH, RETURN STRING "0"
+        new_text = truncate_string(new_text, length)
+    # Return cleaned string
+    if len(new_text) == 0:
+        # If final string has no length, return string "0"
         return "0"
-    return out
+    return new_text
 
 def get_extension(filename:str=None) -> str:
     """
@@ -217,20 +186,19 @@ def get_extension(filename:str=None) -> str:
     :return: Extension for the filename
     :rtype: str
     """
-    # RETURNS AN EMPTY STRING IF THE FILENAME IS NULL
+    # Returns an empty string if the filename is invalid
     if filename is None:
         return ""
-    # IF URL HAS A TOKEN MAKED BY A '?', REMOVE THE TOKEN
-    end = filename.rfind("?")
-    if end == -1:
-        end = len(filename)
-    # GET TEXT INCLUDING AND PROCEDING THE FINAL '.'
-    start = filename.rfind(".", 0, end)
-    if start == -1 or end - start > 6:
-        # RETURNS EMPTY STRING IF TEXT IS TOO LONG/SHORT
+    # Find extension
+    match = findall("\\.[a-zA-Z]{1,5}\\?|\\.[a-zA-Z]{1,5}$", filename)
+    if len(match) == 0:
         return ""
-    # RETURN EXTENSION
-    return filename[start:end]
+    # Return extension
+    extension = match[0]
+    for item in match:
+        if item.endswith("?"):
+            extension = item[:len(item)-1]
+    return extension
 
 def get_url_directory(url:str=None) -> str:
     """
@@ -241,30 +209,28 @@ def get_url_directory(url:str=None) -> str:
     :return: Last sub-directory of the given URL
     :rtype: str
     """
-    # RETURN EMPTY STRING IF URL IS INVALID
+    # Return empty string if url is invalid
     if url is None:
         return ""
-    # REMOVE LAST FORWARD SLASH FROM THE URL
-    sub = url
-    while len(sub) > 0 and sub[len(sub) - 1] == "/":
-        sub = sub[:-1]
-    # GET LAST SUB-DIRECTORY
-    last = sub.rfind("/") + 1
-    return sub[last:]
+    # Remove last forward slash from the URL
+    main = sub("\\/+$", "", url)
+    # Get last sub-directory
+    last = main.rfind("/") + 1
+    return main[last:]
 
 def truncate_path(parent:str=None, file:str=None) -> str:
-    # RETURN EMPTY STRING IF FILE IS INVALID
+    # Return empty string if file is invalid
     if file is None:
         return ""
-    # RETURN FILE IF PARENT PATH IS INVALID
+    # Return file if parent path is invalid
     if parent is None:
         return file
-    # RETURN FILE IF PARENT IS NOT ACTUALLY A PARENT DIRECTORY
+    # Return file if parent is not actually a parent directory
     full_parent = abspath(parent)
     full_file = abspath(file)
     if (full_parent == full_file
             or not full_file.startswith(full_parent)):
         return full_file
-    # TRUNCATE THE FILE PATH OF THE GIVEN FILE
+    # Truncate the file path of the given file
     truncated = full_file[len(full_parent):]
     return "..." + truncated

@@ -1,4 +1,4 @@
-#!/usr/bin/env/ python3
+#!/usr/bin/env python3
 
 from dvk_archive.main.processing.string_processing import pad_num
 from dvk_archive.main.processing.string_processing import remove_whitespace
@@ -6,17 +6,35 @@ from dvk_archive.main.processing.string_processing import get_filename
 from dvk_archive.main.processing.string_processing import truncate_string
 from dvk_archive.main.processing.string_processing import get_extension
 from dvk_archive.main.processing.string_processing import get_url_directory
+from dvk_archive.main.processing.string_processing import regex_replace
 from dvk_archive.main.processing.string_processing import truncate_path
+
+def test_regex_replace():
+    """
+    Tests the regex replace function.
+    """
+    # Test replacing regex matches
+    replaced = regex_replace(get_extension, "[a-z]+\\.[a-z]+", "eh, bl.ah th.ing not")
+    assert replaced == "eh, .ah .ing not"
+    replaced = regex_replace(get_filename, "[a-z]+\\?[a-z]+|[a-z]+!", "why?not I Don't know!")
+    assert replaced == "why-not I Don't know"
+    # Test replacing strings with no regex match
+    replaced = regex_replace(get_extension, "nope", "got nothing")
+    assert replaced == "got nothing"
+    # Test replacing strings with invalid parameters
+    assert regex_replace(None, "pattern", "string") == "string"
+    assert regex_replace(get_extension, None, "string") == "string"
+    assert regex_replace(get_extension, "pattern", None) is None
 
 def test_pad_num():
     """
     Tests the pad_num function.
     """
-    # TEST PADDING OUT NUMBER STRINGS WITH ZEROS
+    # Test padding out number strings with zeros
     assert pad_num("2F", 2) == "2F"
     assert pad_num("2E", 5) == "0002E"
-    # TEST USING INVALID VALUES
-    assert pad_num("10F", 2) == "00"
+    assert pad_num("10F", 2) == "10F"
+    # Test using invalid values
     assert pad_num("A3", 0) == ""
     assert pad_num("F3", -1) == ""
     assert pad_num(None, 2) == ""
@@ -25,29 +43,31 @@ def test_remove_whitespace():
     """
     Tests the remove_whitespace function.
     """
-    # TEST REMOVING WHITESPACE FROM THE BEGINNING AND END OF STRINGS
+    # Test removing whitespace from the beginning and end of strings
     assert remove_whitespace("") == ""
     assert remove_whitespace(" ") == ""
     assert remove_whitespace(" \t  ") == ""
     assert remove_whitespace("  blah") == "blah"
     assert remove_whitespace("blah   ") == "blah"
     assert remove_whitespace(" \t blah  \t") == "blah"
+    assert remove_whitespace(" Other Text \n") == "Other Text"
+    assert remove_whitespace("   Yet \n more Text \n \r") == "Yet \n more Text"    
     assert remove_whitespace("blah") == "blah"
-    # TEST USING INVALID STRING
+    # Test using invalid string
     assert remove_whitespace(None) == ""
 
 def test_get_filename():
     """
     Tests the get_filename function
     """
-    # TEST GETTING FILE FRIENDLY NAMES
+    # Test getting file friendly names
     assert get_filename("This & That 2") == "This - That 2"
     assert get_filename("! !end filler!??  ") == "end filler"
     assert get_filename("thing--stuff  @*-   bleh") == "thing-stuff - bleh"
     assert get_filename("a% - !b @  ??c") == "a - b - c"
     assert get_filename("Test String", 5) == "Test"
     assert get_filename("Test String", -1) == "Test String"
-    # TEST CONVERTING FROM NON-STANDARD LATIN CHARACTERS
+    # Test converting from non-standard latin characters
     assert get_filename("ÀÁÂÃÄÅ") == "AAAAAA"
     assert get_filename("ÈÉÊË") == "EEEE"
     assert get_filename("ÌÍÎÏ") == "IIII"
@@ -58,10 +78,10 @@ def test_get_filename():
     assert get_filename("ìíîï") == "iiii"
     assert get_filename("ñòóôõö") == "nooooo"
     assert get_filename("ùúûüýÿ") == "uuuuyy"
-    # TEST GETTING FILENAMES WITH NO LENGTH
+    # Test getting filenames with no length
     assert get_filename("") == "0"
     assert get_filename("$") == "0"
-    # TEST GETTING FILENAME WHEN GIVEN STRING IS INVALID
+    # Test getting filename when given string is invalid
     assert get_filename(None) == "0"
 
 def test_truncate_string():
@@ -101,34 +121,35 @@ def test_get_extension():
     """
     Tests the get_extension function.
     """
-    # TEST GETTING EXTENSIONS FROM FILENAMES
+    # Test getting extensions from filenames
     assert get_extension("test.png") == ".png"
     assert get_extension(".long") == ".long"
     assert get_extension("test.thing") == ".thing"
     assert get_extension("blah.test.png") == ".png"
-    # TEST GETTING EXTENTIONS FROM URLS WITH TOKENS
+    # Test getting extensions from URLs with tokens
     assert get_extension("test.png?extra.thing") == ".png"
     assert get_extension("thing.test.thing?") == ".thing"
-    # TEST GETTING INVALID EXTENSIONS
+    assert get_extension("another.txt? test.png?extra.thing") == ".png"
+    # Test getting invalid extensions
     assert get_extension("test.tolong") == ""
     assert get_extension("test.notextension") == ""
     assert get_extension("asdfasdfasdfasdf") == ""
     assert get_extension("test.tolong?extra") == ""
-    # TEST GETTING EXTENSION IF GIVEN STRING IS NULL
+    # Test getting extension if given string is None
     assert get_extension(None) == ""
 
 def test_get_url_directory():
     """
     Tests the get_url_directory function.
     """
-    # TEST GETTING LAST DIRECTORY
+    # Test getting last directory
     assert get_url_directory("a/b/c/url.txt") == "url.txt"
     assert get_url_directory("/url//test") == "test"
-    # TEST GETTING DIRECTORY WITH ENDING SLASH
+    # Test getting directory with ending slash
     assert get_url_directory("test/") == "test"
     assert get_url_directory("/other/thing//") == "thing"
     assert get_url_directory("///") == ""
-    # TEST GETTING DIRECTORY FROM INVALID URL
+    # Test getting directory from invalid URL
     assert get_url_directory("") == ""
     assert get_url_directory(None) == ""
 
@@ -136,18 +157,18 @@ def test_truncate_path():
     """
     Tests the truncate_path function.
     """
-    # TEST TRUNCATING PATHS
+    # Test truncating paths
     assert truncate_path("/path/", "/path/file.txt") == ".../file.txt"
     assert truncate_path("main", "main/path.png") == ".../path.png"
     assert truncate_path("/a/b/c/", "/a/b/c/thing.jpg") == ".../thing.jpg"
-    # TEST TRUNCATING PATH IF FILE NOT IN GIVEN DIRECTORY
+    # Test truncating path if file is not in the given directory
     assert truncate_path("/a/b/c/", "/unrelated/f.txt") == "/unrelated/f.txt"
     assert truncate_path("/a/", "/A/file.png") == "/A/file.png"
-    # TEST IF FILE AND PARENT PATH ARE EXACTLY THE SAME
+    # Test if file and parent path are exactly the same
     assert truncate_path("/a/b/c", "/a/b/c") == "/a/b/c"
-    # TEST WHEN THE PARENT PATH IS INVALID
+    # Test when the parent path is invalid
     assert truncate_path(None, "/other/file.txt") == "/other/file.txt"
-    # TEST WHEN THE FILE IS INVALID
+    # Test when the file is invalid
     assert truncate_path("/path/", None) == ""
     assert truncate_path(None, None) == ""
 
@@ -162,3 +183,4 @@ def all_tests():
     test_get_extension()
     test_get_url_directory()
     test_truncate_path()
+    test_regex_replace()
