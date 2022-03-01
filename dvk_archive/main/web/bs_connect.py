@@ -36,17 +36,17 @@ def get_direct_response(url:str=None, headers:dict=None, data:dict=None) -> Resp
     :return: HTTP response
     :rtype: Response
     """
-    # RETURN NONE IF URL IS INVALID
+    # Return None if URL is invalid
     if url is None or url == "":
         return None
     session = Session()
     try:
-        # SEND REQUEST
+        # Send request
         if data is None:
-            # SEND GET REQUEST IF THERE IS NO POST DATA
+            # Send GET request if there is no POST data
             response = session.get(url, headers=headers)
         else:
-            # SEND POST REQUEST IF POST DATA IS PROVIDED
+            # Send POST request if POST data is provided
             response = session.post(url, data=data)
         return response
     except:
@@ -67,13 +67,13 @@ def basic_connect(url:str=None, encoding:str="utf-8", data:dict=None) -> str:
     :return: HTML source
     :rtype: str
     """
-    # RETURN NONE IF URL IS INVALID
+    # Return None if URL is invalid
     if url is None or url == "":
         return None
     try:
-        # GET REQUEST
+        # Get request
         response = get_direct_response(url, get_default_headers(), data)
-        # SET ENCODING
+        # Set encoding
         if encoding is None:
             response.encoding = request.apparent_encoding
         else:
@@ -115,11 +115,11 @@ def json_connect(url:str=None, encoding:str="utf-8", data:dict=None) -> dict:
     :rtype: dict
     """
     html = basic_connect(url, encoding, data)
-    # RETURN NONE IF RETURNED DATA IS NONE OR INVALID
+    # Return None if returned data is None or invalid
     if html is None or html == "":
         return None
     try:
-        # CONVERT TO JSON
+        # Convert to JSON
         json = loads(html)
         return json
     except:
@@ -138,7 +138,7 @@ def download(url:str=None, file_path:str=None) -> dict:
     """
     if (url is not None and file_path is not None):
         file = abspath(file_path)
-        # SAVE FILE
+        # Save file
         try:
             session = Session()
             headers = get_default_headers()
@@ -164,21 +164,21 @@ def get_last_modified(headers:dict=None) -> str:
     :return: Last modified date and time in DVK time format
     :rtype: str
     """
-    # RETURNS EMPTY STRING IF GIVEN HEADERS ARE INVALID
+    # Returns empty string if given headers are invalid
     if headers is None:
         return ""
     try:
         modified = headers["Last-Modified"]
     except KeyError:
         return ""
-    # GET PUBLICATION TIME
+    # Get publication time
     try:
         day = int(modified[5:7])
         month_str = modified[8:11].lower()
         year = int(modified[12:16])
         hour = int(modified[17:19])
         minute = int(modified[20:22])
-        # GET MONTH
+        # Get month
         months = [
             "jan", "feb", "mar", "apr", "may", "jun",
             "jul", "aug", "sep", "oct", "nov", "dec"]
@@ -195,5 +195,5 @@ def get_last_modified(headers:dict=None) -> str:
         time = time + ":" + pad_num(str(minute), 2)
         return time
     except ValueError:
-        # RETURNS EMPTY STRING IF GETTING TIME FAILS
+        # Returns empty string if getting time fails
         return ""

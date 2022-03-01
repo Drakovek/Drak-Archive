@@ -1,4 +1,4 @@
-#!/usr/bin/env/ python3
+#!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
 from dvk_archive.main.web.heavy_connect import HeavyConnect
@@ -12,10 +12,10 @@ def test_download():
     """
     connect = HeavyConnect()
     try:
-        # TEST DOWNLOADING A GIVEN FILE
+        # Test downloading a given file
         test_dir = get_test_dir()
         file = abspath(join(test_dir, "image.jpg"))
-        url = "http://www.pythonscraping.com/img/gifts/img6.jpg"
+        url = "https://www.pythonscraping.com/img/gifts/img6.jpg"
         connect.download(url, file)
         assert exists(file)
         assert stat(file).st_size == 39785
@@ -24,7 +24,7 @@ def test_download():
         connect.download(url, file)
         assert exists(file)
         assert stat(file).st_size == 85007
-        # TEST DOWNLOADING WITH INVALID PARAMETERS
+        # Test downloading with invalid parameters
         file = join(test_dir, "invalid.jpg")
         connect.download(None, None)
         assert not exists(file)
@@ -41,32 +41,32 @@ def test_get_page():
     """
     Tests the get_page method.
     """
-    # TEST LOADING ELEMENTS FROM A WEB PAGE
+    # Test loading elements from a web page
     connect = HeavyConnect()
     try:
-        url = "http://pythonscraping.com/exercises/exercise1.html"
+        url = "https://pythonscraping.com/exercises/exercise1.html"
         page = connect.get_page(url)
         assert page is not None
         assert page.find("h1").get_text() == "An Interesting Title"
         assert page.find("title").get_text() == "A Useful Page"
-        # TEST WAITING FOR ELEMENT
-        url = "http://pythonscraping.com/pages/javascript/ajaxDemo.html"
+        # Test waiting for element
+        url = "https://pythonscraping.com/pages/javascript/ajaxDemo.html"
         page = connect.get_page(url, "//button[@id='loadedButton']")
         assert page is not None
         element = page.find("button", {"id":"loadedButton"}).get_text()
         assert element  == "A button to click!"
-        # TEST WAITING FOR NON-EXISTANT ELEMENT
-        url = "http://pythonscraping.com/exercises/exercise1.html"
+        # Test waiting for non-existant element
+        url = "https://pythonscraping.com/exercises/exercise1.html"
         page = connect.get_page(url, "//a[href='non-existant']")
         assert page is None
-        # TEST LOADING WITH INVALID URL
+        # Test loading with invalid URL
         page = connect.get_page(None, None)
         assert page is None
         url = "qwertyuiopasdfghjkl"
         page = connect.get_page(url, None)
         assert page is None
     finally:
-        # CLOSE DRIVER
+        # Close driver
         connect.close_driver()
 
 def test_get_json():
@@ -75,14 +75,14 @@ def test_get_json():
     """
     connect = HeavyConnect()
     try:
-        # TEST LOADING PAGE AS A JSON OBJECT
+        # Test loading page as a JSON object
         json = connect.get_json("https://jsonplaceholder.typicode.com/users/3/posts")
         assert len(json) == 10
         element = json[0]
         assert element["userId"] == 3
         assert element["id"] == 21
         assert element["title"] == "asperiores ea ipsam voluptatibus modi minima quia sint"
-        # TEST LOADING AN INVALID PAGE
+        # Test loading an invalid page
         json = connect.get_json("asdfghjkl")
         assert json is None
         json = connect.get_json(None)

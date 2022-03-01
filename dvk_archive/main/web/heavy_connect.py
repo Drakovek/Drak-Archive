@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from bs4 import BeautifulSoup
+from dvk_archive.main.processing.string_processing import get_url_directory
 from json import loads
 from os import listdir, mkdir, remove
 from os.path import abspath, exists, join
@@ -47,25 +48,25 @@ class HeavyConnect:
         :type headless: bool, optional
         """
         try:
-            # SET UP TEMP DIR
+            # Set up temporary directory
             self.tempdir = abspath(gettempdir())
             self.tempdir = abspath(join(self.tempdir, "dvk_connection"))
             if not exists(self.tempdir):
                 mkdir(self.tempdir)
-            # TRY FIREFOX DRIVER
+            # Create Firefox driver
             options = FO()
             options.headless = headless
             options.page_load_strategy = "none"
-            # SET DOWNLOAD FOLDER OPTIONS
+            # Set download folder options
             options.set_preference("browser.download.folderList", 2)
             options.set_preference("browser.download.useDownloadDir", True)
             options.set_preference("browser.download.dir", self.get_download_dir())
             options.set_preference("browser.download.viewableInternally.enabledTypes", "")
             options.set_preference("browser.helperApps.neverAsk.saveToDisk", "image/gif;image/jpeg;image/png;image/webp;image/svg+xml")
-            # CREATE DRIVER
+            # Create driver
             self.driver = Firefox(options=options)
         except WebDriverException:
-            # PRINTS INSTRUCTIONS FOR GETTING SELENIUM DRIVER
+            # Prints instructions for getting Selenium driver
             self.driver = None
             print_driver_instructions()
 
@@ -76,7 +77,7 @@ class HeavyConnect:
         :return: File path of the download directory
         :rtype: str
         """
-        ddir = abspath(join(self.tempdir, "downloads"))
+        ddir = abspath(join(self.tempdir, "dvk_downloads"))
         if exists(ddir):
             rmtree(ddir)
         mkdir(ddir)
@@ -99,14 +100,18 @@ class HeavyConnect:
         :return: BeautifulSoup object for the web page
         :rtype: BeautifulSoup
         """
-        # RETURN NONE IF URL OR LOADED DRIVER IS INVALID
+        # Return None if URL or loaded driver are invalid
         if url is None or url == "" or self.driver is None:
             return None
-        # ATTEMPT LOADING WEB PAGE
+        # Attempt loading web page
         try:
             self.driver.get(url)
-            sleep(1)
-            # WAIT FOR ELEMENT TO LOAD, IF SPECIFIED
+            # Wait for driver to reach the specified page
+            url_last = get_url_directory(url)            
+            regex = f"(?<=\\/){url_last}(?=\\/*$)|(?<=^){url_last}(?=\\/*$)"
+            WebDriverWait(self.driver, timeout).until(
+                     EC.url_matches(regex))
+            # Wait for element to load, if specified
             if element is not None and not element == "":
                 WebDriverWait(self.driver, timeout).until(
                      EC.presence_of_all_elements_located((By.XPATH, element)))
@@ -131,7 +136,7 @@ class HeavyConnect:
         try:
             element = bs.find("pre")
             html = element.get_text()
-            # CONVERT TO JSON
+            # Convert to JSON
             json = loads(html)
             return json
         except:
@@ -170,36 +175,38 @@ class HeavyConnect:
         :rtype: dict
         """
         try:
-            # CHECK IF PARAMETERS ARE VALID
+            # Check if parameters are valid
             assert url is not None
             assert file_path is not None
-            # GET DOWNLOAD DIRECTORY
+            # Get download directory
             directory = self.get_download_dir()
-            self.get_page(url, "//img")
-            # DOWNLOAD FILE TO TEMP DOWNLOAD DIRECTORY
+            bs = self.get_page(url, "//img")
+            new_url = str(bs.find("img")["src"])
+            # Download file to temporary download directory
             js_command = "var link = document.createElement(\"a\");"\
-                         + "link.href = \"" + url + "\";"\
-                         + "link.download = \"d.dvk\";"\
+                         + "link.href = \"" + new_url + "\";"\
+                         + "link.download = \"blah\";"\
                          + "document.body.appendChild(link);link.click();"
             self.driver.execute_script(js_command)
-            # WAIT UNTIL FILE STARTED DOWNLOADING OR TIMES OUT
+            # Wait until file starts downloading or times out
             sec = 0
             while sec < 10 and len(listdir(directory)) == 0:
                 sleep(1)
                 sec += 1
             assert not len(listdir(directory)) == 0
-            # WAIT UNTIL FILE FINISHED DOWNLOADING OR TIMES OUT
+            # Wait until file finishes downloading or times out
             sec = 0
             while sec < 10 and len(listdir(directory)) > 1:
                 sleep(1)
                 sec += 1
             assert len(listdir(directory)) == 1
-            # GET DOWNLOADED FILE
+            # Get downloaded file
             file = abspath(join(directory, listdir(directory)[0]))
             assert exists(file)
-            # WAIT
+            # Wait
             sleep(2)
-            # MOVE FILE
+            # Move file to given path
             move(file, abspath(file_path))
         except:
+            print_exc()
             self.get_download_dir()

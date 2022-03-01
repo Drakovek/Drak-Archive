@@ -1,4 +1,4 @@
-#!/usr/bin/env/ python3
+#!/usr/bin/env python3
 
 from os import stat
 from os.path import abspath, exists, join
@@ -15,13 +15,13 @@ def test_get_direct_response():
     """
     Tests the get_direct_response function.
     """
-    # TEST GETTING RESPONSE HEADERS
+    # Test getting response headers
     url = "http://pythonscraping.com/exercises/exercise1.html"
     response = get_direct_response(url, get_default_headers())
     headers = response.headers
-    assert headers["Server"] == "Apache"
-    assert headers["Connection"] == "Keep-Alive"
-    # TEST GETTING RESPONSE USING INVALID PARAMETERS
+    assert headers["Server"] == "nginx"
+    assert headers["Connection"] == "keep-alive"
+    # Test getting response using invalid parameters
     assert get_direct_response() is None
     assert get_direct_response(None) is None
     assert get_direct_response("") is None
@@ -31,12 +31,12 @@ def test_basic_connect():
     """
     Tests the basic_connect function
     """
-    # TEST GETTING HTML PAGE
+    # Test getting HTML page
     url = "http://pythonscraping.com/exercises/exercise1.html"
     html = basic_connect(url)
     assert html is not None
     assert html.startswith("<html>\n<head>\n<title>A Useful Page</title>")
-    # TEST GETTING INVALID HTML PAGE
+    # Test getting invalid HTML page
     assert basic_connect() is None
     assert basic_connect(None) is None
     assert basic_connect("") is None
@@ -46,13 +46,13 @@ def test_bs_connect():
     """
     Tests the bs_connect function.
     """
-    # TEST GETTING BEAUTIFULSOUP FROM PAGE
+    # Test getting BeautifulSoup object from page
     url = "http://pythonscraping.com/exercises/exercise1.html"
     bs = bs_connect(url)
     assert bs is not None
     assert bs.find("h1").get_text() == "An Interesting Title"
     assert bs.find("title").get_text() == "A Useful Page"
-    # TEST GETTING INVALID PAGE
+    # Test getting invalid page
     assert bs_connect() is None
     assert bs_connect(None) is None
     assert bs_connect("") is None
@@ -62,14 +62,14 @@ def test_json_connect():
     """
     Tests the json_connect function.
     """
-    # TEST LOADING PAGE AS A JSON OBJECT
+    # Test loading page as a JSON object
     json = json_connect("https://jsonplaceholder.typicode.com/users/3/posts")
     assert len(json) == 10
     element = json[0]
     assert element["userId"] == 3
     assert element["id"] == 21
     assert element["title"] == "asperiores ea ipsam voluptatibus modi minima quia sint"
-    # TEST LOADING AN INVALID PAGE
+    # Test loading an invalid page
     json = json_connect("asdfghjkl")
     assert json is None
     json = json_connect(None)
@@ -79,14 +79,14 @@ def test_download():
     """
     Tests the download function.
     """
-    # TEST DOWNLOADING A GIVEN FILE
+    # Test downloading a given file
     test_dir = get_test_dir()
     file = abspath(join(test_dir, "image.jpg"))
     url = "http://www.pythonscraping.com/img/gifts/img6.jpg"
     download(url, file)
     assert exists(file)
     assert stat(file).st_size == 39785
-    # TEST DOWNLOADING WITH INVALID PARAMETERS
+    # Test downloading with invalid parameters
     file = join(test_dir, "invalid.jpg")
     download(None, None)
     assert not exists(file)
@@ -125,7 +125,7 @@ def test_get_last_modified():
     assert get_last_modified(d) == "2015/11/23|20:23"
     d = {"Last-Modified": "Udf, 01 Dec 2019 12:00:55 GMT"}
     assert get_last_modified(d) == "2019/12/01|12:00"
-    # TEST INVALID TIMES
+    # Test invalid times
     d = {"Last-Modified": "Udf, 10 Nop 2010 12:05:55 GMT"}
     assert get_last_modified(d) == ""
     d = {"Last-Modified": "Mon, BB Aug FFFF GG:TT:PP GMT"}
