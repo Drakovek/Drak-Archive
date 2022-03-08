@@ -27,8 +27,8 @@ def test_get_file_as_url():
     # Test getting files as URL paths
     url = get_file_as_url("/path/file/#3 Thing?.txt")
     assert url == "file:///path/file/%233%20Thing%3F.txt"
-    url = get_file_as_url("C:\dir\Text 100%.png")
-    assert url == "file://C%3A\dir\Text%20100%25.png"
+    url = get_file_as_url("C:\\dir\\Text 100%.png")
+    assert url == "file://C%3A\\dir\\Text%20100%25.png"
     # Test using invalid parameters
     assert get_file_as_url("") == ""
     assert get_file_as_url(None) == ""

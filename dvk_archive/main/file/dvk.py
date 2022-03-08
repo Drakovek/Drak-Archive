@@ -142,8 +142,10 @@ class Dvk:
             # Create dict for info about where media was downloaded from.
             dvk_web = dict()
             dvk_web = dictadd(dvk_web, "page_url", self.get_page_url(), None)
-            dvk_web = dictadd(dvk_web, "direct_url", self.get_direct_url(), None)
-            dvk_web = dictadd(dvk_web, "secondary_url", self.get_secondary_url(), None)
+            if self.get_direct_url() is not None and not "data:" in self.get_direct_url():
+                dvk_web = dictadd(dvk_web, "direct_url", self.get_direct_url(), None)
+            if self.get_secondary_url() is not None and not "data:" in self.get_secondary_url():
+                dvk_web = dictadd(dvk_web, "secondary_url", self.get_secondary_url(), None)
             # Create dict for info about where media is stored on disk.
             dvk_file_dict = dict()
             if self.get_media_file() is not None:

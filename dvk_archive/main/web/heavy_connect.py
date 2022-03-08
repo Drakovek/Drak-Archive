@@ -107,7 +107,9 @@ class HeavyConnect:
         try:
             self.driver.get(url)
             # Wait for driver to reach the specified page
-            url_last = get_url_directory(url)            
+            url_last = get_url_directory(url)
+            url_last = url_last.replace("?", "\\?")
+            url_last = url_last.replace(".", "\\.")
             regex = f"(?<=\\/){url_last}(?=\\/*$)|(?<=^){url_last}(?=\\/*$)"
             WebDriverWait(self.driver, timeout).until(
                      EC.url_matches(regex))
