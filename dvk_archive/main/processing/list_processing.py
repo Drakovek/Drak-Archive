@@ -12,31 +12,21 @@ def clean_list(lst:List[str]=None) -> List[str]:
     :return: List without duplicate or None entries
     :rtype: list[str]
     """
-    # RETURN AN EMPTY LIST IF GIVEN LIST IS NONE
-    if lst is None:
+    try:
+        # Remove entries with None value
+        out = lst
+        while True:
+            try:
+                index = out.index(None)
+                del out[index]
+            except ValueError:
+                break
+        # Remove duplicate entries
+        out = list(dict.fromkeys(out))
+        # Return modified list
+        return out
+    except AttributeError:
         return []
-    # REMOVE NONE ENTRIES
-    out = lst
-    i = 0
-    while i < len(out):
-        if out[i] is None:
-            del out[i]
-            i = i - 1
-        # INCREMENT COUNTER
-        i = i + 1
-    # REMOVE DUPLICATE ENTRIES
-    i = 0
-    while i < len(out):
-        k = i + 1
-        while k < len(out):
-            if out[i] == out[k]:
-                del out[k]
-                k = k - 1
-            # INCREMENT K COUNTER
-            k = k + 1
-        # INCREMENT I COUNTER
-        i = i + 1
-    return out
 
 def list_to_string(lst:List[str]=None,
                 use_escapes:bool=False,

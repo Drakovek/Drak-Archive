@@ -1,7 +1,8 @@
-#!/usr/bin/env/ python3
+#!/usr/bin/env python3
 
 from dvk_archive.main.processing.html_processing import add_escapes
 from dvk_archive.main.processing.html_processing import add_escapes_to_html
+from dvk_archive.main.processing.html_processing import char_to_escape
 from dvk_archive.main.processing.html_processing import clean_element
 from dvk_archive.main.processing.html_processing import create_html_tag
 from dvk_archive.main.processing.html_processing import escape_to_char
@@ -49,7 +50,23 @@ def test_replace_escapes():
     in_str = "remove&this;"
     assert replace_escapes(in_str) == "remove"
     # TEST REPLACING ESCAPE CHARACTERS IN INVALID TEST
-    assert replace_escapes(None) == ""
+    assert replace_escapes(None) == None
+
+def test_char_to_escape():
+    """
+    Tests the char_to_escape function.
+    """
+    # Test converting characters into html escape characters
+    assert char_to_escape("&") == "&#38;"
+    assert char_to_escape("/") == "&#47;"
+    assert char_to_escape("<") == "&#60;"
+    # Test converting strings that are too long
+    assert char_to_escape("string") == ""
+    assert char_to_escape("<>") == ""
+    # Test converting invalid characters
+    assert char_to_escape(None) == ""
+    assert char_to_escape("") == ""
+    assert char_to_escape() == ""
 
 def test_add_escapes():
     """
@@ -62,9 +79,12 @@ def test_add_escapes():
     in_str = "normal"
     assert add_escapes(in_str) == "normal"
     # TEST ADDING ESCAPE CHARACTERS TO INVALID STRING
-    assert add_escapes(None) == ""
+    assert add_escapes(None) == None
 
 def test_get_blocks():
+    """
+    Tests the get_blocks function.
+    """
     # Test getting blocks from HTML text
     text = "<a href=\"thing\"><b>Text</b></a> block! "
     assert get_blocks(text) == ["<a href=\"thing\">", "<b>", "Text", "</b>", "</a>", " block! "]
@@ -73,7 +93,7 @@ def test_get_blocks():
     assert get_blocks(" <b> </b> ") == [" ", "<b>", " ", "</b>", " "]
     # Test getting blocks with inomplete HTML blocks
     text = "thing <a href=\"other\""
-    assert get_blocks(text) == ["thing ", "<a href=\"other\""]
+    assert get_blocks(text) == ["thing <a href=\"other\""]
     text = "text> blah </i> other</p>"
     assert get_blocks(text) == ["text> blah ", "</i>", " other", "</p>"]
     # Test getting blocks with invalid text
@@ -89,7 +109,7 @@ def test_add_escapes_to_html():
     out_str = "<a href=\"Sommarfågel\">Sommarf&#229;gel</a>"
     assert add_escapes_to_html(in_str) == out_str
     in_str = "/blah! <a href=\"Sommarfågel"
-    out_str = "&#47;blah&#33; <a href=\"Sommarfågel"
+    out_str = "&#47;blah&#33; &#60;a href&#61;&#34;Sommarf&#229;gel"
     assert add_escapes_to_html(in_str) == out_str
     # Test that existing escape characters remain intact
     in_str = "<b>&lt;Thing?&#33;&gt;</b>"
@@ -148,7 +168,7 @@ def test_remove_html_tags():
     assert remove_html_tags("<b><i></i><b></p>") == ""
     # Test removing HTML tags that are incomplete
     text = "thing <a href=\"blah\""
-    assert remove_html_tags(text) == "thing "
+    assert remove_html_tags(text) == "thing <a href=\"blah\""
     text = "other > text </b>"
     assert remove_html_tags(text) == "other > text "
     # Test removing HTML tags from invalid
@@ -195,9 +215,11 @@ def all_tests():
     """
     test_escape_to_char()
     test_replace_escapes()
+    test_char_to_escape()
     test_add_escapes()
     test_get_blocks()
     test_add_escapes_to_html()
     test_clean_element()
     test_remove_html_tags()
     test_create_html_tag()
+

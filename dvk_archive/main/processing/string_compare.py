@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+from re import findall
+
 def compare_strings(str1:str=None, str2:str=None) -> int:
     """
     Compares two strings alphabetically.
@@ -12,34 +14,18 @@ def compare_strings(str1:str=None, str2:str=None) -> int:
     :return: String which should come first.
     :rtype: int
     """
-    # RETURNS 0 IF EITHER STRING IS INVALID
-    if str1 is None or str2 is None:
+    try:
+        # Return which string should come first
+        upper1 = str1.upper()
+        sort = sorted([upper1, str2.upper()])
+        if sort[0] == sort[1]:
+            return 0
+        if sort[0] == upper1:
+            return -1
+        return 1
+    except AttributeError:
+        # Return 0 if error thrown
         return 0
-    # RETURN WHICH STRING SHOULD COME FIRST
-    sort = sorted([str1.upper(), str2.upper()])
-    if sort[0] == sort[1]:
-        return 0
-    if sort[0] == str1.upper():
-        return -1
-    return 1
-
-def is_digit(char_str:str=None) -> bool:
-    """
-    Return whether a single character string is a digit (0-9)
-
-    :param char_str: String of a single character, defaults to None
-    :type char_str: str, optional
-    :return: Whether char_string is a digit
-    :rtype: bool
-    """
-    # RETURN FALSE IF GIVEN CHARACTER IS INVALID
-    if char_str is None or not len(char_str) == 1:
-        return False
-    # RETURN WHETHER GIVEN CHARACTER IS A DIGIT
-    asc = ord(char_str)
-    if asc > 47 and asc < 58:
-        return True
-    return False
 
 def is_number_string(input_str:str=None) -> bool:
     """
@@ -51,15 +37,10 @@ def is_number_string(input_str:str=None) -> bool:
     :return: Whether input_string starts with numerical information
     :rtype: bool
     """
-    # RETURNS FALSE IF GIVEN STRING IS INVALID
-    if input_str is None or len(input_str) < 1:
+    try:
+        return len(findall("^[0-9]*[.,]{0,1}[0-9]+$", input_str)) == 1
+    except TypeError:
         return False
-    # RETURN WHETHER STRING STARTS WITH NUMERICAL INFORMATION
-    start_char = input_str[0]
-    if len(input_str) > 1 and is_digit(input_str[1]):
-        if start_char == "." or start_char == ",":
-            return True
-    return is_digit(start_char)
 
 def get_section(input_str:str=None) -> str:
     """
@@ -71,17 +52,19 @@ def get_section(input_str:str=None) -> str:
     :return: First section of the given string
     :rtype: str
     """
-    # RETURNS EMPTY STRING IF GIVEN STRING IS INVALID
-    if input_str is None or input_str == "":
+    try:
+        # Return number if section starts with a number
+        match = findall("^[0-9]*[.,]{0,1}[0-9]+", input_str)
+        if len(match) == 1:
+            return match[0]
+        # Return non-number is section starts with a non-number
+        match = findall("^[^0-9]+(?=[.,][0-9]+|(?<=[^,.])[0-9]|$)", input_str)
+        if len(match) == 1:
+            return match[0]
+        # Return empty string if invalid
         return ""
-    # RETURN THE FIRST SECTION
-    end = 1
-    is_num = is_number_string(input_str)
-    while (end < len(input_str) and (
-           (not is_num and not is_number_string(input_str[end:]))
-           or (is_num and is_digit(input_str[end])))):
-        end = end + 1
-    return input_str[:end]
+    except TypeError:
+        return ""
 
 def compare_sections(str1:str=None, str2:str=None):
     """
@@ -95,25 +78,19 @@ def compare_sections(str1:str=None, str2:str=None):
     :return: String which should come first
     :rtype: str
     """
-    # RETURN 0 IF EITHER STRING IS INVALID
-    if str1 is None or str2 is None:
+    # Get whether each given string is a digit
+    is_num_1 = is_number_string(str1)
+    is_num_2 = is_number_string(str2)
+    # Compare sections as floats if both strings are number strings
+    if is_num_1 and is_num_2 and len(str1) < 11 and len(str2) < 11:
+        val1 = float(str1.replace(",", "."))
+        val2 = float(str2.replace(",", "."))
+        if val1 < val2:
+            return -1
+        elif val1 > val2:
+            return 1
         return 0
-    # COMPARE SECTIONS
-    digit1 = is_number_string(str1)
-    digit2 = is_number_string(str2)
-    if digit1 and digit2 and len(str1) < 11 and len(str2) < 11:
-        # IF BOTH SECTIONS ARE NUMBERS, COMPARE NUMERICALLY
-        try:
-            val1 = float(str1.replace(",", "."))
-            val2 = float(str2.replace(",", "."))
-            if val1 < val2:
-                return -1
-            elif val1 > val2:
-                return 1
-            else:
-                return 0
-        except ValueError:
-            pass
+    # Compare strings regularly if not number strings
     return compare_strings(str1, str2)
 
 def compare_alphanum(str1:str=None, str2:str=None):
@@ -128,10 +105,10 @@ def compare_alphanum(str1:str=None, str2:str=None):
     :return: String which should come first
     :rtype: str
     """
-    # RETURN 0 IF EITHER STRING IS INVALID
+    # Return 0 if either string is invalid
     if str1 is None or str2 is None:
         return 0
-    # BREAK INTO SECTIONS AND COMPARE
+    # Break into sections and compare
     result = 0
     end1 = str1
     end2 = str2

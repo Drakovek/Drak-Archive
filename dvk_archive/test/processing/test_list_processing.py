@@ -1,4 +1,4 @@
-#!/usr/bin/env/ python3
+#!/usr/bin/env python3
 
 from dvk_archive.main.processing.list_processing import clean_list
 from dvk_archive.main.processing.list_processing import list_to_string
@@ -7,23 +7,14 @@ def test_clean_list():
     """
     Tests the clean_list function.
     """
-    # SET UP LIST
-    lst = ["these"]
-    lst.append("are")
-    lst.append("things")
-    lst.append("")
-    lst.append(None)
-    lst.append("are")
-    # TEST CLEANING ARRAY
-    lst = clean_list(lst)
-    assert len(lst) == 4
-    assert lst[0] == "these"
-    assert lst[1] == "are"
-    assert lst[2] == "things"
-    assert lst[3] == ""
-    # TEST CLEANING INVALID ARRAY
-    lst = clean_list(None)
-    assert len(lst) == 0
+    # Test cleaning list
+    lst = clean_list(["these", "are", "things", "", None, "are"])
+    assert lst == ["these", "are", "things", ""]
+    lst = clean_list([None, None, "Not", "not", "same", "Same", "but", "but", "but"])
+    assert lst == ["Not", "not", "same", "Same", "but"]
+    # Test cleaning an invalid list
+    assert clean_list(None) == []
+    assert clean_list() == []
 
 def test_list_to_string():
     """
@@ -57,3 +48,4 @@ def all_tests():
     """
     test_clean_list()
     test_list_to_string()
+

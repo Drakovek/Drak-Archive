@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
+from dvk_archive.main.processing.string_processing import regex_replace
 from dvk_archive.main.processing.string_processing import remove_whitespace
 from html import unescape
 from typing import List
+from re import findall
 
 def escape_to_char(escape:str=None) -> str:
     """
@@ -14,16 +16,17 @@ def escape_to_char(escape:str=None) -> str:
     :return: Unicode escape character
     :rtype: str
     """
-    # RETURNS GIVEN STRING IF GIVEN STRING IS NOT A VALID HTML ESCAPE CHARACTER
-    if(escape is None
-           or len(escape) < 3
-           or not escape[0] == "&"
-           or not escape[-1] == ";"):
+    try:
+        # Find escape character for given string
+        match = findall("^&[^&;]+;$", escape)
+        replace = unescape(match[0])
+        # Return empty string valid replacement wasn't found
+        if replace == escape:
+            return ""
+        # Return replacement character
+        return replace
+    except (IndexError, TypeError):
         return ""
-    replace = unescape(escape)
-    if replace == escape:
-        return ""
-    return replace
 
 def replace_escapes(text:str=None) -> str:
     """
@@ -34,25 +37,25 @@ def replace_escapes(text:str=None) -> str:
     :return: String with HTML escape characters replaced
     :rtype: str
     """
-    # RETURNS EMPTY STRING IF GIVEN STRING IS NONE
-    if text is None:
+    return regex_replace(escape_to_char, "&[^&;]+;", text)
+
+def char_to_escape(char:str=None) -> str:
+    """
+    Converts a single character into an HTML escape string.
+
+    :param char: Single character to convert into an HTML escape, defaults to None
+    :type char: str, optional
+    :return: HTML escape string for the given character
+    :rtype: str
+    """
+    try:
+        # Convert character to HTML escape
+        value = str(ord(char))
+        escape = f"&#{value};"
+        return escape
+    except TypeError:
+        # Returns empty string if given character is invalid
         return ""
-    # RUN WHILE STRING CONTAINS HTML ESCAPE CHARACTERS
-    out = text
-    start = out.find("&")
-    while not start == -1:
-        # GET AND CONVERT HTML ESCAPE CHARACTER
-        end = out.find(";", start)
-        if not end == -1:
-            end = end + 1
-            replaced = out[0:start]
-            replaced = replaced + escape_to_char(out[start:end])
-            replaced = replaced + out[end:len(out)]
-            out = replaced
-            start = out.find("&")
-        else:
-            start = -1
-    return out
 
 def add_escapes(text:str=None) -> str:
     """
@@ -63,6 +66,8 @@ def add_escapes(text:str=None) -> str:
     :return: String with added HTML escape characters
     :rtype: str
     """
+    return regex_replace(char_to_escape, "[^A-Za-z0-9 ]", text)
+    
     # RETURNS AN EMPTY STRING IF THE GIVEN STRING IS NONE
     if text is None:
         return ""
@@ -94,31 +99,25 @@ def get_blocks(text:str=None) -> List[str]:
     :return: List of string blocks from HTML text.
     :rtype: List[str]
     """
-    blocks = []
-    html = text
     try:
-        while len(html) > 0:
-            # Find first start of HTML block if available
-            start = html.find("<")
-            if start == -1:
-                start = len(html)
-            # Add non-HTML block if available
-            if start > 0:
-                blocks.append(html[:start])
-                html = html[start:]
-            # Add HTML block if available
-            end = html.find(">")
-            if end == -1:
-                end = len(html) - 1
-            blocks.append(html[:end+1])
-            html = html[end+1:]
-        # Remove blank blocks
-        index = 0
-        while index < len(blocks):
-            if blocks[index] == "":
+        # Get all HTML elements
+        elements = findall("<[^<>]+>", text)
+        # Separate out elements from text
+        blocks = []
+        left_text = text
+        for element in elements:
+            index = left_text.find(element)
+            blocks.append(left_text[:index])
+            blocks.append(element)
+            left_text = left_text[index+len(element):]
+        blocks.append(left_text)
+        # Remove empty items from block list
+        while True:
+            try:
+                index = blocks.index("")
                 del blocks[index]
-                continue
-            index += 1
+            except ValueError:
+                break
         # Return blocks
         return blocks
     except TypeError:
