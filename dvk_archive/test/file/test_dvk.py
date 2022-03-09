@@ -1110,6 +1110,32 @@ def test_write_media():
     assert stat(secondary_dvk.get_secondary_file()).st_size == 85007
     assert basename(secondary_dvk.get_secondary_file()) == "secondary.jpg"
     assert secondary_dvk.get_time() == "2014/08/04|00:49"
+    assert secondary_dvk.get_direct_url() == "http://www.pythonscraping.com/img/gifts/img6.jpg"
+    assert secondary_dvk.get_secondary_url() == "http://www.pythonscraping.com/img/gifts/img4.jpg"
+    # TEST WRITING MEDIA WITH A DATA URI
+    data_dvk = Dvk()
+    data_dvk.set_dvk_file(join(test_dir, "data.dvk"))
+    data_dvk.set_dvk_id("DAT125")
+    data_dvk.set_title("Data")
+    data_dvk.set_artist("Artist")
+    data_dvk.set_page_url("/url/")
+    data_dvk.set_media_file("primary_dot")
+    data_dvk.set_secondary_file("secondary_dot")
+    url = "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACN"\
+                +"byblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4"\
+                +"OHwAAAABJRU5ErkJggg=="
+    data_dvk.set_direct_url(url)
+    data_dvk.set_secondary_url(url)
+    data_dvk.write_media()
+    assert exists(data_dvk.get_dvk_file())
+    assert exists(data_dvk.get_media_file())
+    assert exists(data_dvk.get_secondary_file())
+    assert stat(data_dvk.get_media_file()).st_size == 85
+    assert stat(data_dvk.get_secondary_file()).st_size == 85
+    assert basename(data_dvk.get_media_file()) == "primary_dot.png"
+    assert basename(data_dvk.get_secondary_file()) == "secondary_dot.png"
+    assert data_dvk.get_direct_url() is None
+    assert data_dvk.get_secondary_url() is None
 
 def test_delete_dvk():
     """

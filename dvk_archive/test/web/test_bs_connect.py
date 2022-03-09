@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
-from os import stat
-from os.path import abspath, exists, join
+from os import pardir, stat
+from os.path import abspath, basename, exists, join
 from dvk_archive.test.temp_dir import get_test_dir
 from dvk_archive.main.web.bs_connect import bs_connect
 from dvk_archive.main.web.bs_connect import basic_connect
+from dvk_archive.main.web.bs_connect import convert_data_uri
 from dvk_archive.main.web.bs_connect import download
 from dvk_archive.main.web.bs_connect import get_default_headers
 from dvk_archive.main.web.bs_connect import get_direct_response
@@ -75,6 +76,51 @@ def test_json_connect():
     json = json_connect(None)
     assert json is None
 
+def test_convert_data_uri():
+    """
+    Tests the convert_data_uri function.
+    """
+    # Test saving a jpeg image data URI
+    test_dir = get_test_dir()
+    uri = "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDADIiJSwlHzI"\
+                +"sKSw4NTI7S31RS0VFS5ltc1p9tZ++u7Kfr6zI4f/zyNT/16yv+v/9//////"\
+                +"//wfD/////////////2wBDATU4OEtCS5NRUZP/zq/O/////////////////"\
+                +"///////////////////////////////////////////////////wAARCAAY"\
+                +"AEADAREAAhEBAxEB/8QAGQAAAgMBAAAAAAAAAAAAAAAAAQMAAgQF/8QAJRA"\
+                +"BAAIBBAEEAgMAAAAAAAAAAQIRAAMSITEEEyJBgTORUWFx/8QAFAEBAAAAAA"\
+                +"AAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDE"\
+                +"QA/AOgM52xQDrjvAV5Xv0vfKUALlTQfeBm0HThMNHXkL0Lw/swN5qgA8yT4"\
+                +"MCS1OEOJV8mBz9Z05yfW8iSx7p4j+jA1aD6Wj7ZMzstsfvAas4UyRHvjrAk"\
+                +"C9KhpLMClQntlqFc2X1gUj4viwVObKrddH9YDoHvuujAEuNV+bLwFS8XxdS"\
+                +"r+Cq3Vf+4F5RgQl6ZR2p1eAzU/HX80YBYyJLCuexwJCO2O1bwCRidAfWBSc"\
+                +"tswbI12GAJT3yiwFR7+MBjGK2g/WAJR3FdF84E2rK5VR0YH/9k="
+    new_file = convert_data_uri(uri, join(test_dir, "face"))
+    assert exists(new_file)
+    assert abspath(join(new_file, pardir)) == test_dir
+    assert basename(new_file) == "face"
+    assert stat(new_file).st_size == 512
+    # Test saving a PNG image data URI
+    uri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbybl"\
+                +"AAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAAB"\
+                +"JRU5ErkJggg=="
+    new_file = convert_data_uri(uri, join(test_dir, "dot"))
+    assert exists(new_file)
+    assert abspath(join(new_file, pardir)) == test_dir
+    assert basename(new_file) == "dot"
+    assert stat(new_file).st_size == 85
+    # Test with non base64 data
+    uri = "data:text/plain;charset=UTF-8;page=21,the%20data:1234,5678"
+    new_file = convert_data_uri(uri, join(test_dir, "not-base"))
+    assert not exists(new_file)
+    assert new_file == ""
+    # Test with invalid parameters
+    uri = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbybl"\
+                +"AAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAAB"\
+                +"JRU5ErkJggg=="
+    assert convert_data_uri(None, join(test_dir, "blah")) == ""
+    assert convert_data_uri(uri, "/non/existant/non-existant") == ""
+    assert convert_data_uri(uri, None) == ""
+
 def test_download():
     """
     Tests the download function.
@@ -86,6 +132,14 @@ def test_download():
     download(url, file)
     assert exists(file)
     assert stat(file).st_size == 39785
+    # Test downloading from a data URI
+    url = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbybl"\
+                +"AAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAAB"\
+                +"JRU5ErkJggg=="
+    file = abspath(join(test_dir, "dot"))
+    download(url, file)
+    assert exists(file)
+    assert stat(file).st_size == 85
     # Test downloading with invalid parameters
     file = join(test_dir, "invalid.jpg")
     download(None, None)
@@ -140,6 +194,7 @@ def all_tests():
     """
     Runs all tests for the bs_connect module.
     """
+    test_convert_data_uri()
     test_get_direct_response()
     test_basic_connect()
     test_bs_connect()

@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 
+from binascii import a2b_base64
+from binascii import Error as BinError
 from bs4 import BeautifulSoup
 from dvk_archive.main.color_print import color_print
 from dvk_archive.main.processing.string_processing import pad_num
 from io import BytesIO
 from json import loads
 from os.path import abspath, exists
+from re import findall
 from requests import exceptions
 from requests import Response
 from requests import Session
@@ -125,6 +128,35 @@ def json_connect(url:str=None, encoding:str="utf-8", data:dict=None) -> dict:
     except:
         return None
 
+def convert_data_uri(data_uri:str=None, filepath:str=None) -> str:
+    """
+    Converts data from a data URI into a file at the given filepath.
+
+    :param data_uri: URI containing base64 data, defaults to None
+    :type data_uri: str, optional
+    :param filepath: Path of the file to create minus the extension, defaults to None
+    :type filepath: str, optional
+    :return: Path of the created file
+    :rtype: str
+    """
+    try:
+        # Get data URI parameters
+        params = findall("(?<=[:;])[^;:,]+(?=[,;])", data_uri)
+        # Get data from URI
+        data = findall("(?<=,).+", data_uri)[0]
+        if "base64" in params:
+            # Convert ASCII data to binary data
+            binary = a2b_base64(data)
+            # Save binary data as file
+            new_file = abspath(filepath)
+            with open(new_file, "wb") as file:
+                file.write(binary)
+            return new_file
+        # Return empty string if file couldn't be written
+        return ""
+    except (BinError, FileNotFoundError, TypeError):
+        return ""
+
 def download(url:str=None, file_path:str=None) -> dict:
     """
     Downloads a file from given URL to given file.
@@ -136,24 +168,30 @@ def download(url:str=None, file_path:str=None) -> dict:
     :return: Headers retrieved from the given media URL
     :rtype: dict
     """
-    if (url is not None and file_path is not None):
+    try:
         file = abspath(file_path)
-        # Save file
-        try:
-            session = Session()
-            headers = get_default_headers()
-            response = session.get(url, headers=headers)
-            byte_obj = BytesIO(response.content)
-            byte_obj.seek(0)
-            with open(file, "wb") as f:
-                copyfileobj(byte_obj, f)
-            return response.headers
-        except (HTTPError,
+        # Convert URI if it is a data URI
+        if url.startswith("data:"):
+            convert_data_uri(url, file_path)
+            return dict()
+        # Try downloading normally
+        session = Session()
+        headers = get_default_headers()
+        response = session.get(url, headers=headers)
+        byte_obj = BytesIO(response.content)
+        byte_obj.seek(0)
+        with open(file, "wb") as f:
+            copyfileobj(byte_obj, f)
+        return response.headers
+    except (AttributeError,
+                HTTPError,
                 exceptions.ConnectionError,
                 exceptions.MissingSchema,
-                ConnectionResetError):
+                ConnectionResetError,
+                TypeError):
+        if url is not None:
             color_print("Failed to download:" + url, "r")
-        return dict()
+    return dict()
 
 def get_last_modified(headers:dict=None) -> str:
     """

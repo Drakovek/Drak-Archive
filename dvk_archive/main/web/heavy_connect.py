@@ -210,5 +210,4 @@ class HeavyConnect:
             # Move file to given path
             move(file, abspath(file_path))
         except:
-            print_exc()
             self.get_download_dir()
