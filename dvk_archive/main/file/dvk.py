@@ -284,10 +284,12 @@ class Dvk:
         :param dvk_id: Dvk ID, defaults to None
         :type dvk_id: str, optional
         """
-        if dvk_id is None or dvk_id == "":
-            self.dvk_id = None
-        else:
-            self.dvk_id = dvk_id.upper()
+        try:
+            self.dvk_id = remove_whitespace(dvk_id.upper())
+            if self.dvk_id == "":
+                self.dvk_id = None
+        except AttributeError:
+            self.dvk_id = None            
 
     def get_dvk_id(self) -> str:
         """
@@ -306,6 +308,8 @@ class Dvk:
         :type title: str, optional
         """
         self.title = title
+        if self.title is not None:
+            self.title = remove_whitespace(self.title)
 
     def get_title(self) -> str:
         """
@@ -323,10 +327,7 @@ class Dvk:
         :param artist: Dvk artist, defaults to None
         :type artist: str, optional
         """
-        if artist is None:
-            self.artists = []
-        else:
-            self.artists = [artist]
+        self.set_artists([artist])
 
     def set_artists(self, artists:List[str]=None):
         """
@@ -335,12 +336,9 @@ class Dvk:
         :param artists: Dvk artists, defaults to None
         :type artists: list[str], optional
         """
-        if artists is None:
-            self.artists = []
-        else:
-            # Sort artists as well as removing duplicates
-            array = sorted(clean_list(artists), key=str.casefold)
-            self.artists = array
+        # Sort artists as well as removing duplicates
+        array = sorted(clean_list(artists, True), key=str.casefold)
+        self.artists = array
             
 
     def get_artists(self) -> List[str]:
@@ -438,11 +436,7 @@ class Dvk:
         :param web_tags: Dvk web tags, defaults to None
         :type web_tags: list[str], optional
         """
-        tags = clean_list(web_tags)
-        if tags is None or tags == []:
-            self.web_tags = []
-        else:
-            self.web_tags = tags
+        self.web_tags = clean_list(web_tags, True)
 
     def get_web_tags(self) -> List[str]:
         """
@@ -460,15 +454,9 @@ class Dvk:
         :param description: Dvk description, defaults to None
         :type description: str, optional
         """
-        if description is None:
+        self.description = add_escapes_to_html(remove_whitespace(description))
+        if self.description == "":
             self.description = None
-        else:
-            # REMOVE WHITESPACE
-            desc = remove_whitespace(description)
-            if len(desc) == 0:
-                self.description = None
-            else:
-                self.description = add_escapes_to_html(desc)
 
     def get_description(self) -> str:
         """
@@ -486,10 +474,9 @@ class Dvk:
         :param page_url: Page URL, defaults to None
         :type page_url: str, optional
         """
-        if page_url is None or page_url == "":
+        self.page_url = page_url
+        if self.page_url == "":
             self.page_url = None
-        else:
-            self.page_url = page_url
 
     def get_page_url(self) -> str:
         """
@@ -507,10 +494,9 @@ class Dvk:
         :param direct_url: Direct media URL, defaults to None
         :type direct_url: str, optional
         """
-        if direct_url is None or direct_url == "":
+        self.direct_url = direct_url
+        if self.direct_url == "":
             self.direct_url = None
-        else:
-            self.direct_url = direct_url
 
     def get_direct_url(self) -> str:
         """
@@ -528,10 +514,9 @@ class Dvk:
         :param secondary_url: Direct secondary media URL, defaults to None
         :type secondary_url: str, optional
         """
-        if secondary_url is None or secondary_url == "":
+        self.secondary_url = secondary_url
+        if self.secondary_url == "":
             self.secondary_url = None
-        else:
-            self.secondary_url = secondary_url
 
     def get_secondary_url(self) -> str:
         """
@@ -550,10 +535,9 @@ class Dvk:
         :param filename: Filename for the associated media, defaults to None
         :type filename: str, optional
         """
-        if filename is None or filename == "":
+        self.media_file = filename
+        if self.media_file == "":
             self.media_file = None
-        else:
-            self.media_file = filename
 
     def get_media_file(self) -> str:
         """
@@ -578,10 +562,9 @@ class Dvk:
         :param filename: Filename for the secondary associated media, defaults to None
         :type filename: str, optional
         """
-        if filename is None or filename == "":
+        self.secondary_file = filename
+        if self.secondary_file == "":
             self.secondary_file = None
-        else:
-            self.secondary_file = filename
 
     def get_secondary_file(self) -> str:
         """
@@ -746,10 +729,9 @@ class Dvk:
         :param seq_title: Sequence title, defaults to None
         :type seq_title: str, optional
         """
-        if seq_title is None or seq_title == "":
+        self.seq_title = remove_whitespace(seq_title)
+        if self.seq_title == "":
             self.seq_title = None
-        else:
-            self.seq_title = remove_whitespace(seq_title)
 
     def get_sequence_title(self) -> str:
         """
@@ -767,10 +749,9 @@ class Dvk:
         :param section_title: Section title, defaults to None
         :type section_title: str, optional
         """
-        if section_title is None or section_title == "":
+        self.section_title = remove_whitespace(section_title)
+        if self.section_title == "":
             self.section_title = None
-        else:
-            self.section_title = remove_whitespace(section_title)
 
     def get_section_title(self) -> str:
         """

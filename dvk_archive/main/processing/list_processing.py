@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 
 from dvk_archive.main.processing.html_processing import add_escapes
+from dvk_archive.main.processing.string_processing import remove_whitespace as rw
 from typing import List
 
-def clean_list(lst:List[str]=None) -> List[str]:
+def clean_list(lst:List[str]=None, remove_whitespace:bool=True) -> List[str]:
     """
-    Removes all duplicate and null entries from a String array.
+    Removes all duplicate, None, and blank entries from a String array.
 
     :param lst: Given string list
     :type lst: list[str], optional
+    :param remove_whitespace: Whether to remove whitespace from list entries, defaults to True
+    :type remove_whitespace: bool, optional
     :return: List without duplicate or None entries
     :rtype: list[str]
     """
@@ -18,6 +21,18 @@ def clean_list(lst:List[str]=None) -> List[str]:
         while True:
             try:
                 index = out.index(None)
+                del out[index]
+            except ValueError:
+                break
+        # Remove whitespace if specified
+        if remove_whitespace:
+            size = len(out)
+            for i in range(0, size):
+                out[i] = rw(out[i])
+        # Remove entries with blank value
+        while True:
+            try:
+                index = out.index("")
                 del out[index]
             except ValueError:
                 break

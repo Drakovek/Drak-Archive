@@ -8,10 +8,18 @@ def test_clean_list():
     Tests the clean_list function.
     """
     # Test cleaning list
-    lst = clean_list(["these", "are", "things", "", None, "are"])
-    assert lst == ["these", "are", "things", ""]
+    lst = clean_list(["these", "are", "things", None, "are"])
+    assert lst == ["these", "are", "things"]
     lst = clean_list([None, None, "Not", "not", "same", "Same", "but", "but", "but"])
     assert lst == ["Not", "not", "same", "Same", "but"]
+    # Test removing empty strings from list
+    lst = clean_list(["", "Item", "", "next", None])
+    assert lst == ["Item", "next"]
+    # Test removing whitespace from list
+    lst = clean_list(["   ", "  Other", " Items  ", "whitespace   ", "    "], True)
+    assert lst == ["Other", "Items", "whitespace"]
+    lst = clean_list(["   ", "  Other", " Items  ", "whitespace   ", "    "], False)
+    assert lst == ["   ", "  Other", " Items  ", "whitespace   ", "    "]
     # Test cleaning an invalid list
     assert clean_list(None) == []
     assert clean_list() == []

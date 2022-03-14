@@ -8,6 +8,7 @@ import setuptools
 
 console_scripts = ["dvk-archive-test = dvk_archive.test.all_tests:main",
             "dvk-html = dvk_archive.main.file.dvk_html:main",
+            "dvk-create = dvk_archive.main.file.manual_dvk:main",
             "dvk-missing-media = dvk_archive.main.error_finding.missing_media:main",
             "dvk-rename = dvk_archive.main.file.rename:main",
             "dvk-reformat = dvk_archive.main.file.reformat:main",
@@ -25,7 +26,7 @@ desc = "Utility for loading and handling media files in the DVK file format."
 
 setuptools.setup(
     name="dvk-archive",
-    version="0.12.5",
+    version="0.13.0",
     author="Drakovek",
     author_email="DrakovekMail@gmail.com",
     description=desc,

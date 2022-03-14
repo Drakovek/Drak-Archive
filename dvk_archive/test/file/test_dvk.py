@@ -84,20 +84,25 @@ def test_get_set_dvk_id():
     """
     Tests the get_dvk_id and set_dvk_id methods.
     """
-    # TEST EMPTY ID WITH CONSTRUCTOR
+    # Test setting empty ID with constructor
     dvk = Dvk()
     assert dvk.get_dvk_file() is None
-    # TEST GETTING AND SETTING DVK ID
+    # Test getting and setting Dvk ID
     dvk.set_dvk_id("id1234")
     assert dvk.get_dvk_id() == "ID1234"
     dvk.set_dvk_id("TST128-J")
     assert dvk.get_dvk_id() == "TST128-J"
-    # TEST INVALID IDS
+    # Test setting ID with whitespace
+    dvk.set_dvk_id(" thg124  ")
+    assert dvk.get_dvk_id() == "THG124"
+    dvk.set_dvk_id("   ")
+    assert dvk.get_dvk_id() is None
+    # Test invalid IDs
     dvk.set_dvk_id(None)
     assert dvk.get_dvk_id() is None
     dvk.set_dvk_id("")
     assert dvk.get_dvk_id() is None
-    # WRITE DVK FILE
+    # Write Dvk file
     test_dir = get_test_dir()
     dvk.set_dvk_file(join(test_dir, "id_dvk.dvk"))
     dvk.set_dvk_id("WRITE456")
@@ -107,7 +112,7 @@ def test_get_set_dvk_id():
     dvk.set_media_file("file.txt")
     dvk.write_dvk()
     assert exists(dvk.get_dvk_file())
-    # TEST READING DVK ID
+    # Test reading Dvk ID
     read_dvk = Dvk(dvk.get_dvk_file())
     dvk = None
     assert read_dvk.get_dvk_id() == "WRITE456"
@@ -116,17 +121,22 @@ def test_get_set_title():
     """
     Tests the get_title and set_title methods.
     """
-    # TEST EMPTY TITLE FROM CONSTRUCTOR
+    # Test empty title from constructor
     dvk = Dvk()
     assert dvk.get_title() is None
-    # TEST GETTING AND SETTING TITLE
+    # Test getting and setting title
     dvk.set_title("Test Title")
     assert dvk.get_title() == "Test Title"
     dvk.set_title(None)
     assert dvk.get_title() is None
     dvk.set_title("")
     assert dvk.get_title() == ""
-    # WRITE DVK
+    # Test title with whitespace
+    dvk.set_title("  To much space ")
+    assert dvk.get_title() == "To much space"
+    dvk.set_title("    ")
+    assert dvk.get_title() == ""
+    # Write Dvk
     test_dir = get_test_dir()
     dvk.set_dvk_file(join(test_dir, "ttl_dvk.dvk"))
     dvk.set_dvk_id("id123")
@@ -136,7 +146,7 @@ def test_get_set_title():
     dvk.set_media_file("file.txt")
     dvk.write_dvk()
     assert exists(dvk.get_dvk_file())
-    # TEST READING TITLE FROM DVK FILE
+    # Test reading title from Dvk file
     read_dvk = Dvk(dvk.get_dvk_file())
     dvk = None
     assert read_dvk.get_title() == "Title #2"
@@ -145,37 +155,37 @@ def test_get_set_artists():
     """
     Tests the get_artists, set_artist and set_artists methods.
     """
-    # TEST EMPTY ARTISTS FROM CONSTRUCTOR
+    # Test empty artists from constructor
     dvk = Dvk()
     assert len(dvk.get_artists()) == 0
-    # TEST GETTING AND SETTING SINGLE ARTIST
+    # Test getting and setting a single artist
     dvk.set_artist("Artist Person")
     assert len(dvk.get_artists()) == 1
     assert dvk.get_artists()[0] == "Artist Person"
     dvk.set_artist("")
-    assert len(dvk.get_artists()) == 1
-    assert dvk.get_artists()[0] == ""
-    # TEST GETTING AND SETTING MULTIPLE ARTISTS
-    artists = ["artist10"]
-    artists.append("artist10")
-    artists.append("")
-    artists.append(None)
-    artists.append("artist1")
-    artists.append("test1.0.20-stuff")
-    artists.append("test10.0.0-stuff")
+    assert len(dvk.get_artists()) == 0
+    # Test getting and setting multiple artists
+    artists = ["artist10", "artist10", "", None, "artist1",
+                "test1.0.20-stuff", "test10.0.0-stuff"]
     dvk.set_artists(artists)
-    assert len(dvk.get_artists()) == 5
-    assert dvk.get_artists()[0] == ""
-    assert dvk.get_artists()[1] == "artist1"
-    assert dvk.get_artists()[2] == "artist10"
-    assert dvk.get_artists()[3] == "test1.0.20-stuff"
-    assert dvk.get_artists()[4] == "test10.0.0-stuff"
-    # TEST SETTING INVALID ARTIST VALUES
+    assert len(dvk.get_artists()) == 4
+    assert dvk.get_artists()[0] == "artist1"
+    assert dvk.get_artists()[1] == "artist10"
+    assert dvk.get_artists()[2] == "test1.0.20-stuff"
+    assert dvk.get_artists()[3] == "test10.0.0-stuff"
+    # Test getting and setting artists with whitespace
+    artists = ["   ABC   ", "    ", "thing  ", "  other"]
+    dvk.set_artists(artists)
+    assert len(dvk.get_artists()) == 3
+    assert dvk.get_artists()[0] == "ABC"
+    assert dvk.get_artists()[1] == "other"
+    assert dvk.get_artists()[2] == "thing"
+    # Test setting invalid artist values
     dvk.set_artist(None)
     assert len(dvk.get_artists()) == 0
     dvk.set_artists(None)
     assert len(dvk.get_artists()) == 0
-    # WRITE DVK
+    # Write Dvk
     test_dir = get_test_dir()
     dvk.set_dvk_file(join(test_dir, "artist.dvk"))
     dvk.set_dvk_id("id123")
@@ -187,7 +197,7 @@ def test_get_set_artists():
     dvk.set_media_file("file.txt")
     dvk.write_dvk()
     assert exists(dvk.get_dvk_file())
-    # TEST READING ARTISTS FROM DVK FILE
+    # Test reading artists from a Dvk file
     read_dvk = Dvk(dvk.get_dvk_file())
     dvk = None
     assert len(read_dvk.get_artists()) == 2
@@ -280,16 +290,22 @@ def test_get_set_web_tags():
     """
     Tests the get_web_tags and set_web_tags methods.
     """
-    # TEST EMPTY WEB TAGS FROM CONSTRUCTOR
+    # Test empty web tags from constructor
     dvk = Dvk()
     assert dvk.get_web_tags() == []
-    # TEST GETTING AND SETTING WEB TAGS
+    # Test getting and setting web tags
     tags = ["tag2", "Tag1", "tag2", None]
     dvk.set_web_tags(tags)
     assert len(dvk.get_web_tags()) == 2
     assert dvk.get_web_tags()[0] == "tag2"
     assert dvk.get_web_tags()[1] == "Tag1"
-    # TEST INVALID TAGS
+    # Test Setting web tags with whitespace
+    tags = ["other tag   ", "  thing", "  "]
+    dvk.set_web_tags(tags)
+    assert len(dvk.get_web_tags()) == 2
+    assert dvk.get_web_tags()[0] == "other tag"
+    assert dvk.get_web_tags()[1] == "thing"
+    # Test invalid tags
     dvk.set_web_tags(None)
     assert dvk.get_web_tags() == []
     dvk.set_web_tags([])
@@ -297,7 +313,7 @@ def test_get_set_web_tags():
     tags = [None]
     dvk.set_web_tags(tags)
     assert dvk.get_web_tags() == []
-    # WRITE DVK
+    # Write Dvk
     test_dir = get_test_dir()
     dvk.set_dvk_file(join(test_dir, "tags.dvk"))
     dvk.set_dvk_id("id123")
@@ -310,7 +326,7 @@ def test_get_set_web_tags():
     dvk.set_web_tags(tags)
     dvk.write_dvk()
     assert exists(dvk.get_dvk_file())
-    # TEST READING WEB TAGS FROM DVK FILE
+    # Test reading web tags from Dvk file
     read_dvk = Dvk(dvk.get_dvk_file())
     dvk = None
     assert len(read_dvk.get_web_tags()) == 2
@@ -321,22 +337,22 @@ def test_get_set_description():
     """
     Tests the get_description and set_descritpion methods.
     """
-    # TEST DEFAULT DESCRIPTION FROM CONSTRUCTOR
+    # Test default description from constructor
     dvk = Dvk()
     assert dvk.get_description() is None
-    # TEST GETTING AND SETTING DESCRIPTION
+    # Test getting and setting description
     dvk.set_description("   <i>Baño</i>  ")
     assert dvk.get_description() == "<i>Ba&#241;o</i>"
     dvk.set_description("<i>Ba&#241;o</i>")
     assert dvk.get_description() == "<i>Ba&#241;o</i>"
-    # TEST SETTING EMPTY DESCRIPTION
+    # Test setting empty description
     dvk.set_description(None)
     assert dvk.get_description() is None
     dvk.set_description("")
     assert dvk.get_description() is None
     dvk.set_description("   ")
     assert dvk.get_description() is None
-    # WRITE DVK
+    # Write Dvk
     test_dir = get_test_dir()
     dvk.set_dvk_file(join(test_dir, "desc.dvk"))
     dvk.set_dvk_id("id123")
@@ -347,7 +363,7 @@ def test_get_set_description():
     dvk.set_description("Other Description")
     dvk.write_dvk()
     assert exists(dvk.get_dvk_file())
-    # TEST READING DESCRIPTION FROM DVK FILE
+    # Test reading description from Dvk file
     read_dvk = Dvk(dvk.get_dvk_file())
     dvk = None
     assert read_dvk.get_description() == "Other Description"
@@ -356,18 +372,18 @@ def test_get_set_page_url():
     """
     Tests the get_page_url and set_page_url methods.
     """
-    # TEST EMPTY PAGE URL FROM CONSTRUCTOR
+    # Test empty page URL from constructor
     dvk = Dvk()
     assert dvk.get_page_url() is None
-    # TEST GETTING AND SETTING PAGE URL
+    # Test getting and setting page URL
     dvk.set_page_url("/Page/URL")
     assert dvk.get_page_url() == "/Page/URL"
-    # TEST SETTING INVALID URL
+    # Test setting invalid URL
     dvk.set_page_url(None)
     assert dvk.get_page_url() is None
     dvk.set_page_url("")
     assert dvk.get_page_url() is None
-    # WRITE DVK
+    # Write Dvk
     test_dir = get_test_dir()
     dvk.set_dvk_file(join(test_dir, "page.dvk"))
     dvk.set_dvk_id("id123")
@@ -377,7 +393,7 @@ def test_get_set_page_url():
     dvk.set_media_file("file.txt")
     dvk.write_dvk()
     assert exists(dvk.get_dvk_file())
-    # TEST READING PAGE URL FROM DVK FILE
+    # Test reading page URL from Dvk file
     read_dvk = Dvk(dvk.get_dvk_file())
     dvk = None
     assert read_dvk.get_page_url() == "test.net/url/Page"
@@ -386,18 +402,18 @@ def test_get_set_direct_url():
     """
     Tests the get_direct_url and set_direct_url methods.
     """
-    # TEST EMPTY DIRECT URL FROM CONSTRUCTOR
+    # Test empty direct URL from constructor
     dvk = Dvk()
     assert dvk.get_direct_url() is None
-    # TEST GETTING AND SETTING DIRECT URL
+    # Test getting and setting direct URL
     dvk.set_direct_url("/direct/URL")
     assert dvk.get_direct_url() == "/direct/URL"
-    # TEST SETTING INVALID DIRECT URL
+    # Test setting invalid direct URL
     dvk.set_direct_url(None)
     assert dvk.get_direct_url() is None
     dvk.set_direct_url("")
     assert dvk.get_direct_url() is None
-    # WRITE DVK
+    # Write Dvk
     test_dir = get_test_dir()
     dvk.set_dvk_file(join(test_dir, "direct.dvk"))
     dvk.set_dvk_id("id123")
@@ -408,7 +424,7 @@ def test_get_set_direct_url():
     dvk.set_direct_url("test.net/url/Direct")
     dvk.write_dvk()
     assert exists(dvk.get_dvk_file())
-    # TEST READING DIRECT URL
+    # Test reading direct URL
     read_dvk = Dvk(dvk.get_dvk_file())
     dvk = None
     assert read_dvk.get_direct_url() == "test.net/url/Direct"
@@ -417,18 +433,18 @@ def test_get_set_secondary_url():
     """
     Tests the get_secondary_url and set_secondary_url methods.
     """
-    # TEST EMPTY SECONDARY URL FROM CONSTRUCTOR
+    # Test empty secondary URL from constructor
     dvk = Dvk()
     assert dvk.get_secondary_url() is None
-    # TEST GETTING AND SETTING SECONDARY URL
+    # Test getting and setting secondary URL
     dvk.set_secondary_url("/Page/URL")
     assert dvk.get_secondary_url() == "/Page/URL"
-    # TEST SETTING INVALID SECONDARY URL
+    # Test setting invalid secondary URL
     dvk.set_secondary_url(None)
     assert dvk.get_secondary_url() is None
     dvk.set_secondary_url("")
     assert dvk.get_secondary_url() is None
-    # WRITE DVK
+    # Write Dvk
     test_dir = get_test_dir()
     dvk.set_dvk_file(join(test_dir, "sec.dvk"))
     dvk.set_dvk_id("id123")
@@ -439,7 +455,7 @@ def test_get_set_secondary_url():
     dvk.set_secondary_url("test.net/url/second")
     dvk.write_dvk()
     assert exists(dvk.get_dvk_file())
-    # TEST READING SECONDARY URL FROM DVK FILE
+    # Test reading secondary URL from Dvk file
     read_dvk = Dvk(dvk.get_dvk_file())
     dvk = None
     assert read_dvk.get_secondary_url() == "test.net/url/second"
@@ -783,6 +799,8 @@ def test_get_set_sequence_title():
     assert dvk.get_sequence_title() == "Title!"
     dvk.set_sequence_title(" other   ")
     assert dvk.get_sequence_title() == "other"
+    dvk.set_sequence_title("    ")
+    assert dvk.get_sequence_title() == None
     dvk.set_sequence_title("")
     assert dvk.get_sequence_title() == None
     # Write DVK
@@ -814,6 +832,8 @@ def test_get_set_section_title():
     assert dvk.get_section_title() == "Title!"
     dvk.set_section_title(" other   ")
     assert dvk.get_section_title() == "other"
+    dvk.set_section_title("     ")
+    assert dvk.get_section_title() == None
     dvk.set_section_title("")
     assert dvk.get_section_title() == None
     # Write DVK
