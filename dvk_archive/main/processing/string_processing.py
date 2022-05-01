@@ -190,7 +190,7 @@ def get_extension(filename:str=None) -> str:
     if filename is None:
         return ""
     # Find extension
-    match = findall("\\.[a-zA-Z]{1,5}\\?|\\.[a-zA-Z]{1,5}$", filename)
+    match = findall("\\.[a-zA-Z0-9]{1,5}\\?|\\.[a-zA-Z0-9]{1,5}$", filename)
     if len(match) == 0:
         return ""
     # Return extension

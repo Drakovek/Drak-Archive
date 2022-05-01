@@ -124,10 +124,10 @@ def test_get_extension():
     # Test getting extensions from filenames
     assert get_extension("test.png") == ".png"
     assert get_extension(".long") == ".long"
-    assert get_extension("test.thing") == ".thing"
+    assert get_extension("test2.thing") == ".thing"
     assert get_extension("blah.test.png") == ".png"
     # Test getting extensions from URLs with tokens
-    assert get_extension("test.png?extra.thing") == ".png"
+    assert get_extension("test.mp4?extra_.thing") == ".mp4"
     assert get_extension("thing.test.thing?") == ".thing"
     assert get_extension("another.txt? test.png?extra.thing") == ".png"
     # Test getting invalid extensions
