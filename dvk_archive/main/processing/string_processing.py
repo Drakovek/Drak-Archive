@@ -4,41 +4,6 @@ from math import floor
 from os.path import abspath
 from re import findall, sub
 
-def regex_replace(funct, pattern:str=None, string:str=None) -> str:
-    """
-    Replaces text matching regex pattern with said matching text run though a given function.
-
-    :param funct: Function to run matching text through, required
-    :type funct: function, required
-    :param pattern: Regex pattern to search for in string, defaults to None
-    :type pattern: str, optional
-    :param string: String to search for pattern within, defaults to None
-    :type string: str, optional
-    :return: Given string with pattern matched text replaced
-    :rtype: str
-    """
-    try:
-        # Get all strings that match the regex pattern
-        matched = findall(pattern, string)
-        # Run through all matches to replace text
-        new_text = ""
-        left_text = string
-        for match in matched:
-            # Keep all text before the match
-            index = left_text.find(match)
-            new_text = new_text + left_text[:index]
-            # Add replacement for the match
-            new_text = new_text + funct(match)
-            # Set the remaining text for after the match
-            index += len(match)
-            left_text = left_text[index:]
-        # Keep all the text left in the initial string
-        new_text = new_text + left_text
-        # Return the string with matching patterns replaced
-        return new_text
-    except TypeError:
-        return string
-
 def pad_num(num:str=None, length:int=0) -> str:
     """
     Returns a String for a given String of a given length.
@@ -60,22 +25,6 @@ def pad_num(num:str=None, length:int=0) -> str:
         new_num = f"0{new_num}"
     return new_num
 
-def remove_whitespace(text:str=None) -> str:
-    """
-    Removes the whitespace at the beginning and end of a given String.
-
-    :param text: Given string, defaults to None
-    :type text: str, optional
-    :return: String without whitespace
-    :rtype: str
-    """
-    # Return an empty string if the given string is invalid
-    if text is None:
-        return ""
-    # Remove leading and ending whitespace
-    new_text = sub("^\\s+|\\s+$", "", text)
-    # Return the new text
-    return new_text
 
 def truncate_string(text:str=None, length:int=90) -> str:
     """
@@ -175,30 +124,6 @@ def get_filename(text:str=None, length:int=90) -> str:
         # If final string has no length, return string "0"
         return "0"
     return new_text
-
-def get_extension(filename:str=None) -> str:
-    """
-    Returns the extension for a given filename or direct file URL.
-    If extension does not exist, returns empty.
-
-    :param filename: Given filename, defaults to None
-    :type filename: str, optional
-    :return: Extension for the filename
-    :rtype: str
-    """
-    # Returns an empty string if the filename is invalid
-    if filename is None:
-        return ""
-    # Find extension
-    match = findall("\\.[a-zA-Z0-9]{1,5}\\?|\\.[a-zA-Z0-9]{1,5}$", filename)
-    if len(match) == 0:
-        return ""
-    # Return extension
-    extension = match[0]
-    for item in match:
-        if item.endswith("?"):
-            extension = item[:len(item)-1]
-    return extension
 
 def get_url_directory(url:str=None) -> str:
     """

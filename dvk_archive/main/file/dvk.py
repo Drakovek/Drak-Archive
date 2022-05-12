@@ -5,10 +5,10 @@ from dvk_archive.main.web.bs_connect import download
 from dvk_archive.main.web.bs_connect import get_last_modified
 from dvk_archive.main.processing.list_processing import clean_list
 from dvk_archive.main.processing.string_processing import get_filename
-from dvk_archive.main.processing.string_processing import get_extension
 from dvk_archive.main.processing.string_processing import pad_num
-from dvk_archive.main.processing.string_processing import remove_whitespace
-from dvk_archive.main.processing.html_processing import add_escapes_to_html
+from html_string_tools.main.html_string_tools import get_extension
+from html_string_tools.main.html_string_tools import remove_whitespace
+from html_string_tools.main.html_string_tools import replace_reserved_in_html
 from filetype import guess
 from json import dump, load
 from os import listdir, pardir, rename, remove
@@ -454,7 +454,7 @@ class Dvk:
         :param description: Dvk description, defaults to None
         :type description: str, optional
         """
-        self.description = add_escapes_to_html(remove_whitespace(description))
+        self.description = replace_reserved_in_html(remove_whitespace(description))
         if self.description == "":
             self.description = None
 

@@ -42,10 +42,13 @@ def test_list_to_string():
     string = list_to_string(["other", "indent", "value"], indent=-29)
     assert string == "other,indent,value"
     # Test adding escape characters to items
-    string = list_to_string(["item!", ",,", "Other Item"], True)
-    assert string == "item&#33;,&#44;&#44;,Other Item"
-    string = list_to_string(["Don't", "forget", "Escapes!"], True, 1)
-    assert string == "Don&#39;t, forget, Escapes&#33;"
+    string = list_to_string(["item!", ",,", "Other Item"])
+    assert string == "item!,&#44;&#44;,Other Item"
+    string = list_to_string(["Don't", "forget,the", "Escapes!"], 1)
+    assert string == "Don&#39;t, forget&#44;the, Escapes!"
+    # Make sure comma escape makes it intact
+    string = list_to_string(["&44;Thing!", "&lt;"])
+    assert string == "&#38;44&#59;Thing!,&#38;lt&#59;"
     # Test getting string with invalid list
     assert list_to_string([]) == ""
     assert list_to_string(None) == ""

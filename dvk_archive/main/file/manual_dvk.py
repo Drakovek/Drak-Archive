@@ -5,7 +5,7 @@ from dvk_archive.main.color_print import color_print
 from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.main.file.rename import rename_directory
 from dvk_archive.main.processing.string_processing import get_filename
-from dvk_archive.main.processing.string_processing import remove_whitespace
+from html_string_tools.main.html_string_tools import remove_whitespace
 from os import getcwd, listdir, pardir, remove
 from os.path import abspath, basename, exists, isdir, join
 from traceback import print_exc

@@ -341,10 +341,10 @@ def test_get_set_description():
     dvk = Dvk()
     assert dvk.get_description() is None
     # Test getting and setting description
-    dvk.set_description("   <i>Baño</i>  ")
-    assert dvk.get_description() == "<i>Ba&#241;o</i>"
+    dvk.set_description("   <i>\"Ba&#241;o\"</i>  ")
+    assert dvk.get_description() == "<i>&#34;Baño&#34;</i>"
     dvk.set_description("<i>Ba&#241;o</i>")
-    assert dvk.get_description() == "<i>Ba&#241;o</i>"
+    assert dvk.get_description() == "<i>Baño</i>"
     # Test setting empty description
     dvk.set_description(None)
     assert dvk.get_description() is None

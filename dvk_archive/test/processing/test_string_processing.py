@@ -1,30 +1,10 @@
 #!/usr/bin/env python3
 
 from dvk_archive.main.processing.string_processing import pad_num
-from dvk_archive.main.processing.string_processing import remove_whitespace
 from dvk_archive.main.processing.string_processing import get_filename
 from dvk_archive.main.processing.string_processing import truncate_string
-from dvk_archive.main.processing.string_processing import get_extension
 from dvk_archive.main.processing.string_processing import get_url_directory
-from dvk_archive.main.processing.string_processing import regex_replace
 from dvk_archive.main.processing.string_processing import truncate_path
-
-def test_regex_replace():
-    """
-    Tests the regex replace function.
-    """
-    # Test replacing regex matches
-    replaced = regex_replace(get_extension, "[a-z]+\\.[a-z]+", "eh, bl.ah th.ing not")
-    assert replaced == "eh, .ah .ing not"
-    replaced = regex_replace(get_filename, "[a-z]+\\?[a-z]+|[a-z]+!", "why?not I Don't know!")
-    assert replaced == "why-not I Don't know"
-    # Test replacing strings with no regex match
-    replaced = regex_replace(get_extension, "nope", "got nothing")
-    assert replaced == "got nothing"
-    # Test replacing strings with invalid parameters
-    assert regex_replace(None, "pattern", "string") == "string"
-    assert regex_replace(get_extension, None, "string") == "string"
-    assert regex_replace(get_extension, "pattern", None) is None
 
 def test_pad_num():
     """
@@ -38,23 +18,6 @@ def test_pad_num():
     assert pad_num("A3", 0) == ""
     assert pad_num("F3", -1) == ""
     assert pad_num(None, 2) == ""
-
-def test_remove_whitespace():
-    """
-    Tests the remove_whitespace function.
-    """
-    # Test removing whitespace from the beginning and end of strings
-    assert remove_whitespace("") == ""
-    assert remove_whitespace(" ") == ""
-    assert remove_whitespace(" \t  ") == ""
-    assert remove_whitespace("  blah") == "blah"
-    assert remove_whitespace("blah   ") == "blah"
-    assert remove_whitespace(" \t blah  \t") == "blah"
-    assert remove_whitespace(" Other Text \n") == "Other Text"
-    assert remove_whitespace("   Yet \n more Text \n \r") == "Yet \n more Text"    
-    assert remove_whitespace("blah") == "blah"
-    # Test using invalid string
-    assert remove_whitespace(None) == ""
 
 def test_get_filename():
     """
@@ -117,27 +80,6 @@ def test_truncate_string():
     # TEST WHEN GIVEN STRING IS INVALID
     assert truncate_string(None, 2) == ""
 
-def test_get_extension():
-    """
-    Tests the get_extension function.
-    """
-    # Test getting extensions from filenames
-    assert get_extension("test.png") == ".png"
-    assert get_extension(".long") == ".long"
-    assert get_extension("test2.thing") == ".thing"
-    assert get_extension("blah.test.png") == ".png"
-    # Test getting extensions from URLs with tokens
-    assert get_extension("test.mp4?extra_.thing") == ".mp4"
-    assert get_extension("thing.test.thing?") == ".thing"
-    assert get_extension("another.txt? test.png?extra.thing") == ".png"
-    # Test getting invalid extensions
-    assert get_extension("test.tolong") == ""
-    assert get_extension("test.notextension") == ""
-    assert get_extension("asdfasdfasdfasdf") == ""
-    assert get_extension("test.tolong?extra") == ""
-    # Test getting extension if given string is None
-    assert get_extension(None) == ""
-
 def test_get_url_directory():
     """
     Tests the get_url_directory function.
@@ -177,10 +119,7 @@ def all_tests():
     Runs all test for the string_processing module.
     """
     test_pad_num()
-    test_remove_whitespace()
     test_get_filename()
     test_truncate_string()
-    test_get_extension()
     test_get_url_directory()
     test_truncate_path()
-    test_regex_replace()

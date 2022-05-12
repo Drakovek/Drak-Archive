@@ -134,13 +134,13 @@ def test_get_media_html():
     test_dir = get_test_dir()
     dvk = Dvk()
     dvk.set_dvk_file(join(test_dir, "img.dvk"))
-    dvk.set_title("Image DVK!")
+    dvk.set_title("Image & DVK!")
     dvk.set_media_file("image.jpg")
     media_tag = get_media_html(dvk)
     assert "<img id=\"dvk_image\" src=\"file://" in media_tag
     assert "image.jpg" in media_tag
     assert get_file_as_url(dvk.get_media_file()) in media_tag
-    assert "\" alt=\"Image DVK&#33;\">" in media_tag
+    assert "\" alt=\"Image &#38; DVK!\">" in media_tag
     # Test getting media tag for Dvk with a linked PDF file
     dvk.set_media_file("doc.pdf")
     media_tag = get_media_html(dvk)
@@ -149,14 +149,14 @@ def test_get_media_html():
     assert get_file_as_url(dvk.get_media_file()) in media_tag
     assert "</iframe>" in media_tag
     # Test getting media tag for Dvk with a linked text file
-    dvk.set_title("TEXT!!")
+    dvk.set_title("'TEXT!!'")
     dvk.set_media_file("text.txt")
     with open(dvk.get_media_file(), "w") as out_file:
         out_file.write("Test text!!\n<html> Should remain.")
     assert get_media_html(dvk) == "<div id=\"dvk_text_media\" class=\"dvk_info\">"\
-                +"\n    <div id=\"dvk_text_header\" class=\"dvk_padded\"><b>TEXT&#33;&#33;</b></div>"\
+                +"\n    <div id=\"dvk_text_header\" class=\"dvk_padded\"><b>&#39;TEXT!!&#39;</b></div>"\
                 +"\n    <div id=\"dvk_text_container\" class=\"dvk_padded\">"\
-                +"\n        Test text&#33;&#33;<br/>&#60;html&#62; Should remain&#46;"\
+                +"\n        Test text!!<br/>&#60;html&#62; Should remain."\
                 +"\n    </div>\n</div>"
     # Test getting media tag with secondary image
     dvk.set_media_file("html.htm")
@@ -164,13 +164,13 @@ def test_get_media_html():
     with open(dvk.get_media_file(), "w") as out_file:
         out_file.write("<!DOCTYPE html><html>Blah <b>stuff</b>\nMore</html>")
     text_container = "<div id=\"dvk_text_media\" class=\"dvk_info\">"\
-                +"\n    <div id=\"dvk_text_header\" class=\"dvk_padded\"><b>TEXT&#33;&#33;</b></div>"\
+                +"\n    <div id=\"dvk_text_header\" class=\"dvk_padded\"><b>&#39;TEXT!!&#39;</b></div>"\
                 +"\n    <div id=\"dvk_text_container\" class=\"dvk_padded\">"\
                 +"\n        Blah <b>stuff</b>\n        More\n    </div>\n</div>"
     media_html = get_media_html(dvk)
     assert text_container in media_html
     assert "<img id=\"dvk_image\" src=\"file://" in media_html
-    assert "alt=\"TEXT&#33;&#33;\">" in media_html
+    assert "alt=\"&#39;TEXT!!&#39;\">" in media_html
     # Test getting media tag for Dvk whose media can't be shown in HTML
     dvk.set_secondary_file(None)
     dvk.set_media_file("media.xdf")
@@ -190,13 +190,13 @@ def test_get_tag_info_html():
     """
     # Test getting tag info HTML block.
     dvk = Dvk()
-    dvk.set_web_tags(["Test", "tags!"])
+    dvk.set_web_tags(["'Test'", "tags!"])
     html = get_tag_info_html(dvk)
     assert html == "<div id=\"dvk_tag_info\" class=\"dvk_info\">"\
                 +"\n    ""<div id=\"dvk_web_tag_header\" class=\"dvk_padded\"><b>Web Tags</b></div>"\
                 +"\n    <div id=\"dvk_tags\" class=\"dvk_padded\">"\
-                +"\n        <span class=\"dvk_tag\">Test</span>"\
-                +"\n        <span class=\"dvk_tag\">tags&#33;</span>"\
+                +"\n        <span class=\"dvk_tag\">&#39;Test&#39;</span>"\
+                +"\n        <span class=\"dvk_tag\">tags!</span>"\
                 +"\n    </div>\n</div>"
     # Test getting tag info block when there are no tags
     dvk.set_web_tags(None)
@@ -209,13 +209,13 @@ def test_get_dvk_header_html():
     """
     # Test getting dvk_header tag
     dvk = Dvk()
-    dvk.set_title("Title!")
-    dvk.set_artists(["Person", "Other..."])
+    dvk.set_title("'Title!'")
+    dvk.set_artists(["<Person>", "Other..."])
     dvk.set_time("2020/10/12|19:00")
     header = get_dvk_header_html(dvk)
     assert header == "<div id=\"dvk_header\" class=\"dvk_padded\">"\
-                +"\n    <div id=\"dvk_title\"><b>Title&#33;</b></div>"\
-                +"\n    <div id=\"dvk_pub\">By <b>Other&#46;&#46;&#46;, Person</b>, "\
+                +"\n    <div id=\"dvk_title\"><b>&#39;Title!&#39;</b></div>"\
+                +"\n    <div id=\"dvk_pub\">By <b>&#60;Person&#62;, Other...</b>, "\
                 +"Posted <b>12 Oct 2020 - 07:00 PM</b></div>\n</div>"
     # Test getting dvk_header tag with no publication time
     dvk.set_title("Thing")
@@ -252,7 +252,7 @@ def test_get_dvk_info_html():
                 +"Posted <b>12 Oct 2020 - 07:00 PM</b></div>"\
                 +"\n    </div>"\
                 +"\n    <div id=\"dvk_description\" class=\"dvk_padded\">"\
-                +"\n        Some words&#33;<br/><br/>Thing\n    </div>"\
+                +"\n        Some words!<br/><br/>Thing\n    </div>"\
                 +"\n</div>"
     # Test getting dvk_info_base when there is no description
     dvk.set_time(None)
@@ -365,22 +365,22 @@ def test_get_dvk_html():
     assert html == "<!DOCTYPE html>\n<html>\n    <head>"\
                 +"\n        <link rel=\"stylesheet\" type=\"text/css\" href=\""\
                 + abspath(css_file) + "\">"\
-                +"\n        <title>Something&#33;</title>"\
+                +"\n        <title>Something!</title>"\
                 +"\n        <meta charset=\"UTF-8\">"\
                 +"\n    </head>\n    <body>\n        <div id=\"dvk_content\">"\
                 +"\n            <img id=\"dvk_image\" src=\""\
-                + get_file_as_url(dvk.get_media_file()) + "\" alt=\"Something&#33;\">"\
+                + get_file_as_url(dvk.get_media_file()) + "\" alt=\"Something!\">"\
                 +"\n            <div id=\"dvk_navbar\" class=\"dvk_two_grid\">"\
                 +"\n                <a class=\"dvk_link\" href=\"file:///prev.html\">&lt; PREV</a>"\
                 +"\n                <a class=\"dvk_link\" href=\"file:///next.html\">NEXT &gt;</a>"\
                 +"\n            </div>"\
                 +"\n            <div id=\"dvk_info_base\" class=\"dvk_info\">"\
                 +"\n                <div id=\"dvk_header\" class=\"dvk_padded\">"\
-                +"\n                    <div id=\"dvk_title\"><b>Something&#33;</b></div>"\
+                +"\n                    <div id=\"dvk_title\"><b>Something!</b></div>"\
                 +"\n                    <div id=\"dvk_pub\">By <b>Artist Person</b>, "\
                 +"Posted <b>21 Dec 2012 - 12:00 AM</b></div>\n                </div>"\
                 +"\n                <div id=\"dvk_description\" class=\"dvk_padded\">"\
-                +"\n                    Some Words&#46;\n                </div>"\
+                +"\n                    Some Words.\n                </div>"\
                 +"\n            </div>\n            <div id=\"dvk_tag_info\" class=\"dvk_info\">"\
                 +"\n                <div id=\"dvk_web_tag_header\" class=\"dvk_padded\"><b>Web Tags</b></div>"\
                 +"\n                <div id=\"dvk_tags\" class=\"dvk_padded\">"\

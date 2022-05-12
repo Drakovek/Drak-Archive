@@ -1,93 +1,9 @@
 #!/usr/bin/env python3
 
-from dvk_archive.main.processing.string_processing import regex_replace
-from dvk_archive.main.processing.string_processing import remove_whitespace
+from html_string_tools.main.html_string_tools import remove_whitespace
 from html import unescape
 from typing import List
 from re import findall
-
-def escape_to_char(escape:str=None) -> str:
-    """
-    Returns single character for a given HTML escape character.
-    Returned in string format. Empty if escape is invalid.
-
-    :param escape: HTML escape character, defaults to None
-    :type escape: str, optional
-    :return: Unicode escape character
-    :rtype: str
-    """
-    try:
-        # Find escape character for given string
-        match = findall("^&[^&;]+;$", escape)
-        replace = unescape(match[0])
-        # Return empty string valid replacement wasn't found
-        if replace == escape:
-            return ""
-        # Return replacement character
-        return replace
-    except (IndexError, TypeError):
-        return ""
-
-def replace_escapes(text:str=None) -> str:
-    """
-    Replaces all HTML escape characters in a string with Unicode characters.
-
-    :param text: Given string, defaults to None
-    :type text: str, optional
-    :return: String with HTML escape characters replaced
-    :rtype: str
-    """
-    return regex_replace(escape_to_char, "&[^&;]+;", text)
-
-def char_to_escape(char:str=None) -> str:
-    """
-    Converts a single character into an HTML escape string.
-
-    :param char: Single character to convert into an HTML escape, defaults to None
-    :type char: str, optional
-    :return: HTML escape string for the given character
-    :rtype: str
-    """
-    try:
-        # Convert character to HTML escape
-        value = str(ord(char))
-        escape = f"&#{value};"
-        return escape
-    except TypeError:
-        # Returns empty string if given character is invalid
-        return ""
-
-def add_escapes(text:str=None) -> str:
-    """
-    Replaces all uncommon characters in a String with HTML escapes.
-
-    :param text: Given string, defaults to None
-    :type text: str, optional
-    :return: String with added HTML escape characters
-    :rtype: str
-    """
-    return regex_replace(char_to_escape, "[^A-Za-z0-9 ]", text)
-    
-    # RETURNS AN EMPTY STRING IF THE GIVEN STRING IS NONE
-    if text is None:
-        return ""
-    # RUN THROUGH EACH CHARACTER IN THE GIVEN STRING
-    i = 0
-    out = ""
-    while i < len(text):
-        value = ord(text[i])
-        if ((value > 47 and value < 58)
-                or (value > 64 and value < 91)
-                or (value > 96 and value < 124)
-                or value == ord(" ")):
-            # IF CHARACTER IS ALPHA-NUMERIC, USE THE SAME CHARACTER
-            out = out + text[i]
-        else:
-            # IF CHARACTER IS NOT ALPHA-NUMERIC, USE ESCAPE CHARACTER
-            out = out + "&#" + str(value) + ";"
-        # INCREMENT COUNTER
-        i = i + 1
-    return out
 
 def get_blocks(text:str=None) -> List[str]:
     """
@@ -122,33 +38,6 @@ def get_blocks(text:str=None) -> List[str]:
         return blocks
     except TypeError:
         return []
-
-def add_escapes_to_html(text:str=None) -> str:
-    """
-    Replaces all uncommon characters in a String with HTML escapes.
-    Keeps HTML tags and structures intact.
-
-    :param text: Given HTML String, defaults to None
-    :type text: str, optional
-    :return: String with added HTML escape characters
-    :rtype: str
-    """
-    # Split text into blocks
-    blocks = get_blocks(text)
-    # Run through blocks, appending to HTML string
-    html = ""
-    for block in blocks:
-        if block[0] == "<":
-            # Keep HTML block intact
-            html = html + block
-        else:
-            # Add HTML escape characters to normal text
-            string = replace_escapes(block)
-            string = add_escapes(string)
-            html = html + string
-    # Return updated HTML string
-    return html
-            
 
 def clean_element(html:str=None, remove_ends:str=False) -> str:
     """

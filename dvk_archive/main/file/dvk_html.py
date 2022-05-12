@@ -4,12 +4,12 @@ from argparse import ArgumentParser
 from dvk_archive.main.file.dvk import Dvk
 from dvk_archive.main.file.dvk_handler import DvkHandler
 from dvk_archive.main.color_print import color_print
-from dvk_archive.main.processing.html_processing import add_escapes
 from dvk_archive.main.processing.html_processing import create_html_tag
-from dvk_archive.main.processing.string_processing import get_extension
 from dvk_archive.main.processing.string_processing import pad_num
 from dvk_archive.main.processing.list_processing import clean_list
 from dvk_archive.main.processing.list_processing import list_to_string
+from html_string_tools.main.html_string_tools import get_extension
+from html_string_tools.main.html_string_tools import replace_reserved_characters
 from os import mkdir, pardir
 from os.path import abspath, exists, isdir, join
 from shutil import rmtree
@@ -177,7 +177,6 @@ def get_text_media_html(dvk:Dvk=None) -> str:
         return ""
     media_tag = ""
     media_file = dvk.get_media_file()
-    print(media_file)
     extension = get_extension(media_file)
     # Read the text file linked by the Dvk
     try:
@@ -192,14 +191,14 @@ def get_text_media_html(dvk:Dvk=None) -> str:
     # Modify the contents depending on the type of text
     if extension == ".txt":
         # Add escape characters to standard text
-        contents = add_escapes(contents)
-        contents = contents.replace("&#10;", "<br/>")
+        contents = replace_reserved_characters(contents)
+        contents = contents.replace("&#10;", "<br/>").replace("\n", "<br/>")
     else:
         # Remove unnecessary tags from HTML text
         contents = contents.replace("<!DOCTYPE html>", "")
         contents = contents.replace("<html>", "").replace("</html>", "")
     # Create header with the Dvk title
-    title = add_escapes(dvk.get_title())
+    title = replace_reserved_characters(dvk.get_title())
     attr = [["id", "dvk_text_header"], ["class", "dvk_padded"]]
     header = create_html_tag("div", attr, f"<b>{title}</b>", False)
     # Create div container for the media text
@@ -231,7 +230,7 @@ def get_media_html(dvk:Dvk=None) -> str:
         # If media file is an image, create an HTML img tag
         attr = [["id", "dvk_image"],
                     ["src", get_file_as_url(media_file)],
-                    ["alt", add_escapes(dvk.get_title())]]
+                    ["alt", replace_reserved_characters(dvk.get_title())]]
         media_tag = create_html_tag("img", attr)
         use_secondary = False
     elif extension == ".txt" or extension == ".html" or extension == ".htm":
@@ -246,7 +245,7 @@ def get_media_html(dvk:Dvk=None) -> str:
     if use_secondary and secondary is not None and is_image_extension(get_extension(secondary)):
         attr = [["id", "dvk_image"],
                     ["src", get_file_as_url(secondary)],
-                    ["alt", add_escapes(dvk.get_title())]]
+                    ["alt", replace_reserved_characters(dvk.get_title())]]
         media_tag = list_to_lines([create_html_tag("img", attr), media_tag])
     # Returns the media tag
     return media_tag
@@ -265,10 +264,10 @@ def get_dvk_header_html(dvk:Dvk=None) -> str:
     if dvk is None or dvk.get_title() is None or dvk.get_artists() == []:
         return ""
     # Create title tag
-    title_tag = "<b>" + add_escapes(dvk.get_title()) + "</b>"
+    title_tag = "<b>" + replace_reserved_characters(dvk.get_title()) + "</b>"
     title_tag = create_html_tag("div", [["id","dvk_title"]], title_tag, False)
     # Create published tag
-    pub_tag = "By <b>" + list_to_string(dvk.get_artists(), True, 1)\
+    pub_tag = "By <b>" + list_to_string(dvk.get_artists(), 1)\
                 + "</b>, " + get_time_string(dvk)
     pub_tag = create_html_tag("div", [["id", "dvk_pub"]], pub_tag, False)
     # Combine into header tag
@@ -327,7 +326,7 @@ def get_tag_info_html(dvk:Dvk=None) -> str:
     attr = [["class", "dvk_tag"]]
     web_tags = dvk.get_web_tags()
     for tag in web_tags:
-        element = create_html_tag("span", attr, add_escapes(tag), False)
+        element = create_html_tag("span", attr, replace_reserved_characters(tag), False)
         wt_elements.append(element)
     # Create web_tag_container
     attr = [["id", "dvk_tags"], ["class", "dvk_padded"]]
@@ -626,7 +625,7 @@ def get_dvk_html(dvk:Dvk=None,
     # Create HTML head
     attr = [["rel", "stylesheet"], ["type", "text/css"], ["href", abspath(css)]]
     link = create_html_tag("link", attr)
-    title = create_html_tag("title", None, add_escapes(dvk.get_title()), False)
+    title = create_html_tag("title", None, replace_reserved_characters(dvk.get_title()), False)
     charset = create_html_tag("meta", [["charset", "UTF-8"]])
     head = create_html_tag("head", None, list_to_lines([link, title, charset]))
     # Create HTML media tag

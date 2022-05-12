@@ -4,7 +4,6 @@
 Combined unit tests for the processing package
 """
 
-from dvk_archive.test.processing.test_boolean_search import all_tests as test_boolean
 from dvk_archive.test.processing.test_html_processing import all_tests as test_html
 from dvk_archive.test.processing.test_list_processing import all_tests as test_list
 from dvk_archive.test.processing.test_string_processing import all_tests as test_string
@@ -19,5 +18,3 @@ def test_all():
     test_list()
     test_string()
     test_compare()
-    test_boolean()
-    

@@ -120,7 +120,7 @@ def test_read_dvks():
     assert dvk_handler.get_dvk(3).get_web_tags()[0] == "tag1"
     assert dvk_handler.get_dvk(3).get_web_tags()[1] == "other tag"
     assert dvk_handler.get_dvk(3).get_web_tags()[2] == "Tag 3"
-    assert dvk_handler.get_dvk(3).get_description() == "<p>Test &#38; such&#46;</p>"
+    assert dvk_handler.get_dvk(3).get_description() == "<p>Test &#38; such.</p>"
     assert dvk_handler.get_dvk(3).get_page_url() == "page/url/"
     assert dvk_handler.get_dvk(3).get_direct_url() == "/direct/URL/"
     assert dvk_handler.get_dvk(3).get_secondary_url() == "sec/file/Url"
